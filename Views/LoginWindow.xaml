@@ -1,0 +1,222 @@
+<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels"
+        xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+        Title="Đăng nhập - Quản Lý Khách Sạn"
+        Width="900" Height="580"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+
+<!--    <Window.DataContext>
+        <vm:LoginViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    </Window.Resources>-->
+
+    <Border CornerRadius="20" ClipToBounds="True">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="420"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ══ CỘT TRÁI: Gradient M365 ══ -->
+            <Border Grid.Column="0" CornerRadius="20 0 0 20">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#0F3460" Offset="0.0"/>
+                        <GradientStop Color="#0078D4" Offset="0.5"/>
+                        <GradientStop Color="#00BCF2" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <Grid>
+                    <Ellipse Width="280" Height="280"
+                             HorizontalAlignment="Left" VerticalAlignment="Top"
+                             Margin="-80,-80,0,0" Opacity="0.15">
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#FFFFFF" Offset="0"/>
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+
+                    <Ellipse Width="200" Height="200"
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                             Margin="0,0,-60,-60" Opacity="0.12"/>
+
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40">
+
+                        <Border Width="72" Height="72" CornerRadius="20"
+                                HorizontalAlignment="Center" Margin="0,0,0,24">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#E8F4FD" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <TextBlock Text="🏨" FontSize="36"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <TextBlock Text="Quản Lý Khách Sạn"
+                                   FontSize="26" FontWeight="Bold"
+                                   Foreground="White" TextAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Phạm Tấn Lợi"
+                                   FontSize="13" Foreground="#B3D9F7"
+                                   TextAlignment="Center" HorizontalAlignment="Center"
+                                   Margin="0,6,0,32"/>
+
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <Border Width="32" Height="32" CornerRadius="8"
+                                        Background="#1A5276" Margin="0,0,12,0">
+                                    <TextBlock Text="📊" FontSize="15"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Quản lý đặt phòng" FontSize="13"
+                                               FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock Text="Theo dõi real-time" FontSize="11" Foreground="#B3D9F7"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <Border Width="32" Height="32" CornerRadius="8"
+                                        Background="#1A5276" Margin="0,0,12,0">
+                                    <TextBlock Text="💰" FontSize="15"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Hóa đơn &amp; Doanh thu" FontSize="13"
+                                               FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock Text="Báo cáo tài chính" FontSize="11" Foreground="#B3D9F7"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="32" Height="32" CornerRadius="8"
+                                        Background="#1A5276" Margin="0,0,12,0">
+                                    <TextBlock Text="👥" FontSize="15"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Quản lý nhân viên" FontSize="13"
+                                               FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock Text="Phân quyền linh hoạt" FontSize="11" Foreground="#B3D9F7"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ══ CỘT PHẢI: Form đăng nhập ══ -->
+            <Border Grid.Column="1" Background="White" CornerRadius="0 20 20 0">
+                <Grid>
+                    <Button Content="✕" Width="32" Height="32"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Margin="0,12,12,0"
+                            FontSize="13" Foreground="#999999"
+                            Background="Transparent" BorderThickness="0"
+                            Cursor="Hand" Click="CloseButton_Click"/>
+
+                    <StackPanel VerticalAlignment="Center" Margin="56,0,56,0">
+
+                        <TextBlock Text="Chào mừng trở lại 👋"
+                                   FontSize="24" FontWeight="Bold"
+                                   Foreground="#0F3460" Margin="0,0,0,6"/>
+                        <TextBlock Text="Đăng nhập để tiếp tục"
+                                   FontSize="13" Foreground="#888888"
+                                   Margin="0,0,0,32"/>
+
+                        <!-- Tên đăng nhập -->
+                        <TextBlock Text="Tên đăng nhập" FontSize="12"
+                                   FontWeight="SemiBold" Foreground="#444444" Margin="0,0,0,6"/>
+                        <Border CornerRadius="10" BorderThickness="1.5"
+                                BorderBrush="#E0E7EF" Margin="0,0,0,16" Height="44">
+                            <TextBox x:Name="TxtUsername"
+                                     Text="{Binding TenDangNhap, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0" Background="Transparent"
+                                     VerticalAlignment="Center"
+                                     Padding="14,0" FontSize="14" Foreground="#222222"/>
+                        </Border>
+
+                        <!-- Mật khẩu -->
+                        <TextBlock Text="Mật khẩu" FontSize="12"
+                                   FontWeight="SemiBold" Foreground="#444444" Margin="0,0,0,6"/>
+                        <Border CornerRadius="10" BorderThickness="1.5"
+                                BorderBrush="#E0E7EF" Margin="0,0,0,8" Height="44">
+                            <PasswordBox x:Name="PbPassword"
+                                         BorderThickness="0" Background="Transparent"
+                                         VerticalAlignment="Center"
+                                         Padding="14,0" FontSize="14" Foreground="#222222"/>
+                        </Border>
+
+                        <!-- Lỗi 
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Foreground="#E74C3C" FontSize="12" Margin="0,0,0,16"
+                                   Visibility="{Binding ErrorMessage,
+                                       Converter={StaticResource StringToVisibilityConverter}}"/>-->
+
+                        <!-- Nút đăng nhập — ControlTemplate để có CornerRadius -->
+                        <Button Height="46"
+                                Command="{Binding LoginCommand}"
+                                CommandParameter="{Binding ElementName=PbPassword}"
+                                Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd" CornerRadius="10">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="#0078D4" Offset="0"/>
+                                                <GradientStop Color="#00BCF2" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Opacity" Value="0.88"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="White">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Đăng nhập"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                                <Setter Property="Text" Value="Đang xử lý..."/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Button>
+
+                        <TextBlock Text="© 2026 Phạm Tấn Lợi · QLKS v1.0"
+                                   FontSize="12" Foreground="#BBBBBB"
+                                   HorizontalAlignment="Center" Margin="0,28,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>

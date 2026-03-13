@@ -1,0 +1,12 @@
+<Application x:Class="QuanLyKhachSan_PhamTanLoi.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             
+             xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+             StartupUri="Views/LoginWindow.xaml">
+    <Application.Resources>
+
+        <!-- Converter: string rỗng → Collapsed
+        <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/> -->
+    </Application.Resources>
+</Application>
