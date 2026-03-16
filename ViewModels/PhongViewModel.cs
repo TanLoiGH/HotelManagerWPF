@@ -8,18 +8,9 @@ public class PhongViewModel
     public string MaPhong { get; set; } = "";
     public string TenLoaiPhong { get; set; } = "";
     public string MaTrangThai { get; set; } = "";
+    public string TenTrangThai { get; set; } = "";
     public int Tang { get; set; }
 
-    // Tên trạng thái hiển thị
-    public string TenTrangThai => MaTrangThai switch
-    {
-        "PTT01" => "Phòng trống",
-        "PTT02" => "Đang có khách",
-        "PTT03" => "Đang dọn dẹp",
-        "PTT04" => "Bảo trì",
-        "PTT05" => "Đã đặt trước",
-        _ => "Không rõ"
-    };
 
     // Màu badge trạng thái
     public SolidColorBrush MauTrangThai => MaTrangThai switch
