@@ -11,13 +11,13 @@
         AllowsTransparency="True"
         Background="Transparent">
 
-<!--    <Window.DataContext>
+    <Window.DataContext>
         <vm:LoginViewModel/>
     </Window.DataContext>
 
     <Window.Resources>
         <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-    </Window.Resources>-->
+    </Window.Resources>
 
     <Border CornerRadius="20" ClipToBounds="True">
         <Grid>
@@ -160,11 +160,11 @@
                                          Padding="14,0" FontSize="14" Foreground="#222222"/>
                         </Border>
 
-                        <!-- Lỗi 
+                         
                         <TextBlock Text="{Binding ErrorMessage}"
                                    Foreground="#E74C3C" FontSize="12" Margin="0,0,0,16"
                                    Visibility="{Binding ErrorMessage,
-                                       Converter={StaticResource StringToVisibilityConverter}}"/>-->
+                                       Converter={StaticResource StringToVisibilityConverter}}"/>
 
                         <!-- Nút đăng nhập — ControlTemplate để có CornerRadius -->
                         <Button Height="46"

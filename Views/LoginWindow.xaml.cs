@@ -1,4 +1,5 @@
 using System.Windows;
+using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -7,13 +8,18 @@ public partial class LoginWindow : Window
     public LoginWindow()
     {
         InitializeComponent();
+
+        var vm = new LoginViewModel();
+        vm.LoginSuccess += OnLoginSuccess;
+
+        DataContext = vm;
     }
 
-    // Kéo cửa sổ (vì WindowStyle = None)
-    protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
+    private void OnLoginSuccess()
     {
-        base.OnMouseLeftButtonDown(e);
-        DragMove();
+        var main = new MainWindow();
+        main.Show();
+        this.Close();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)

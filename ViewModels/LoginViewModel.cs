@@ -1,15 +1,16 @@
-using System.Windows;
-using QuanLyKhachSan_PhamTanLoi.Data;
+using System.Windows.Controls;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Views;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public class LoginViewModel : BaseViewModel
 {
-    private string _tenDangNhap = string.Empty;
-    private string _errorMessage = string.Empty;
-    private bool   _isLoading;
+    private readonly AuthService _authService;
+
+    private string _tenDangNhap = "";
+    private string _errorMessage = "";
+    private bool _isLoading;
 
     public string TenDangNhap
     {
@@ -31,62 +32,40 @@ public class LoginViewModel : BaseViewModel
 
     public RelayCommand LoginCommand { get; }
 
+    public event Action? LoginSuccess;
+
     public LoginViewModel()
     {
-        LoginCommand = new RelayCommand(ExecuteLogin, _ => !IsLoading);
+        _authService = new AuthService();
+        LoginCommand = new RelayCommand(ExecuteLogin);
     }
 
     private void ExecuteLogin(object? parameter)
     {
-        // parameter là PasswordBox (truyền qua CommandParameter)
-        string matKhau = string.Empty;
-        if (parameter is System.Windows.Controls.PasswordBox pb)
-            matKhau = pb.Password;
+        string password = "";
 
-        if (string.IsNullOrWhiteSpace(TenDangNhap) || string.IsNullOrWhiteSpace(matKhau))
+        if (parameter is PasswordBox pb)
+            password = pb.Password;
+
+        if (string.IsNullOrWhiteSpace(TenDangNhap) || string.IsNullOrWhiteSpace(password))
         {
-            ErrorMessage = "Vui lòng nhập tên đăng nhập và mật khẩu.";
+            ErrorMessage = "Vui lòng nhập đầy đủ thông tin.";
             return;
         }
 
         IsLoading = true;
-        ErrorMessage = string.Empty;
+        ErrorMessage = "";
 
-        try
+        var taiKhoan = _authService.Login(TenDangNhap, password);
+
+        if (taiKhoan == null)
         {
-            using var db = new QuanLyKhachSanContext();
-
-            var taiKhoan = db.TaiKhoans
-                .FirstOrDefault(tk => tk.TenDangNhap == TenDangNhap
-                                   && tk.MatKhau     == matKhau
-                                   && tk.IsActive    == true);
-
-            if (taiKhoan == null)
-            {
-                ErrorMessage = "Tên đăng nhập hoặc mật khẩu không đúng.";
-                return;
-            }
-
-            var nhanVien = db.NhanViens.Find(taiKhoan.MaNhanVien);
-
-            // Lưu session
-            AppSession.MaNhanVien  = taiKhoan.MaNhanVien;
-            AppSession.TenNhanVien = nhanVien?.TenNhanVien ?? taiKhoan.MaNhanVien;
-            AppSession.MaQuyen     = taiKhoan.MaQuyen;
-            AppSession.TenDangNhap = taiKhoan.TenDangNhap;
-
-            // Mở MainWindow, đóng LoginWindow
-            var mainWindow = new MainWindow();
-            mainWindow.Show();
-            Application.Current.Windows.OfType<LoginWindow>().FirstOrDefault()?.Close();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Lỗi kết nối: {ex.Message}";
-        }
-        finally
-        {
+            ErrorMessage = "Sai tài khoản hoặc mật khẩu.";
             IsLoading = false;
+            return;
         }
+
+        LoginSuccess?.Invoke();
+        IsLoading = false;
     }
 }
