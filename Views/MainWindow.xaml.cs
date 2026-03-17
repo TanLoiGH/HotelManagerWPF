@@ -10,12 +10,15 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 public partial class MainWindow : Window
 {
     private Border? _activeNavItem;
-
+    public string WelcomeMessage => $"Xin chào, {AppSession.TenNhanVien ?? "Admin"}";
+    public string MaQuyen => AppSession.MaQuyen ?? "";
+    public string NgayHienTai => DateTime.Now.ToString("dddd, dd/MM/yyyy");
     public MainWindow()
     {
         InitializeComponent();
         // Load Dashboard mặc định
         NavigateTo(new DashboardPage(), "Dashboard", BtnDashboard);
+
     }
 
     // ── Kéo cửa sổ ──────────────────────────────────────────────────────────

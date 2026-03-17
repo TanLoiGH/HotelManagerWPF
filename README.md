@@ -1,1 +1,0 @@
-# QuanLyKhachSan_PhamTanLoi

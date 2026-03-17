@@ -9,10 +9,9 @@ public partial class LoginWindow : Window
     {
         InitializeComponent();
 
-        var vm = new LoginViewModel();
-        vm.LoginSuccess += OnLoginSuccess;
-
-        DataContext = vm;
+        // DataContext đã set trong XAML (vm:LoginViewModel), chỉ cần wire event
+        if (DataContext is LoginViewModel vm)
+            vm.LoginSuccess += () => DialogResult = true;
     }
 
     private void OnLoginSuccess()

@@ -1,20 +1,29 @@
-﻿using System.Configuration;
-using System.Data;
+using QuanLyKhachSan_PhamTanLoi.Views;
 using System.Windows;
-//using Wpf.Ui.Appearance;
 
 namespace QuanLyKhachSan_PhamTanLoi
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
-        //protected override void OnStartup(StartupEventArgs e)
-        //{
-        //    base.OnStartup(e);
-        //    ApplicationThemeManager.ApplyTheme(ApplicationTheme.Light);
-        //}
-    }
+        // Session toàn cục – dùng thay cho AppSession ở mọi nơi
+        public static ViewModels.LoginResult? CurrentUser { get; set; }
 
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            var login = new LoginWindow();
+            login.ShowDialog();
+
+            // Nếu đóng cửa sổ login mà chưa đăng nhập → thoát app
+            if (CurrentUser == null)
+            {
+                Shutdown();
+                return;
+            }
+
+            var main = new Views.MainWindow();
+            main.Show();
+        }
+    }
 }

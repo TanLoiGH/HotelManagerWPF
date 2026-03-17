@@ -1,12 +1,10 @@
 <Application x:Class="QuanLyKhachSan_PhamTanLoi.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             
-             xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
-             StartupUri="Views/MainWindow.xaml">
+             xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers">
+    <!-- StartupUri bị xóa – OnStartup() trong App.xaml.cs tự mở LoginWindow -->
     <Application.Resources>
-
-        <!-- Converter: string rỗng → Collapsed
-        <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/> -->
+        
+        <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
     </Application.Resources>
 </Application>

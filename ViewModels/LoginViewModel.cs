@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -6,8 +7,6 @@ namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public class LoginViewModel : BaseViewModel
 {
-    private readonly AuthService _authService;
-
     private string _tenDangNhap = "";
     private string _errorMessage = "";
     private bool _isLoading;
@@ -32,20 +31,17 @@ public class LoginViewModel : BaseViewModel
 
     public RelayCommand LoginCommand { get; }
 
+    // LoginWindow subscribe event này để đóng cửa sổ
     public event Action? LoginSuccess;
 
     public LoginViewModel()
     {
-        _authService = new AuthService();
         LoginCommand = new RelayCommand(ExecuteLogin);
     }
 
-    private void ExecuteLogin(object? parameter)
+    private async void ExecuteLogin(object? parameter)
     {
-        string password = "";
-
-        if (parameter is PasswordBox pb)
-            password = pb.Password;
+        string password = parameter is PasswordBox pb ? pb.Password : "";
 
         if (string.IsNullOrWhiteSpace(TenDangNhap) || string.IsNullOrWhiteSpace(password))
         {
@@ -56,16 +52,36 @@ public class LoginViewModel : BaseViewModel
         IsLoading = true;
         ErrorMessage = "";
 
-        var taiKhoan = _authService.Login(TenDangNhap, password);
-
-        if (taiKhoan == null)
+        try
         {
-            ErrorMessage = "Sai tài khoản hoặc mật khẩu.";
-            IsLoading = false;
-            return;
-        }
+            using var db = new QuanLyKhachSanContext();
+            var authSvc = new AuthService(db);
+            var result = await authSvc.DangNhapAsync(TenDangNhap, password);
 
-        LoginSuccess?.Invoke();
-        IsLoading = false;
+            if (result == null)
+            {
+                ErrorMessage = "Sai tài khoản, mật khẩu, hoặc tài khoản bị khóa.";
+                return;
+            }
+
+            // Lưu session toàn cục (App.CurrentUser thay thế AppSession)
+            App.CurrentUser = result;
+
+            // Sync sang AppSession nếu còn dùng ở chỗ khác
+            AppSession.MaNhanVien = result.MaNhanVien;
+            AppSession.TenNhanVien = result.TenNhanVien;
+            AppSession.MaQuyen = result.Quyen.FirstOrDefault();
+            AppSession.TenDangNhap = TenDangNhap;
+
+            LoginSuccess?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Lỗi kết nối: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 }
