@@ -32,7 +32,7 @@ public class DichVuService
                 MaPhong = maPhong,
                 MaDichVu = maDichVu,
                 SoLuong = delta,
-                DonGia = dv.Gia,
+                DonGia = dv.Gia ?? 0,
                 NgaySuDung = DateTime.Now
             });
         }

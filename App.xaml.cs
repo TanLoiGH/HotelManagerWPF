@@ -12,17 +12,22 @@ namespace QuanLyKhachSan_PhamTanLoi
         {
             base.OnStartup(e);
 
+            // ✅ Không tự shutdown khi LoginWindow đóng
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
             var login = new LoginWindow();
             login.ShowDialog();
 
-            // Nếu đóng cửa sổ login mà chưa đăng nhập → thoát app
             if (CurrentUser == null)
             {
                 Shutdown();
                 return;
             }
 
-            var main = new Views.MainWindow();
+            // ✅ Đổi lại OnMainWindowClose sau khi đã có MainWindow
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            var main = new MainWindow();
             main.Show();
         }
     }

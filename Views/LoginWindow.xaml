@@ -2,7 +2,6 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels"
-        xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
         Title="Đăng nhập - Quản Lý Khách Sạn"
         Width="900" Height="580"
         WindowStartupLocation="CenterScreen"
@@ -11,13 +10,6 @@
         AllowsTransparency="True"
         Background="Transparent">
 
-    <Window.DataContext>
-        <vm:LoginViewModel/>
-    </Window.DataContext>
-
-    <Window.Resources>
-        <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-    </Window.Resources>
 
     <Border CornerRadius="20" ClipToBounds="True">
         <Grid>

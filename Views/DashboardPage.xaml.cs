@@ -1,62 +1,110 @@
-// ===========================================================================
-// DashboardPage.xaml.cs  –  Tổng hợp từ TẤT CẢ bảng quan trọng
-// ===========================================================================
-
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
-using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
+public class RoomCardViewModel
+{
+    public string MaPhong { get; set; } = "";
+    public string TenLoaiPhong { get; set; } = "";
+    public string TrangThaiCode { get; set; } = "";
+
+    public SolidColorBrush CardBackground => TrangThaiCode switch
+    {
+        "PTT01" => new SolidColorBrush(Color.FromRgb(0, 184, 148)),
+        "PTT02" => new SolidColorBrush(Color.FromRgb(225, 112, 85)),
+        "PTT03" => new SolidColorBrush(Color.FromRgb(253, 203, 110)),
+        "PTT04" => new SolidColorBrush(Color.FromRgb(150, 150, 150)),
+        "PTT05" => new SolidColorBrush(Color.FromRgb(108, 92, 231)),
+        _ => new SolidColorBrush(Color.FromRgb(99, 110, 114)),
+    };
+
+    public Color ShadowColor => TrangThaiCode switch
+    {
+        "PTT01" => Color.FromRgb(0, 184, 148),
+        "PTT02" => Color.FromRgb(225, 112, 85),
+        "PTT03" => Color.FromRgb(253, 203, 110),
+        _ => Color.FromRgb(0, 120, 212),
+    };
+}
+
+public class BookingItemViewModel
+{
+    public string MaDatPhong { get; set; } = "";
+    public string TenKhachHang { get; set; } = "";
+    public string TrangThai { get; set; } = "";
+
+    public SolidColorBrush StatusColor => TrangThai switch
+    {
+        "Chờ nhận phòng" => new SolidColorBrush(Color.FromRgb(108, 92, 231)),
+        "Đang ở" => new SolidColorBrush(Color.FromRgb(0, 184, 148)),
+        "Đã trả phòng" => new SolidColorBrush(Color.FromRgb(99, 110, 114)),
+        _ => new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+    };
+}
+
 public partial class DashboardPage : Page
 {
-    private readonly DashboardService _dashboardSvc;
-    private readonly ChiPhiService _chiPhiSvc;
-
     public DashboardPage()
     {
         InitializeComponent();
-        using var db = new QuanLyKhachSanContext();
-        _dashboardSvc = new DashboardService(db);
-        _chiPhiSvc = new ChiPhiService(db);
         Loaded += async (_, _) => await LoadDashboardAsync();
     }
 
     private async Task LoadDashboardAsync()
     {
-        var tuNgay = DpTuNgay.SelectedDate ?? DateTime.Today.AddMonths(-1);
-        var denNgay = DpDenNgay.SelectedDate ?? DateTime.Today;
-
         try
         {
-            var data = await _dashboardSvc.GetDashboardAsync(tuNgay, denNgay);
+            using var db = new QuanLyKhachSanContext();
 
-            // KPIs
-            TxtDoanhThu.Text = data.DoanhThuText;
-            TxtChiPhi.Text = data.TongChiPhiText;
-            TxtLoiNhuan.Text = data.LoiNhuanText;
-            TxtLoiNhuan.Foreground = data.LoiNhuan >= 0
-                ? System.Windows.Media.Brushes.Green
-                : System.Windows.Media.Brushes.Red;
+            int tongPhong = await db.Phongs.CountAsync();
+            int phongTrong = await db.Phongs.CountAsync(p => p.MaTrangThaiPhong == "PTT01");
+            int phongOccupied = await db.Phongs.CountAsync(p => p.MaTrangThaiPhong == "PTT02");
 
-            // Biểu đồ trạng thái phòng (binding sang ItemsControl)
-            PhongStatusItems.ItemsSource = data.PhongStats
-                .Select(kv => new { TenTT = kv.Key, SoPhong = kv.Value })
-                .ToList();
+            decimal doanhThu = await db.ThanhToans
+                .Where(t => t.NgayThanhToan.HasValue
+                         && t.NgayThanhToan.Value.Month == DateTime.Now.Month
+                         && t.NgayThanhToan.Value.Year == DateTime.Now.Year)
+                .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
-            // Hạng khách hàng
-            KhachHangItems.ItemsSource = data.KhachStats
-                .Select(kv => new { Hang = kv.Key, SoKhach = kv.Value })
-                .ToList();
+            TxtTongPhong.Text = tongPhong.ToString();
+            TxtPhongTrong.Text = phongTrong.ToString();
+            TxtPhongOccupied.Text = phongOccupied.ToString();
+            TxtDoanhThu.Text = FormatVnd(doanhThu);
 
-            // Top dịch vụ
-            TopDichVuItems.ItemsSource = data.TopDichVu
-                .Select(kv => new { TenDV = kv.Key, SoLan = kv.Value })
-                .ToList();
+            var phongs = await db.Phongs
+                .Include(p => p.MaLoaiPhongNavigation)
+                .OrderBy(p => p.MaPhong)
+                .Select(p => new RoomCardViewModel
+                {
+                    MaPhong = p.MaPhong,
+                    TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
+                    TrangThaiCode = p.MaTrangThaiPhong ?? "PTT01",
+                })
+                .ToListAsync();
 
-            // Chi phí theo loại
-            ChiPhiItems.ItemsSource = data.ChiPhiByLoai;
+            RoomGrid.ItemsSource = phongs;
+
+            var bookings = await db.DatPhongs
+                .Include(d => d.MaKhachHangNavigation)
+                .OrderByDescending(d => d.NgayDat)
+                .Take(8)
+                .Select(d => new BookingItemViewModel
+                {
+                    MaDatPhong = d.MaDatPhong,
+                    TenKhachHang = d.MaKhachHangNavigation != null
+                                   ? d.MaKhachHangNavigation.TenKhachHang : "(Không có KH)",
+                    TrangThai = d.TrangThai ?? "",
+                })
+                .ToListAsync();
+
+            RecentBookings.ItemsSource = bookings;
+            TxtNoBookings.Visibility = bookings.Count > 0
+                ? Visibility.Collapsed : Visibility.Visible;
         }
         catch (Exception ex)
         {
@@ -65,27 +113,12 @@ public partial class DashboardPage : Page
         }
     }
 
-    private async void BtnRefresh_Click(object sender, RoutedEventArgs e)
-        => await LoadDashboardAsync();
-
-    // Ghi chi phí mới (CHI_PHI + LOAI_CHI_PHI)
-    private async void BtnGhiChiPhi_Click(object sender, RoutedEventArgs e)
+    private static string FormatVnd(decimal amount)
     {
-        var loaiCPs = await _chiPhiSvc.GetLoaiChiPhiAsync();
-        var dialog = new GhiChiPhiDialog(loaiCPs)
-        {
-            Owner = Window.GetWindow(this)
-        };
-
-        if (dialog.ShowDialog() == true && dialog.Result != null)
-        {
-            var r = dialog.Result.Value;
-            await _chiPhiSvc.GhiChiPhiAsync(
-                r.MaLoaiCP, r.TenChiPhi, r.SoTien,
-                App.CurrentUser?.MaNhanVien,
-                r.MaNCC, r.MaPhong, r.GhiChu);
-
-            await LoadDashboardAsync();
-        }
+        if (amount >= 1_000_000_000)
+            return (amount / 1_000_000_000m).ToString("N1", CultureInfo.InvariantCulture) + " tỷ ₫";
+        if (amount >= 1_000_000)
+            return (amount / 1_000_000m).ToString("N0", CultureInfo.InvariantCulture) + " tr ₫";
+        return amount.ToString("N0", new CultureInfo("vi-VN")) + " ₫";
     }
 }

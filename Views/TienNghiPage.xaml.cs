@@ -7,6 +7,7 @@ using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
+namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class TienNghiPage : Page
 {

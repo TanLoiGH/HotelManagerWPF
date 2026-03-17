@@ -31,7 +31,7 @@
                     <TextBox x:Name="TxtTimKhach" BorderThickness="0" Padding="10,0"
                              VerticalAlignment="Center" FontSize="13"
                              TextChanged="TxtTimKhach_TextChanged"
-                             PlaceholderText="Tìm theo tên / SĐT / CCCD..."/>
+                             />
                 </Border>
 
                 <!-- Dropdown kết quả tìm kiếm -->

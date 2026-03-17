@@ -5,6 +5,10 @@
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
+using Microsoft.EntityFrameworkCore;
+
+
+namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class GhiChiPhiDialog : Window
 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
-using QuanLyKhachSan_PhamTanLoi.DTOs;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 

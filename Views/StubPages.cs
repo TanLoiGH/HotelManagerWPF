@@ -6,61 +6,6 @@ using System.Windows.Controls;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
-// ── Đặt Phòng ────────────────────────────────────────────────────────────
-public partial class DatPhongPage : Page
-{
-    public DatPhongPage() { Content = MakeStub("📅", "Đặt Phòng", "#6C5CE7"); }
-    private static System.Windows.FrameworkElement MakeStub(string icon, string title, string color)
-        => StubPageHelper.Build(icon, title, color);
-}
-
-// ── Khách Hàng ───────────────────────────────────────────────────────────
-public partial class KhachHangPage : Page
-{
-    public KhachHangPage() { Content = MakeStub("👥", "Khách Hàng", "#0078D4"); }
-    private static System.Windows.FrameworkElement MakeStub(string icon, string title, string color)
-        => StubPageHelper.Build(icon, title, color);
-}
-
-// ── Hoá Đơn ─────────────────────────────────────────────────────────────
-public partial class HoaDonPage : Page
-{
-    public HoaDonPage() { Content = MakeStub("🧾", "Hoá Đơn", "#00B894"); }
-    private static System.Windows.FrameworkElement MakeStub(string icon, string title, string color)
-        => StubPageHelper.Build(icon, title, color);
-}
-
-// ── Thanh Toán ───────────────────────────────────────────────────────────
-public partial class ThanhToanPage : Page
-{
-    public ThanhToanPage() { Content = MakeStub("💳", "Thanh Toán", "#E17055"); }
-    private static System.Windows.FrameworkElement MakeStub(string icon, string title, string color)
-        => StubPageHelper.Build(icon, title, color);
-}
-
-// ── Dịch Vụ ─────────────────────────────────────────────────────────────
-public partial class DichVuPage : Page
-{
-    public DichVuPage() { Content = MakeStub("🍽️", "Dịch Vụ", "#FDCB6E"); }
-    private static System.Windows.FrameworkElement MakeStub(string icon, string title, string color)
-        => StubPageHelper.Build(icon, title, color);
-}
-
-// ── Nhân Viên ────────────────────────────────────────────────────────────
-public partial class NhanVienPage : Page
-{
-    public NhanVienPage() { Content = MakeStub("🪪", "Nhân Viên", "#0F3460"); }
-    private static System.Windows.FrameworkElement MakeStub(string icon, string title, string color)
-        => StubPageHelper.Build(icon, title, color);
-}
-
-// ── Nhà Cung Cấp ─────────────────────────────────────────────────────────
-public partial class NhaCungCapPage : Page
-{
-    public NhaCungCapPage() { Content = MakeStub("🏭", "Nhà Cung Cấp", "#636E72"); }
-    private static System.Windows.FrameworkElement MakeStub(string icon, string title, string color)
-        => StubPageHelper.Build(icon, title, color);
-}
 
 // ── Helper ───────────────────────────────────────────────────────────────
 internal static class StubPageHelper

@@ -1,0 +1,111 @@
+﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.HoaDonPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent" Title="Hoá Đơn">
+
+    <Grid Margin="28,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" CornerRadius="14" Background="White" Padding="16,12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="220"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" x:Name="BtnTatCa" Content="Tất cả"
+                        Height="34" Padding="16,0" Click="FilterStatus_Click" Tag=""
+                        Background="#0078D4" Foreground="White" BorderThickness="0"/>
+                <Button Grid.Column="2" Content="Chưa TT"
+                        Height="34" Padding="14,0" Click="FilterStatus_Click" Tag="Chưa thanh toán"
+                        Background="Transparent" BorderThickness="1" BorderBrush="#DDE"/>
+                <Button Grid.Column="4" Content="Đã TT"
+                        Height="34" Padding="14,0" Click="FilterStatus_Click" Tag="Đã thanh toán"
+                        Background="Transparent" BorderThickness="1" BorderBrush="#DDE"/>
+
+                <Border Grid.Column="6" CornerRadius="10" BorderBrush="#E0EAF4"
+                        BorderThickness="1.5" Padding="10,0" Height="36">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔍" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox x:Name="TxtSearch" BorderThickness="0"
+                                 Background="Transparent" VerticalAlignment="Center"
+                                 FontSize="13" Width="160"
+                                 TextChanged="TxtSearch_TextChanged"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="2" CornerRadius="16" Background="White">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
+            </Border.Effect>
+            <DataGrid x:Name="HoaDonGrid"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      SelectionMode="Single" HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal" FontSize="13"
+                      BorderThickness="0" Padding="8" RowHeight="44"
+                      SelectionChanged="HoaDonGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã HD" Binding="{Binding MaHoaDon}" Width="90"/>
+                    <DataGridTextColumn Header="Khách hàng" Binding="{Binding TenKhachHang}" Width="*"/>
+                    <DataGridTextColumn Header="Ngày lập" Binding="{Binding NgayLapText}" Width="110"/>
+                    <DataGridTextColumn Header="Tiền phòng" Binding="{Binding TienPhongText}" Width="120"/>
+                    <DataGridTextColumn Header="Tiền DV" Binding="{Binding TienDichVuText}" Width="100"/>
+                    <DataGridTextColumn Header="Tổng TT" Binding="{Binding TongThanhToanText}" Width="120"/>
+                    <DataGridTemplateColumn Header="Trạng thái" Width="130">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="6" Padding="8,3" Margin="4"
+                                        Background="{Binding StatusColor}" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TrangThai}" FontSize="11" Foreground="White"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F0F7FF"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+            </DataGrid>
+        </Border>
+
+        <!-- Action buttons -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnThemDichVu" Content="🍽️  Thêm dịch vụ"
+                    Height="40" Padding="20,0" Margin="0,0,12,0"
+                    FontSize="13" Background="#6C5CE7" Foreground="White"
+                    BorderThickness="0" IsEnabled="False"
+                    Click="BtnThemDichVu_Click"/>
+            <Button x:Name="BtnThanhToan" Content="💳  Thanh toán"
+                    Height="40" Padding="20,0"
+                    FontSize="13" FontWeight="SemiBold"
+                    Background="#00B894" Foreground="White"
+                    BorderThickness="0" IsEnabled="False"
+                    Click="BtnThanhToan_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

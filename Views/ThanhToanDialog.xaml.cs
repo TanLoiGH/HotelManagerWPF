@@ -7,19 +7,23 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
+using Microsoft.EntityFrameworkCore;
+
+
+namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class ThanhToanDialog : Window
 {
     private readonly string _maHoaDon;
     private readonly HoaDonService _hdSvc;
+    private readonly QuanLyKhachSanContext _db;
 
     public ThanhToanDialog(string maHoaDon, List<PhuongThucThanhToanDto> ptttList)
     {
         InitializeComponent();
         _maHoaDon = maHoaDon;
-
-        using var db = new QuanLyKhachSanContext();
-        _hdSvc = new HoaDonService(db, new KhachHangService(db));
+        _db = new QuanLyKhachSanContext();
+        _hdSvc = new HoaDonService(_db, new KhachHangService(_db));
 
         CboPTTT.ItemsSource = ptttList;
         CboPTTT.DisplayMemberPath = "TenPhuongThuc";
@@ -119,5 +123,11 @@ public partial class ThanhToanDialog : Window
     {
         DialogResult = false;
         Close();
+    }
+    // Thêm vào cuối class:
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        _db.Dispose();
     }
 }

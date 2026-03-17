@@ -4,6 +4,7 @@
 // ===========================================================================
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
+namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class ThemDichVuDialog : Window
 {

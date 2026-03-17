@@ -44,7 +44,7 @@ public class TienNghiService
                 TenTrangThai = t.MaTrangThaiNavigation != null
                                ? t.MaTrangThaiNavigation.TenTrangThai ?? "" : "",
                 MaTrangThai = t.MaTrangThai ?? "TNTT01",
-                CanBaoTri = t.MaTrangThai is "TNTT02" or "TNTT03"
+                CanBaoTri = t.MaTrangThai == "TNTT02" || t.MaTrangThai == "TNTT03"
             })
             .ToListAsync();
 
