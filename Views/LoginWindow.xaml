@@ -135,7 +135,7 @@
                                    FontWeight="SemiBold" Foreground="#444444" Margin="0,0,0,6"/>
                         <Border CornerRadius="10" BorderThickness="1.5"
                                 BorderBrush="#E0E7EF" Margin="0,0,0,16" Height="44"
-                                FocusManager.FocusedElement="{Binding ElementName=TxtUsername}">
+                                FocusManager.FocusedElement="{Binding ElementName=TxtUsername}"> <!-- Đặt con trỏ -->
                             <TextBox x:Name="TxtUsername"
                                      Text="{Binding TenDangNhap, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0" Background="Transparent"

@@ -94,18 +94,25 @@
         </Border>
 
         <!-- Action buttons -->
+        <!-- Action buttons — thêm BtnXuatHD -->
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnXuatHD" Content="🧾  Xuất hóa đơn"
+            Height="40" Padding="20,0" Margin="0,0,12,0"
+            FontSize="13" Background="#0078D4" Foreground="White"
+            BorderThickness="0" IsEnabled="False"
+            Click="BtnXuatHD_Click"/>
             <Button x:Name="BtnThemDichVu" Content="🍽️  Thêm dịch vụ"
-                    Height="40" Padding="20,0" Margin="0,0,12,0"
-                    FontSize="13" Background="#6C5CE7" Foreground="White"
-                    BorderThickness="0" IsEnabled="False"
-                    Click="BtnThemDichVu_Click"/>
+            Height="40" Padding="20,0" Margin="0,0,12,0"
+            FontSize="13" Background="#6C5CE7" Foreground="White"
+            BorderThickness="0" IsEnabled="False"
+            Click="BtnThemDichVu_Click"/>
             <Button x:Name="BtnThanhToan" Content="💳  Thanh toán"
-                    Height="40" Padding="20,0"
-                    FontSize="13" FontWeight="SemiBold"
-                    Background="#00B894" Foreground="White"
-                    BorderThickness="0" IsEnabled="False"
-                    Click="BtnThanhToan_Click"/>
+            Height="40" Padding="20,0"
+            FontSize="13" FontWeight="SemiBold"
+            Background="#00B894" Foreground="White"
+            BorderThickness="0" IsEnabled="False"
+            Click="BtnThanhToan_Click"/>
         </StackPanel>
+
     </Grid>
 </Page>

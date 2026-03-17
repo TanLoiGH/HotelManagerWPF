@@ -4,63 +4,167 @@
       Background="Transparent" Title="Nhà Cung Cấp">
 
     <Grid Margin="28,20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="16"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="320"/>
+        </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" CornerRadius="14" Background="White" Padding="16,12">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
-            </Border.Effect>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="220"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock x:Name="TxtTongNCC" FontSize="14" FontWeight="Bold"
-                           Foreground="#0F3460" VerticalAlignment="Center"/>
-                <Border Grid.Column="1" CornerRadius="10" BorderBrush="#E0EAF4"
-                        BorderThickness="1.5" Padding="10,0" Height="36">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔍" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBox x:Name="TxtSearch" BorderThickness="0"
-                                 Background="Transparent" VerticalAlignment="Center"
-                                 FontSize="13" Width="160"
-                                 TextChanged="TxtSearch_TextChanged"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
-
-        <Border Grid.Row="2" CornerRadius="16" Background="White">
+        <!-- Danh sách -->
+        <Border Grid.Column="0" CornerRadius="16" Background="White">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
-            <DataGrid x:Name="NCCGrid"
-                      AutoGenerateColumns="False" IsReadOnly="True"
-                      SelectionMode="Single" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" FontSize="13"
-                      BorderThickness="0" Padding="8" RowHeight="44">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Mã NCC" Binding="{Binding MaNcc}" Width="90"/>
-                    <DataGridTextColumn Header="Tên nhà cung cấp" Binding="{Binding TenNcc}" Width="*"/>
-                    <DataGridTextColumn Header="Điện thoại" Binding="{Binding DienThoai}" Width="130"/>
-                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="180"/>
-                    <DataGridTextColumn Header="Người LH" Binding="{Binding NguoiLienHe}" Width="130"/>
-                    <DataGridTemplateColumn Header="Hoạt động" Width="90">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding IsActiveText}"
-                                           Foreground="{Binding IsActiveColor}"
-                                           FontWeight="SemiBold" VerticalAlignment="Center"
-                                           Margin="8,0"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Padding="16,12" BorderBrush="#F0F5FA" BorderThickness="0,0,0,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="TxtTongNCC" FontSize="14" FontWeight="Bold"
+                                       Foreground="#0F3460" VerticalAlignment="Center"/>
+                            <Border CornerRadius="8" Padding="10,0" Height="34"
+                                    BorderBrush="#E0EAF4" BorderThickness="1.5"
+                                    Margin="16,0,0,0" Width="180">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🔍" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBox x:Name="TxtSearch" BorderThickness="0"
+                                             Background="Transparent" VerticalAlignment="Center"
+                                             FontSize="13" TextChanged="TxtSearch_TextChanged"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="➕  Thêm NCC"
+                                Height="36" Padding="16,0" FontSize="13"
+                                FontWeight="SemiBold" Foreground="White"
+                                Background="#636E72" BorderThickness="0" Cursor="Hand"
+                                Click="BtnThem_Click"/>
+                    </Grid>
+                </Border>
+
+                <DataGrid x:Name="NCCGrid" Grid.Row="1"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal" FontSize="13"
+                          BorderThickness="0" Padding="8" RowHeight="44"
+                          SelectionChanged="NCCGrid_SelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mã NCC" Binding="{Binding MaNcc}" Width="90"/>
+                        <DataGridTextColumn Header="Tên nhà cung cấp" Binding="{Binding TenNcc}" Width="*"/>
+                        <DataGridTextColumn Header="Điện thoại" Binding="{Binding DienThoai}" Width="120"/>
+                        <DataGridTextColumn Header="Người LH" Binding="{Binding NguoiLienHe}" Width="120"/>
+                        <DataGridTemplateColumn Header="Hoạt động" Width="90">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding IsActiveText}"
+                                               Foreground="{Binding IsActiveColor}"
+                                               FontWeight="SemiBold" VerticalAlignment="Center"
+                                               Margin="8,0"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Form -->
+        <Border Grid.Column="2" CornerRadius="16" Background="White" Padding="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock x:Name="TxtFormTitle" Text="Chi tiết NCC"
+                           FontSize="16" FontWeight="Bold"
+                           Foreground="#0F3460" Margin="0,0,0,20"/>
+
+                <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
+                    <TextBlock Text="🏭" FontSize="48" HorizontalAlignment="Center" Margin="0,30,0,12"/>
+                    <TextBlock Text="Chọn NCC hoặc bấm Thêm mới"
+                               FontSize="13" Foreground="#AAA"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelForm" Visibility="Collapsed">
+
+                    <TextBlock Text="Tên nhà cung cấp *" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#555" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                            Height="36" Margin="0,0,0,12">
+                        <TextBox x:Name="TxtTen" BorderThickness="0" Padding="10,0"
+                                 VerticalAlignment="Center" FontSize="13"/>
+                    </Border>
+
+                    <TextBlock Text="Điện thoại" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#555" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                            Height="36" Margin="0,0,0,12">
+                        <TextBox x:Name="TxtDienThoai" BorderThickness="0" Padding="10,0"
+                                 VerticalAlignment="Center" FontSize="13"/>
+                    </Border>
+
+                    <TextBlock Text="Email" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#555" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                            Height="36" Margin="0,0,0,12">
+                        <TextBox x:Name="TxtEmail" BorderThickness="0" Padding="10,0"
+                                 VerticalAlignment="Center" FontSize="13"/>
+                    </Border>
+
+                    <TextBlock Text="Người liên hệ" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#555" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                            Height="36" Margin="0,0,0,12">
+                        <TextBox x:Name="TxtNguoiLienHe" BorderThickness="0" Padding="10,0"
+                                 VerticalAlignment="Center" FontSize="13"/>
+                    </Border>
+
+                    <TextBlock Text="Địa chỉ" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#555" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                            Margin="0,0,0,12">
+                        <TextBox x:Name="TxtDiaChi" BorderThickness="0" Padding="10,6"
+                                 FontSize="13" Height="60" AcceptsReturn="True"
+                                 TextWrapping="Wrap"/>
+                    </Border>
+
+                    <CheckBox x:Name="ChkActive" Content="Đang hoạt động"
+                              IsChecked="True" FontSize="13" Margin="0,0,0,20"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
+                                Height="38" FontSize="13" Foreground="#E74C3C"
+                                Background="#FEF0F0" BorderThickness="0" Cursor="Hand"
+                                Click="BtnXoa_Click"/>
+                        <Button Grid.Column="2" x:Name="BtnLuu" Content="💾 Lưu"
+                                Height="38" FontSize="13" FontWeight="SemiBold"
+                                Foreground="White" Background="#636E72"
+                                BorderThickness="0" Cursor="Hand"
+                                Click="BtnLuu_Click"/>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
         </Border>
     </Grid>
 </Page>

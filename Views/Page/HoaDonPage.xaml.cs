@@ -98,14 +98,70 @@ public partial class HoaDonPage : Page
     private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
         => ApplyFilter();
 
+
+
+    // Cập nhật HoaDonGrid_SelectionChanged
     private void HoaDonGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         _selected = HoaDonGrid.SelectedItem as HoaDonRowViewModel;
-        bool coHoaDon = _selected != null;
         bool chuaTT = _selected?.TrangThai == "Chưa thanh toán";
 
+        // Xuất HD chỉ khi chưa có HD (cần thêm property HasHoaDon)
+        BtnXuatHD.IsEnabled = false; // sẽ check từ DatPhong
         BtnThemDichVu.IsEnabled = chuaTT;
         BtnThanhToan.IsEnabled = chuaTT;
+    }
+
+    // Thêm handler mới
+    private async void BtnXuatHD_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selected == null) return;
+        // _selected là HoaDonRow → cần lấy MaDatPhong để xuất lại
+        // Thực tế: nút này nên ở DatPhongPage hoặc popup chọn DP
+        // Ở đây: mở dialog chọn mã đặt phòng chưa có hóa đơn
+        await XuatHoaDonTuDatPhongAsync();
+    }
+
+    private async Task XuatHoaDonTuDatPhongAsync()
+    {
+        using var db = new QuanLyKhachSanContext();
+
+        // Lấy các đặt phòng "Đang ở" chưa có hóa đơn active
+        var dps = await db.DatPhongs
+            .Include(d => d.MaKhachHangNavigation)
+            .Where(d => d.TrangThai == "Đang ở"
+                     && !db.HoaDons.Any(h => h.MaDatPhong == d.MaDatPhong
+                                          && h.TrangThai != "Đã hủy"))
+            .ToListAsync();
+
+        if (dps.Count == 0)
+        {
+            MessageBox.Show("Không có đặt phòng nào đang ở mà chưa có hóa đơn.",
+                "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        // Hiện dialog chọn đặt phòng
+        var dialog = new ChonDatPhongDialog(dps) { Owner = Window.GetWindow(this) };
+        if (dialog.ShowDialog() != true || dialog.SelectedMaDatPhong == null) return;
+
+        try
+        {
+            var hdSvc = new HoaDonService(db, new KhachHangService(db));
+            var hd = await hdSvc.XuatHoaDonAsync(
+                dialog.SelectedMaDatPhong,
+                App.CurrentUser?.MaNhanVien ?? "");
+
+            MessageBox.Show($"Đã xuất hóa đơn {hd.MaHoaDon} thành công!",
+                "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi xuất hóa đơn: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private async void BtnThemDichVu_Click(object sender, RoutedEventArgs e)

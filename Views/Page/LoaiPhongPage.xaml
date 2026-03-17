@@ -1,7 +1,7 @@
-﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.KhachHangPage"
+﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.LoaiPhongPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Background="Transparent" Title="Khách Hàng">
+      Background="Transparent" Title="Loại Phòng">
 
     <Grid Margin="28,20">
         <Grid.ColumnDefinitions>
@@ -27,21 +27,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Name="TxtTongKhach" FontSize="14" FontWeight="Bold"
-                                       Foreground="#0F3460" VerticalAlignment="Center"/>
-                            <Border CornerRadius="8" Padding="10,0" Height="34"
-                                    BorderBrush="#E0EAF4" BorderThickness="1.5"
-                                    Margin="16,0,0,0" Width="200">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🔍" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBox x:Name="TxtSearch" BorderThickness="0"
-                                             Background="Transparent" VerticalAlignment="Center"
-                                             FontSize="13" TextChanged="TxtSearch_TextChanged"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                        <Button Grid.Column="1" Content="➕  Thêm khách"
+                        <TextBlock x:Name="TxtTong" FontSize="14" FontWeight="Bold"
+                                   Foreground="#0F3460" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="➕  Thêm loại phòng"
                                 Height="36" Padding="16,0" FontSize="13"
                                 FontWeight="SemiBold" Foreground="White"
                                 Background="#0078D4" BorderThickness="0" Cursor="Hand"
@@ -49,19 +37,18 @@
                     </Grid>
                 </Border>
 
-                <DataGrid x:Name="KhachGrid" Grid.Row="1"
+                <DataGrid x:Name="LpGrid" Grid.Row="1"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           SelectionMode="Single" HeadersVisibility="Column"
                           GridLinesVisibility="Horizontal" FontSize="13"
                           BorderThickness="0" Padding="8" RowHeight="44"
-                          SelectionChanged="KhachGrid_SelectionChanged">
+                          SelectionChanged="LpGrid_SelectionChanged">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Mã KH" Binding="{Binding MaKhachHang}" Width="90"/>
-                        <DataGridTextColumn Header="Tên khách hàng" Binding="{Binding TenKhachHang}" Width="*"/>
-                        <DataGridTextColumn Header="Điện thoại" Binding="{Binding DienThoai}" Width="120"/>
-                        <DataGridTextColumn Header="CCCD" Binding="{Binding Cccd}" Width="140"/>
-                        <DataGridTextColumn Header="Hạng" Binding="{Binding TenLoaiKhach}" Width="100"/>
-                        <DataGridTextColumn Header="Tích lũy" Binding="{Binding TichLuyText}" Width="120"/>
+                        <DataGridTextColumn Header="Mã" Binding="{Binding MaLoaiPhong}" Width="90"/>
+                        <DataGridTextColumn Header="Tên loại phòng" Binding="{Binding TenLoaiPhong}" Width="*"/>
+                        <DataGridTextColumn Header="Sức chứa" Binding="{Binding SoNguoiText}" Width="100"/>
+                        <DataGridTextColumn Header="Giá/đêm" Binding="{Binding GiaPhongText}" Width="140"/>
+                        <DataGridTextColumn Header="Số phòng" Binding="{Binding SoPhong}" Width="90"/>
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
@@ -83,20 +70,20 @@
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock x:Name="TxtFormTitle" Text="Chi tiết khách hàng"
+                <TextBlock x:Name="TxtFormTitle" Text="Chi tiết loại phòng"
                            FontSize="16" FontWeight="Bold"
                            Foreground="#0F3460" Margin="0,0,0,20"/>
 
                 <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
-                    <TextBlock Text="👥" FontSize="48" HorizontalAlignment="Center" Margin="0,30,0,12"/>
-                    <TextBlock Text="Chọn khách hàng hoặc bấm Thêm mới"
+                    <TextBlock Text="🏠" FontSize="48" HorizontalAlignment="Center" Margin="0,30,0,12"/>
+                    <TextBlock Text="Chọn loại phòng hoặc bấm Thêm mới"
                                FontSize="13" Foreground="#AAA"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel x:Name="PanelForm" Visibility="Collapsed">
 
-                    <TextBlock Text="Họ tên *" FontSize="12" FontWeight="SemiBold"
+                    <TextBlock Text="Tên loại phòng *" FontSize="12" FontWeight="SemiBold"
                                Foreground="#555" Margin="0,0,0,4"/>
                     <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,12">
@@ -104,43 +91,27 @@
                                  VerticalAlignment="Center" FontSize="13"/>
                     </Border>
 
-                    <TextBlock Text="Điện thoại" FontSize="12" FontWeight="SemiBold"
+                    <TextBlock Text="Sức chứa (người)" FontSize="12" FontWeight="SemiBold"
                                Foreground="#555" Margin="0,0,0,4"/>
                     <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,12">
-                        <TextBox x:Name="TxtDienThoai" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"/>
+                        <TextBox x:Name="TxtSoNguoi" BorderThickness="0" Padding="10,0"
+                                 VerticalAlignment="Center" FontSize="13"
+                                 TextAlignment="Right" Text="2"/>
                     </Border>
 
-                    <TextBlock Text="CCCD" FontSize="12" FontWeight="SemiBold"
+                    <TextBlock Text="Giá/đêm (₫) *" FontSize="12" FontWeight="SemiBold"
                                Foreground="#555" Margin="0,0,0,4"/>
                     <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
-                            Height="36" Margin="0,0,0,12">
-                        <TextBox x:Name="TxtCCCD" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"/>
+                            Height="36" Margin="0,0,0,20">
+                        <TextBox x:Name="TxtGia" BorderThickness="0" Padding="10,0"
+                                 VerticalAlignment="Center" FontSize="13"
+                                 TextAlignment="Right"/>
                     </Border>
 
-                    <TextBlock Text="Email" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
-                            Height="36" Margin="0,0,0,12">
-                        <TextBox x:Name="TxtEmail" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"/>
-                    </Border>
-
-                    <TextBlock Text="Địa chỉ" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
-                            Margin="0,0,0,12">
-                        <TextBox x:Name="TxtDiaChi" BorderThickness="0" Padding="10,6"
-                                 FontSize="13" Height="52" AcceptsReturn="True"
-                                 TextWrapping="Wrap"/>
-                    </Border>
-
-                    <TextBlock Text="Hạng khách" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CboLoaiKhach" Height="34" FontSize="13"
-                              Margin="0,0,0,20"/>
+                    <!-- Danh sách phòng thuộc loại này -->
+                    <TextBlock x:Name="TxtPhongList" FontSize="12" Foreground="#888"
+                               Margin="0,0,0,20" TextWrapping="Wrap"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -155,8 +126,7 @@
                         <Button Grid.Column="2" Content="💾 Lưu"
                                 Height="38" FontSize="13" FontWeight="SemiBold"
                                 Foreground="White" Background="#0078D4"
-                                BorderThickness="0" Cursor="Hand"
-                                Click="BtnLuu_Click"/>
+                                BorderThickness="0" Cursor="Hand" Click="BtnLuu_Click"/>
                     </Grid>
                 </StackPanel>
             </StackPanel>

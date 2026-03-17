@@ -20,35 +20,56 @@ public partial class MainWindow : Window
         DataContext = this;
         NavigateTo(new DashboardPage(), "Dashboard", BtnDashboard);
     }
-
-    // ── Kéo / đóng cửa sổ ───────────────────────────────────────────────────
-    private void TitleBar_DragMove(object sender, MouseButtonEventArgs e) => DragMove();
-
     private void CloseWindow_Click(object sender, MouseButtonEventArgs e)
     {
         if (MessageBox.Show("Bạn có muốn đóng ứng dụng?", "Xác nhận",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             Application.Current.Shutdown();
     }
+    // ── Kéo / đóng cửa sổ ───────────────────────────────────────────────────
+    private void TitleBar_DragMove(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ButtonState == MouseButtonState.Pressed)
+            DragMove();
+    }
+
+
 
     // ── Đăng xuất ───────────────────────────────────────────────────────────
     private void Logout_Click(object sender, RoutedEventArgs e)
     {
+        // Xác nhận trước
+        if (MessageBox.Show("Bạn có muốn đăng xuất?", "Xác nhận",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
+
+        // Xóa session
         AppSession.Clear();
-        App.Current.ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+        App.CurrentUser = null;
+
+        // Chuyển sang OnExplicitShutdown để tránh app tắt khi MainWindow đóng
+        Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        // Đóng MainWindow trước
+        Close();
+
+        // Mở LoginWindow
         var login = new LoginWindow();
-        login.ShowDialog();
+        bool? result = login.ShowDialog();
+
         if (App.CurrentUser != null)
         {
-            App.Current.ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
+            // Đăng nhập lại thành công → mở MainWindow mới
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            var main = new MainWindow();
+            main.Show();
         }
         else
         {
-            App.Current.Shutdown();
+            // Đóng dialog mà không login → tắt app
+            Application.Current.Shutdown();
         }
-        Close();
     }
-
     // ── Navigation helpers ───────────────────────────────────────────────────
     private void NavigateTo(Page page, string title, Border? activeBtn = null)
     {
@@ -89,6 +110,17 @@ public partial class MainWindow : Window
     private void Nav_TienNghi(object sender, MouseButtonEventArgs e)
         => NavigateTo(new TienNghiPage(), "Tiện Nghi", sender as Border);
 
+    private void Nav_KhuyenMai(object sender, MouseButtonEventArgs e)
+        => NavigateTo(new KhuyenMaiPage(), "Khuyến Mãi", sender as Border);
+
+    private void Nav_ChiPhi(object sender, MouseButtonEventArgs e)
+        => NavigateTo(new ChiPhiPage(), "Chi Phí", sender as Border);
+
+    private void Nav_LoaiPhong(object sender, MouseButtonEventArgs e)
+    => NavigateTo(new LoaiPhongPage(), "Loại Phòng", sender as Border);
+
+    private void Nav_LoaiKhach(object sender, MouseButtonEventArgs e)
+        => NavigateTo(new LoaiKhachPage(), "Hạng Khách Hàng", sender as Border);
     // ── Nav events — Dialog popup (cần tham số, không navigate trực tiếp) ───
     // Các menu này mở PhongPage trước, user chọn phòng rồi dialog tự mở
     private void Nav_DatPhong(object sender, MouseButtonEventArgs e)
