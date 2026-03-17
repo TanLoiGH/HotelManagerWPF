@@ -130,19 +130,6 @@
                                            Foreground="#4A7FA5" Margin="8,16,0,8"/>
 
 
-                                <!-- Trong section TÀI CHÍNH -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                                        Background="Transparent" Cursor="Hand"
-                                        MouseLeftButtonDown="Nav_DichVu"
-                                        MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🍽️" FontSize="16" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Dịch Vụ" FontSize="14"
-                                                Foreground="#B3D4EE" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-
-
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
                                         Background="Transparent" Cursor="Hand"
                                         MouseLeftButtonDown="Nav_KhachHang"
@@ -154,6 +141,7 @@
                                     </StackPanel>
                                 </Border>
 
+                                
                                 <TextBlock Text="TÀI CHÍNH" FontSize="10" FontWeight="Bold"
                                            Foreground="#4A7FA5" Margin="8,16,0,8"/>
 
@@ -241,7 +229,10 @@
                 </Grid.RowDefinitions>
 
                 <!-- Top Bar -->
-                <Border Grid.Row="0" Background="#F0F7FD" Padding="24,0">
+                <Border Grid.Row="0" Background="#F0F7FD" Padding="24,0"
+                        MouseLeftButtonDown="TitleBar_DragMove"
+                        Cursor="Hand"
+                        ToolTip="Di chuyển cửa sổ">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -259,14 +250,8 @@
                             <TextBlock Text="{Binding NgayHienTai}"
                                        FontSize="12" Foreground="#888"
                                        VerticalAlignment="Center" Margin="0,0,20,0"/>
-                            <!-- Drag zone -->
-                            <Border Width="36" Height="36" CornerRadius="10"
-                                    Background="#E4EEF7" Cursor="Hand"
-                                    ToolTip="Di chuyển cửa sổ"
-                                    MouseLeftButtonDown="TitleBar_DragMove">
-                                <TextBlock Text="⠿" FontSize="16" Foreground="#888"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            
+                            
                             <Border Width="36" Height="36" CornerRadius="10"
                                     Background="#E4EEF7" Cursor="Hand" Margin="8,0,0,0"
                                     MouseLeftButtonDown="CloseWindow_Click" ToolTip="Đóng">
