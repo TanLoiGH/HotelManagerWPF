@@ -11,7 +11,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Danh sách -->
-        <Border Grid.Column="0" CornerRadius="16" Background="White">
+        <Border Grid.Column="0" CornerRadius="16" Background="{DynamicResource Brush.Surface}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
@@ -27,10 +27,10 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TxtTong" FontSize="14" FontWeight="Bold"
-                                   Foreground="#0F3460" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtTong" FontSize="16" FontWeight="Bold"
+                                   Foreground="{DynamicResource Brush.Heading}" VerticalAlignment="Center"/>
                         <Button Grid.Column="1" Content="➕  Thêm hạng"
-                                Height="36" Padding="16,0" FontSize="13"
+                                Height="36" Padding="16,0" FontSize="15"
                                 FontWeight="SemiBold" Foreground="White"
                                 Background="#00B894" BorderThickness="0" Cursor="Hand"
                                 Click="BtnThem_Click"/>
@@ -40,7 +40,7 @@
                 <DataGrid x:Name="LkGrid" Grid.Row="1"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           SelectionMode="Single" HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal" FontSize="13"
+                          GridLinesVisibility="Horizontal" FontSize="15"
                           BorderThickness="0" Padding="8" RowHeight="44"
                           SelectionChanged="LkGrid_SelectionChanged">
                     <DataGrid.Columns>
@@ -64,47 +64,47 @@
         </Border>
 
         <!-- Form -->
-        <Border Grid.Column="2" CornerRadius="16" Background="White" Padding="20">
+        <Border Grid.Column="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}" Padding="20">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
             <StackPanel>
                 <TextBlock x:Name="TxtFormTitle" Text="Chi tiết hạng khách"
-                           FontSize="16" FontWeight="Bold"
-                           Foreground="#0F3460" Margin="0,0,0,20"/>
+                           FontSize="18" FontWeight="Bold"
+                           Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,20"/>
 
                 <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
-                    <TextBlock Text="⭐" FontSize="48" HorizontalAlignment="Center" Margin="0,30,0,12"/>
+                    <TextBlock Text="⭐" FontSize="50" HorizontalAlignment="Center" Margin="0,30,0,12"/>
                     <TextBlock Text="Chọn hạng hoặc bấm Thêm mới"
-                               FontSize="13" Foreground="#AAA"
+                               FontSize="15" Foreground="#AAA"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel x:Name="PanelForm" Visibility="Collapsed">
 
-                    <TextBlock Text="Tên hạng *" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                    <TextBlock Text="Tên hạng *" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,12">
                         <TextBox x:Name="TxtTen" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"/>
+                                 VerticalAlignment="Center" FontSize="15"/>
                     </Border>
 
-                    <TextBlock Text="Ngưỡng tích lũy (₫)" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                    <TextBlock Text="Ngưỡng tích lũy (₫)" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,8">
                         <TextBox x:Name="TxtNguong" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"
+                                 VerticalAlignment="Center" FontSize="15"
                                  TextAlignment="Right" Text="0"/>
                     </Border>
                     <TextBlock Text="Khách hàng đạt mức tích lũy này sẽ được nâng hạng tự động."
-                               FontSize="11" Foreground="#888" Margin="0,0,0,20"
+                               FontSize="13" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,20"
                                TextWrapping="Wrap"/>
 
                     <!-- Khuyến mãi áp dụng cho hạng này -->
-                    <TextBlock Text="Khuyến mãi đang áp dụng" FontSize="13"
-                               FontWeight="SemiBold" Foreground="#0F3460" Margin="0,0,0,8"/>
+                    <TextBlock Text="Khuyến mãi đang áp dụng" FontSize="15"
+                               FontWeight="SemiBold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,8"/>
                     <ItemsControl x:Name="KmList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -113,14 +113,14 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🎁 " Foreground="#6C5CE7"/>
                                         <TextBlock Text="{Binding TenKhuyenMai}"
-                                                   FontSize="12" Foreground="#333"/>
+                                                   FontSize="14" Foreground="#333"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <TextBlock x:Name="TxtNoKm" Text="Chưa có khuyến mãi"
-                               FontSize="12" Foreground="#BBB" Margin="0,0,0,20"/>
+                               FontSize="14" Foreground="#BBB" Margin="0,0,0,20"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -129,11 +129,11 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
-                                Height="38" FontSize="13" Foreground="#E74C3C"
+                                Height="38" FontSize="15" Foreground="{DynamicResource Brush.Error}"
                                 Background="#FEF0F0" BorderThickness="0" Cursor="Hand"
                                 Click="BtnXoa_Click"/>
                         <Button Grid.Column="2" Content="💾 Lưu"
-                                Height="38" FontSize="13" FontWeight="SemiBold"
+                                Height="38" FontSize="15" FontWeight="SemiBold"
                                 Foreground="White" Background="#00B894"
                                 BorderThickness="0" Cursor="Hand" Click="BtnLuu_Click"/>
                     </Grid>
@@ -142,3 +142,4 @@
         </Border>
     </Grid>
 </Page>
+

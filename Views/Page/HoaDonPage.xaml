@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
         <!-- Toolbar -->
-        <Border Grid.Row="0" CornerRadius="14" Background="White" Padding="16,12">
+        <Border Grid.Row="0" CornerRadius="14" Background="{DynamicResource Brush.Surface}" Padding="16,12">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
@@ -30,7 +30,7 @@
 
                 <Button Grid.Column="0" x:Name="BtnTatCa" Content="Tất cả"
                         Height="34" Padding="16,0" Click="FilterStatus_Click" Tag=""
-                        Background="#0078D4" Foreground="White" BorderThickness="0"/>
+                        Background="{DynamicResource Brush.BrandPrimary}" Foreground="White" BorderThickness="0"/>
                 <Button Grid.Column="2" Content="Chưa TT"
                         Height="34" Padding="14,0" Click="FilterStatus_Click" Tag="Chưa thanh toán"
                         Background="Transparent" BorderThickness="1" BorderBrush="#DDE"/>
@@ -38,13 +38,13 @@
                         Height="34" Padding="14,0" Click="FilterStatus_Click" Tag="Đã thanh toán"
                         Background="Transparent" BorderThickness="1" BorderBrush="#DDE"/>
 
-                <Border Grid.Column="6" CornerRadius="10" BorderBrush="#E0EAF4"
+                <Border Grid.Column="6" CornerRadius="10" BorderBrush="{DynamicResource Brush.Border}"
                         BorderThickness="1.5" Padding="10,0" Height="36">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔍" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="🔍" FontSize="15" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBox x:Name="TxtSearch" BorderThickness="0"
                                  Background="Transparent" VerticalAlignment="Center"
-                                 FontSize="13" Width="160"
+                                 FontSize="15" Width="160"
                                  TextChanged="TxtSearch_TextChanged"/>
                     </StackPanel>
                 </Border>
@@ -52,14 +52,14 @@
         </Border>
 
         <!-- DataGrid -->
-        <Border Grid.Row="2" CornerRadius="16" Background="White">
+        <Border Grid.Row="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
             <DataGrid x:Name="HoaDonGrid"
                       AutoGenerateColumns="False" IsReadOnly="True"
                       SelectionMode="Single" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" FontSize="13"
+                      GridLinesVisibility="Horizontal" FontSize="15"
                       BorderThickness="0" Padding="8" RowHeight="44"
                       SelectionChanged="HoaDonGrid_SelectionChanged">
                 <DataGrid.Columns>
@@ -74,7 +74,7 @@
                             <DataTemplate>
                                 <Border CornerRadius="6" Padding="8,3" Margin="4"
                                         Background="{Binding StatusColor}" HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding TrangThai}" FontSize="11" Foreground="White"/>
+                                    <TextBlock Text="{Binding TrangThai}" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -85,7 +85,7 @@
                         <Setter Property="Cursor" Value="Hand"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F0F7FF"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -98,17 +98,17 @@
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="BtnXuatHD" Content="🧾  Xuất hóa đơn"
             Height="40" Padding="20,0" Margin="0,0,12,0"
-            FontSize="13" Background="#0078D4" Foreground="White"
+            FontSize="15" Background="{DynamicResource Brush.BrandPrimary}" Foreground="White"
             BorderThickness="0" IsEnabled="False"
             Click="BtnXuatHD_Click"/>
             <Button x:Name="BtnThemDichVu" Content="🍽️  Thêm dịch vụ"
             Height="40" Padding="20,0" Margin="0,0,12,0"
-            FontSize="13" Background="#6C5CE7" Foreground="White"
+            FontSize="15" Background="#6C5CE7" Foreground="White"
             BorderThickness="0" IsEnabled="False"
             Click="BtnThemDichVu_Click"/>
             <Button x:Name="BtnThanhToan" Content="💳  Thanh toán"
             Height="40" Padding="20,0"
-            FontSize="13" FontWeight="SemiBold"
+            FontSize="15" FontWeight="SemiBold"
             Background="#00B894" Foreground="White"
             BorderThickness="0" IsEnabled="False"
             Click="BtnThanhToan_Click"/>
@@ -116,3 +116,4 @@
 
     </Grid>
 </Page>
+

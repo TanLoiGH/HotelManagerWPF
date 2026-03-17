@@ -16,7 +16,7 @@
         <DataGrid x:Name="DpGrid" Grid.Row="0"
                   AutoGenerateColumns="False" IsReadOnly="True"
                   SelectionMode="Single" HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal" FontSize="13"
+                  GridLinesVisibility="Horizontal" FontSize="15"
                   BorderBrush="#DDE" BorderThickness="1" RowHeight="40">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Mã ĐP" Binding="{Binding MaDatPhong}" Width="90"/>
@@ -32,12 +32,13 @@
                 <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Hủy" Height="38" FontSize="13"
+            <Button Grid.Column="0" Content="Hủy" Height="38" FontSize="15"
                     Click="BtnHuy_Click" Background="#F5F5F5" BorderThickness="0"/>
             <Button Grid.Column="2" Content="Xuất hóa đơn" Height="38"
-                    FontSize="13" FontWeight="SemiBold" Foreground="White"
-                    Background="#0078D4" BorderThickness="0"
+                    FontSize="15" FontWeight="SemiBold" Foreground="White"
+                    Background="{DynamicResource Brush.BrandPrimary}" BorderThickness="0"
                     Click="BtnChon_Click"/>
         </Grid>
     </Grid>
 </Window>
+

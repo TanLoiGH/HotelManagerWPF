@@ -1,4 +1,4 @@
-<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.TienNghiPage"
+﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.TienNghiPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Background="Transparent"
@@ -12,7 +12,7 @@
         </Grid.RowDefinitions>
 
         <!-- Toolbar -->
-        <Border Grid.Row="0" CornerRadius="14" Background="White" Padding="16,12">
+        <Border Grid.Row="0" CornerRadius="14" Background="{DynamicResource Brush.Surface}" Padding="16,12">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
@@ -26,26 +26,26 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Phòng" FontSize="12" Foreground="#888" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CboPhong" Height="34" FontSize="13"
+                    <TextBlock Text="Phòng" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CboPhong" Height="34" FontSize="15"
                               SelectionChanged="CboPhong_SelectionChanged"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="Cập nhật trạng thái" FontSize="12" Foreground="#888" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CboTrangThai" Height="34" FontSize="13"/>
+                    <TextBlock Text="Cập nhật trạng thái" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CboTrangThai" Height="34" FontSize="15"/>
                 </StackPanel>
 
-                <TextBlock x:Name="TxtAlert" Grid.Column="3" FontSize="13"
-                           Foreground="#E17055" VerticalAlignment="Center"
+                <TextBlock x:Name="TxtAlert" Grid.Column="3" FontSize="15"
+                           Foreground="{DynamicResource Brush.WarningText}" VerticalAlignment="Center"
                            Margin="16,0" Visibility="Collapsed"/>
 
                 <StackPanel Grid.Column="4" Orientation="Horizontal">
-                    <Button Content="Cập nhật" Height="34" Padding="16,0" FontSize="13"
-                            Background="#0078D4" Foreground="White" BorderThickness="0"
+                    <Button Content="Cập nhật" Height="34" Padding="16,0" FontSize="15"
+                            Background="{DynamicResource Brush.BrandPrimary}" Foreground="White" BorderThickness="0"
                             Click="BtnCapNhat_Click" Margin="0,0,8,0"/>
                     <StackPanel>
-                        <TextBlock Text="Chi phí sửa chữa (₫)" FontSize="11" Foreground="#888" Margin="0,0,0,2"/>
+                        <TextBlock Text="Chi phí sửa chữa (₫)" FontSize="13" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,2"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
@@ -54,10 +54,10 @@
                             </Grid.ColumnDefinitions>
                             <Border CornerRadius="6" BorderBrush="#DDE" BorderThickness="1.5">
                                 <TextBox x:Name="TxtChiPhiSuaChua" BorderThickness="0" Padding="8,0"
-                                         VerticalAlignment="Center" FontSize="13" Height="30"/>
+                                         VerticalAlignment="Center" FontSize="15" Height="30"/>
                             </Border>
                             <Button Grid.Column="2" Content="Ghi" Height="30" Padding="10,0"
-                                    FontSize="13" Background="#E17055" Foreground="White"
+                                    FontSize="15" Background="#E17055" Foreground="White"
                                     BorderThickness="0" Click="BtnGhiSuaChua_Click"/>
                         </Grid>
                     </StackPanel>
@@ -66,14 +66,14 @@
         </Border>
 
         <!-- DataGrid tiện nghi -->
-        <Border Grid.Row="2" CornerRadius="16" Background="White">
+        <Border Grid.Row="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
             <DataGrid x:Name="TienNghiGrid"
                       AutoGenerateColumns="False" IsReadOnly="True"
                       SelectionMode="Single" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" FontSize="13"
+                      GridLinesVisibility="Horizontal" FontSize="15"
                       BorderThickness="0" Padding="8">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Tên tiện nghi" Binding="{Binding TenTienNghi}" Width="*"/>
@@ -96,3 +96,5 @@
         </Border>
     </Grid>
 </Page>
+
+

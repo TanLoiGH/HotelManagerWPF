@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
         <!-- Toolbar lọc -->
-        <Border Grid.Row="0" CornerRadius="14" Background="White" Padding="16,12">
+        <Border Grid.Row="0" CornerRadius="14" Background="{DynamicResource Brush.Surface}" Padding="16,12">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
@@ -30,18 +30,18 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <DatePicker x:Name="DpTuNgay" Grid.Column="0" Height="34" Width="140" FontSize="13"
+                <DatePicker x:Name="DpTuNgay" Grid.Column="0" Height="34" Width="140" FontSize="15"
                             SelectedDateChanged="Filter_Changed"/>
-                <TextBlock Grid.Column="2" Text="→" VerticalAlignment="Center" Foreground="#888"/>
-                <DatePicker x:Name="DpDenNgay" Grid.Column="4" Height="34" Width="140" FontSize="13"
+                <TextBlock Grid.Column="2" Text="→" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                <DatePicker x:Name="DpDenNgay" Grid.Column="4" Height="34" Width="140" FontSize="15"
                             SelectedDateChanged="Filter_Changed"/>
 
                 <TextBlock x:Name="TxtTongChiPhi" Grid.Column="6"
-                           FontSize="14" FontWeight="Bold" Foreground="#E17055"
+                           FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.WarningText}"
                            VerticalAlignment="Center"/>
 
                 <Button Grid.Column="8" Content="➕  Ghi chi phí"
-                        Height="36" Padding="16,0" FontSize="13"
+                        Height="36" Padding="16,0" FontSize="15"
                         FontWeight="SemiBold" Foreground="White"
                         Background="#E17055" BorderThickness="0" Cursor="Hand"
                         Click="BtnThem_Click"/>
@@ -49,14 +49,14 @@
         </Border>
 
         <!-- DataGrid -->
-        <Border Grid.Row="2" CornerRadius="16" Background="White">
+        <Border Grid.Row="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
             <DataGrid x:Name="CpGrid"
                       AutoGenerateColumns="False" IsReadOnly="True"
                       SelectionMode="Single" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" FontSize="13"
+                      GridLinesVisibility="Horizontal" FontSize="15"
                       BorderThickness="0" Padding="8" RowHeight="44">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Mã CP" Binding="{Binding MaChiPhi}" Width="90"/>
@@ -81,7 +81,7 @@
         </Border>
 
         <!-- Summary bar -->
-        <Border Grid.Row="4" CornerRadius="12" Background="White" Padding="16,12">
+        <Border Grid.Row="4" CornerRadius="12" Background="{DynamicResource Brush.Surface}" Padding="16,12">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
@@ -95,10 +95,10 @@
                     <DataTemplate>
                         <Border Margin="0,0,24,0">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Loai}" FontSize="13" Foreground="#555"
+                                <TextBlock Text="{Binding Loai}" FontSize="15" Foreground="{DynamicResource Brush.TextLabel}"
                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding TongText}" FontSize="13"
-                                           FontWeight="Bold" Foreground="#E17055"
+                                <TextBlock Text="{Binding TongText}" FontSize="15"
+                                           FontWeight="Bold" Foreground="{DynamicResource Brush.WarningText}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
@@ -108,3 +108,4 @@
         </Border>
     </Grid>
 </Page>
+

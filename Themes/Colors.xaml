@@ -1,0 +1,12 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Single entry point for app theme resources.
+         Default: Light theme. Switch to Dark by changing the Source below. -->
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Light.xaml" />
+        <!-- <ResourceDictionary Source="Dark.xaml" /> -->
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

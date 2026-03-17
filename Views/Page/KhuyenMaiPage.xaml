@@ -10,7 +10,7 @@
             <ColumnDefinition Width="360"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" CornerRadius="16" Background="White">
+        <Border Grid.Column="0" CornerRadius="16" Background="{DynamicResource Brush.Surface}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
@@ -27,21 +27,21 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Name="TxtTong" FontSize="14" FontWeight="Bold"
-                                       Foreground="#0F3460" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtTong" FontSize="16" FontWeight="Bold"
+                                       Foreground="{DynamicResource Brush.Heading}" VerticalAlignment="Center"/>
                             <Border CornerRadius="8" Padding="10,0" Height="34"
-                                    BorderBrush="#E0EAF4" BorderThickness="1.5"
+                                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                                     Margin="16,0,0,0" Width="180">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🔍" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="🔍" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                     <TextBox x:Name="TxtSearch" BorderThickness="0"
                                              Background="Transparent" VerticalAlignment="Center"
-                                             FontSize="13" TextChanged="TxtSearch_TextChanged"/>
+                                             FontSize="15" TextChanged="TxtSearch_TextChanged"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
                         <Button Grid.Column="1" Content="➕  Thêm khuyến mãi"
-                                Height="36" Padding="16,0" FontSize="13"
+                                Height="36" Padding="16,0" FontSize="15"
                                 FontWeight="SemiBold" Foreground="White"
                                 Background="#6C5CE7" BorderThickness="0" Cursor="Hand"
                                 Click="BtnThem_Click"/>
@@ -51,7 +51,7 @@
                 <DataGrid x:Name="KmGrid" Grid.Row="1"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           SelectionMode="Single" HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal" FontSize="13"
+                          GridLinesVisibility="Horizontal" FontSize="15"
                           BorderThickness="0" Padding="8" RowHeight="44"
                           SelectionChanged="KmGrid_SelectionChanged">
                     <DataGrid.Columns>
@@ -66,7 +66,7 @@
                                 <DataTemplate>
                                     <Border CornerRadius="6" Padding="8,3" Margin="4"
                                             Background="{Binding StatusColor}" HorizontalAlignment="Left">
-                                        <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="White"/>
+                                        <TextBlock Text="{Binding StatusText}" FontSize="13" Foreground="White"/>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -87,53 +87,53 @@
         </Border>
 
         <!-- Form -->
-        <Border Grid.Column="2" CornerRadius="16" Background="White" Padding="20">
+        <Border Grid.Column="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}" Padding="20">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <TextBlock x:Name="TxtFormTitle" Text="Chi tiết"
-                               FontSize="16" FontWeight="Bold" Foreground="#0F3460" Margin="0,0,0,20"/>
+                               FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,20"/>
 
                     <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
-                        <TextBlock Text="🎁" FontSize="48" HorizontalAlignment="Center" Margin="0,30,0,12"/>
+                        <TextBlock Text="🎁" FontSize="50" HorizontalAlignment="Center" Margin="0,30,0,12"/>
                         <TextBlock Text="Chọn hoặc thêm khuyến mãi"
-                                   FontSize="13" Foreground="#AAA" HorizontalAlignment="Center"/>
+                                   FontSize="15" Foreground="#AAA" HorizontalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel x:Name="PanelForm" Visibility="Collapsed">
 
-                        <TextBlock Text="Tên khuyến mãi *" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#555" Margin="0,0,0,4"/>
-                        <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                        <TextBlock Text="Tên khuyến mãi *" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                                 Height="36" Margin="0,0,0,12">
                             <TextBox x:Name="TxtTen" BorderThickness="0" Padding="10,0"
-                                     VerticalAlignment="Center" FontSize="13"/>
+                                     VerticalAlignment="Center" FontSize="15"/>
                         </Border>
 
-                        <TextBlock Text="Loại *" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#555" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="CboLoai" Height="34" FontSize="13" Margin="0,0,0,12"
+                        <TextBlock Text="Loại *" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="CboLoai" Height="34" FontSize="15" Margin="0,0,0,12"
                                   SelectionChanged="CboLoai_Changed">
                             <ComboBoxItem Content="Phần trăm" IsSelected="True"/>
                             <ComboBoxItem Content="Số tiền"/>
                         </ComboBox>
 
                         <TextBlock x:Name="TxtLabelGiaTri" Text="Giá trị (%) *"
-                                   FontSize="12" FontWeight="SemiBold" Foreground="#555" Margin="0,0,0,4"/>
-                        <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                                   FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                                 Height="36" Margin="0,0,0,12">
                             <TextBox x:Name="TxtGiaTri" BorderThickness="0" Padding="10,0"
-                                     VerticalAlignment="Center" FontSize="13" TextAlignment="Right"/>
+                                     VerticalAlignment="Center" FontSize="15" TextAlignment="Right"/>
                         </Border>
 
-                        <TextBlock Text="Giá trị tối thiểu đơn (₫)" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#555" Margin="0,0,0,4"/>
-                        <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                        <TextBlock Text="Giá trị tối thiểu đơn (₫)" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                                 Height="36" Margin="0,0,0,12">
                             <TextBox x:Name="TxtToiThieu" Text="0" BorderThickness="0" Padding="10,0"
-                                     VerticalAlignment="Center" FontSize="13" TextAlignment="Right"/>
+                                     VerticalAlignment="Center" FontSize="15" TextAlignment="Right"/>
                         </Border>
 
                         <Grid Margin="0,0,0,12">
@@ -143,23 +143,23 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="Từ ngày *" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#555" Margin="0,0,0,4"/>
-                                <DatePicker x:Name="DpTuNgay" Height="34" FontSize="12"/>
+                                <TextBlock Text="Từ ngày *" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                <DatePicker x:Name="DpTuNgay" Height="34" FontSize="14"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Đến ngày *" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#555" Margin="0,0,0,4"/>
-                                <DatePicker x:Name="DpDenNgay" Height="34" FontSize="12"/>
+                                <TextBlock Text="Đến ngày *" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                <DatePicker x:Name="DpDenNgay" Height="34" FontSize="14"/>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="Áp dụng cho hạng KH" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#555" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="CboLoaiKhach" Height="34" FontSize="13" Margin="0,0,0,12"/>
+                        <TextBlock Text="Áp dụng cho hạng KH" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="CboLoaiKhach" Height="34" FontSize="15" Margin="0,0,0,12"/>
 
                         <CheckBox x:Name="ChkActive" Content="Đang hoạt động"
-                                  IsChecked="True" FontSize="13" Margin="0,0,0,20"/>
+                                  IsChecked="True" FontSize="15" Margin="0,0,0,20"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -168,11 +168,11 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
-                                    Height="38" FontSize="13" Foreground="#E74C3C"
+                                    Height="38" FontSize="15" Foreground="{DynamicResource Brush.Error}"
                                     Background="#FEF0F0" BorderThickness="0" Cursor="Hand"
                                     Click="BtnXoa_Click"/>
                             <Button Grid.Column="2" Content="💾 Lưu"
-                                    Height="38" FontSize="13" FontWeight="SemiBold"
+                                    Height="38" FontSize="15" FontWeight="SemiBold"
                                     Foreground="White" Background="#6C5CE7"
                                     BorderThickness="0" Cursor="Hand" Click="BtnLuu_Click"/>
                         </Grid>
@@ -182,3 +182,4 @@
         </Border>
     </Grid>
 </Page>
+

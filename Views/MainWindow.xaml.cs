@@ -84,8 +84,7 @@ public partial class MainWindow : Window
             _activeNavItem.Background = new SolidColorBrush(Colors.Transparent);
         _activeNavItem = btn;
         if (_activeNavItem != null)
-            _activeNavItem.Background = new SolidColorBrush(
-                (Color)ColorConverter.ConvertFromString("#1E4D8C")!);
+            _activeNavItem.Background = (Brush)FindResource("Brush.NavSelected");
     }
 
     // ── Nav events — Page navigation ────────────────────────────────────────
@@ -136,8 +135,7 @@ public partial class MainWindow : Window
     private void NavItem_MouseEnter(object sender, MouseEventArgs e)
     {
         if (sender is Border b && b != _activeNavItem)
-            b.Background = new SolidColorBrush(
-                (Color)ColorConverter.ConvertFromString("#142E5C")!);
+            b.Background = (Brush)FindResource("Brush.NavHover");
     }
 
     private void NavItem_MouseLeave(object sender, MouseEventArgs e)

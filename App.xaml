@@ -9,8 +9,7 @@
             <!-- Merge theme -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/Colors.xaml"/>
-                <!-- nếu có thêm -->
-                <!-- <ResourceDictionary Source="Themes/Controls.xaml"/> -->
+                <ResourceDictionary Source="Themes/Controls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converter -->

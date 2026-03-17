@@ -11,7 +11,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Danh sách -->
-        <Border Grid.Column="0" CornerRadius="16" Background="White">
+        <Border Grid.Column="0" CornerRadius="16" Background="{DynamicResource Brush.Surface}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
@@ -27,12 +27,12 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TxtTong" FontSize="14" FontWeight="Bold"
-                                   Foreground="#0F3460" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtTong" FontSize="16" FontWeight="Bold"
+                                   Foreground="{DynamicResource Brush.Heading}" VerticalAlignment="Center"/>
                         <Button Grid.Column="1" Content="➕  Thêm loại phòng"
-                                Height="36" Padding="16,0" FontSize="13"
+                                Height="36" Padding="16,0" FontSize="15"
                                 FontWeight="SemiBold" Foreground="White"
-                                Background="#0078D4" BorderThickness="0" Cursor="Hand"
+                                Background="{DynamicResource Brush.BrandPrimary}" BorderThickness="0" Cursor="Hand"
                                 Click="BtnThem_Click"/>
                     </Grid>
                 </Border>
@@ -40,7 +40,7 @@
                 <DataGrid x:Name="LpGrid" Grid.Row="1"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           SelectionMode="Single" HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal" FontSize="13"
+                          GridLinesVisibility="Horizontal" FontSize="15"
                           BorderThickness="0" Padding="8" RowHeight="44"
                           SelectionChanged="LpGrid_SelectionChanged">
                     <DataGrid.Columns>
@@ -55,7 +55,7 @@
                             <Setter Property="Cursor" Value="Hand"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F0F7FF"/>
+                                    <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}"/>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -65,52 +65,52 @@
         </Border>
 
         <!-- Form -->
-        <Border Grid.Column="2" CornerRadius="16" Background="White" Padding="20">
+        <Border Grid.Column="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}" Padding="20">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
             </Border.Effect>
             <StackPanel>
                 <TextBlock x:Name="TxtFormTitle" Text="Chi tiết loại phòng"
-                           FontSize="16" FontWeight="Bold"
-                           Foreground="#0F3460" Margin="0,0,0,20"/>
+                           FontSize="18" FontWeight="Bold"
+                           Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,20"/>
 
                 <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
-                    <TextBlock Text="🏠" FontSize="48" HorizontalAlignment="Center" Margin="0,30,0,12"/>
+                    <TextBlock Text="🏠" FontSize="50" HorizontalAlignment="Center" Margin="0,30,0,12"/>
                     <TextBlock Text="Chọn loại phòng hoặc bấm Thêm mới"
-                               FontSize="13" Foreground="#AAA"
+                               FontSize="15" Foreground="#AAA"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel x:Name="PanelForm" Visibility="Collapsed">
 
-                    <TextBlock Text="Tên loại phòng *" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                    <TextBlock Text="Tên loại phòng *" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,12">
                         <TextBox x:Name="TxtTen" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"/>
+                                 VerticalAlignment="Center" FontSize="15"/>
                     </Border>
 
-                    <TextBlock Text="Sức chứa (người)" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                    <TextBlock Text="Sức chứa (người)" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,12">
                         <TextBox x:Name="TxtSoNguoi" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"
+                                 VerticalAlignment="Center" FontSize="15"
                                  TextAlignment="Right" Text="2"/>
                     </Border>
 
-                    <TextBlock Text="Giá/đêm (₫) *" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#555" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="#DDE8F4" BorderThickness="1.5"
+                    <TextBlock Text="Giá/đêm (₫) *" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,20">
                         <TextBox x:Name="TxtGia" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="13"
+                                 VerticalAlignment="Center" FontSize="15"
                                  TextAlignment="Right"/>
                     </Border>
 
                     <!-- Danh sách phòng thuộc loại này -->
-                    <TextBlock x:Name="TxtPhongList" FontSize="12" Foreground="#888"
+                    <TextBlock x:Name="TxtPhongList" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"
                                Margin="0,0,0,20" TextWrapping="Wrap"/>
 
                     <Grid>
@@ -120,12 +120,12 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
-                                Height="38" FontSize="13" Foreground="#E74C3C"
+                                Height="38" FontSize="15" Foreground="{DynamicResource Brush.Error}"
                                 Background="#FEF0F0" BorderThickness="0" Cursor="Hand"
                                 Click="BtnXoa_Click"/>
                         <Button Grid.Column="2" Content="💾 Lưu"
-                                Height="38" FontSize="13" FontWeight="SemiBold"
-                                Foreground="White" Background="#0078D4"
+                                Height="38" FontSize="15" FontWeight="SemiBold"
+                                Foreground="White" Background="{DynamicResource Brush.BrandPrimary}"
                                 BorderThickness="0" Cursor="Hand" Click="BtnLuu_Click"/>
                     </Grid>
                 </StackPanel>
@@ -133,3 +133,4 @@
         </Border>
     </Grid>
 </Page>
+
