@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Page Remove="Themes\Dark.xaml" />
+    <Page Remove="Themes\Light.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="UserControls\" />
   </ItemGroup>
 
@@ -19,6 +24,15 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
     <PackageReference Include="WPF-UI" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Themes\Dark.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Themes\Light.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
   </ItemGroup>
 
 </Project>

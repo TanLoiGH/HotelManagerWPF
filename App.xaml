@@ -2,9 +2,20 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers">
-    <!-- StartupUri bị xóa – OnStartup() trong App.xaml.cs tự mở LoginWindow -->
+
     <Application.Resources>
-        
-        <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <ResourceDictionary>
+
+            <!-- Merge theme -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Colors.xaml"/>
+                <!-- nếu có thêm -->
+                <!-- <ResourceDictionary Source="Themes/Controls.xaml"/> -->
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converter -->
+            <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
