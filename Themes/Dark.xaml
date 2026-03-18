@@ -3,44 +3,74 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Color x:Key="Color.Background">#0B0F14</Color>
-    <Color x:Key="Color.Surface">#141A22</Color>
-    <Color x:Key="Color.Border">#233042</Color>
+    <Color x:Key="Color.Background">#07101A</Color>
+    <Color x:Key="Color.Surface">#0E1C2B</Color>
+    <Color x:Key="Color.Border">#1A2D42</Color>
 
-    <Color x:Key="Color.TextPrimary">#E6EDF6</Color>
-    <Color x:Key="Color.TextSecondary">#9BA7B4</Color>
+    <Color x:Key="Color.TextPrimary">#E2EBF6</Color>
+    <Color x:Key="Color.TextSecondary">#8EA5BC</Color>
 
-    <Color x:Key="Color.BrandPrimary">#10B981</Color>
-    <Color x:Key="Color.BrandSecondary">#38BDF8</Color>
-    <Color x:Key="Color.Accent">#10B981</Color>
-    <Color x:Key="Color.AccentHover">#38BDF8</Color>
+    <Color x:Key="Color.BrandPrimary">#38BDF8</Color>
+    <Color x:Key="Color.BrandSecondary">#7DD3FC</Color>
+    <Color x:Key="Color.Accent">#38BDF8</Color>
+    <Color x:Key="Color.AccentHover">#0EA5E9</Color>
 
-    <Color x:Key="Color.Heading">#DCE7F3</Color>
-    <Color x:Key="Color.TextMuted">#9FB2C8</Color>
-    <Color x:Key="Color.TextLabel">#C9D4E1</Color>
-    <Color x:Key="Color.TextPlaceholder">#8A97A6</Color>
-    <Color x:Key="Color.TextSubtle">#6E7B88</Color>
+    <Color x:Key="Color.Heading">#D4E4F4</Color>
+    <Color x:Key="Color.TextMuted">#8EA5BC</Color>
+    <Color x:Key="Color.TextLabel">#BAD0E8</Color>
+    <Color x:Key="Color.TextPlaceholder">#5E7A95</Color>
+    <Color x:Key="Color.TextSubtle">#6B809A</Color>
 
-    <Color x:Key="Color.SurfaceAlt">#0F1620</Color>
-    <Color x:Key="Color.SurfaceSoft">#111E2A</Color>
-    <Color x:Key="Color.Hover">#1C2633</Color>
+    <Color x:Key="Color.SurfaceAlt">#0C1826</Color>
+    <Color x:Key="Color.SurfaceSoft">#0F2234</Color>
+    <Color x:Key="Color.Hover">#152840</Color>
 
-    <Color x:Key="Color.WarningSurface">#2A1D0B</Color>
-    <Color x:Key="Color.WarningText">#FBBF24</Color>
+    <Color x:Key="Color.WarningSurface">#231A0A</Color>
+    <Color x:Key="Color.WarningText">#FBB040</Color>
     <Color x:Key="Color.Error">#F43F5E</Color>
-    <Color x:Key="Color.Success">#22C55E</Color>
+    <Color x:Key="Color.Success">#34D399</Color>
+
+    <!-- Action (semantic) -->
+    <Color x:Key="Color.Action.Add">#34D399</Color>
+    <Color x:Key="Color.Action.AddHover">#10B981</Color>
+    <Color x:Key="Color.Action.AddPressed">#059669</Color>
+    <Color x:Key="Color.Action.AddSoft">#0B2A1B</Color>
+    <Color x:Key="Color.Action.AddSoftHover">#0E3A24</Color>
+    <Color x:Key="Color.Action.AddSoftPressed">#12502F</Color>
+
+    <Color x:Key="Color.Action.Edit">#FBBF24</Color>
+    <Color x:Key="Color.Action.EditHover">#F59E0B</Color>
+    <Color x:Key="Color.Action.EditPressed">#D97706</Color>
+    <Color x:Key="Color.Action.EditSoft">#2A1D05</Color>
+    <Color x:Key="Color.Action.EditSoftHover">#3A2808</Color>
+    <Color x:Key="Color.Action.EditSoftPressed">#50340C</Color>
+
+    <Color x:Key="Color.Action.Delete">#F43F5E</Color>
+    <Color x:Key="Color.Action.DeleteHover">#E11D48</Color>
+    <Color x:Key="Color.Action.DeletePressed">#BE123C</Color>
+    <Color x:Key="Color.Action.DeleteSoft">#2B0C14</Color>
+    <Color x:Key="Color.Action.DeleteSoftHover">#3B111C</Color>
+    <Color x:Key="Color.Action.DeleteSoftPressed">#501826</Color>
+
+    <!-- Filter -->
+    <Color x:Key="Color.Filter.Border">#1A2D42</Color>
+    <Color x:Key="Color.Filter.Text">#8EA5BC</Color>
+    <Color x:Key="Color.Filter.Hover">#152840</Color>
+    <Color x:Key="Color.Filter.Active">#38BDF8</Color>
+    <Color x:Key="Color.Filter.ActiveHover">#0EA5E9</Color>
+    <Color x:Key="Color.Filter.ActiveText">#07101A</Color>
 
     <!-- Nav (Sidebar) tokens -->
-    <Color x:Key="Color.NavStart">#0B1220</Color>
-    <Color x:Key="Color.NavMid">#0F1E33</Color>
-    <Color x:Key="Color.NavEnd">#0A1627</Color>
+    <Color x:Key="Color.NavStart">#071526</Color>
+    <Color x:Key="Color.NavMid">#0C2238</Color>
+    <Color x:Key="Color.NavEnd">#071526</Color>
     <Color x:Key="Color.NavText">#FFFFFF</Color>
-    <Color x:Key="Color.NavMuted">#9FB2C8</Color>
-    <Color x:Key="Color.NavGroupLabel">#6B8BA8</Color>
-    <Color x:Key="Color.NavHover">#123047</Color>
-    <Color x:Key="Color.NavSelected">#0F3D3E</Color>
-    <Color x:Key="Color.NavChip">#10B981</Color>
-    <Color x:Key="Color.NavProfileBg">#0A1B2E</Color>
+    <Color x:Key="Color.NavMuted">#8EA5BC</Color>
+    <Color x:Key="Color.NavGroupLabel">#4E7498</Color>
+    <Color x:Key="Color.NavHover">#0F2A42</Color>
+    <Color x:Key="Color.NavSelected">#0A3551</Color>
+    <Color x:Key="Color.NavChip">#38BDF8</Color>
+    <Color x:Key="Color.NavProfileBg">#061221</Color>
 
     <!-- ===== BRUSHES ===== -->
     <SolidColorBrush x:Key="Brush.Background" Color="{StaticResource Color.Background}" />
@@ -69,6 +99,39 @@
     <SolidColorBrush x:Key="Brush.WarningText" Color="{StaticResource Color.WarningText}" />
 
     <SolidColorBrush x:Key="Brush.Error" Color="{StaticResource Color.Error}" />
+
+    <!-- Action brushes -->
+    <SolidColorBrush x:Key="Brush.Action.Add" Color="{StaticResource Color.Action.Add}" />
+    <SolidColorBrush x:Key="Brush.Action.AddHover" Color="{StaticResource Color.Action.AddHover}" />
+    <SolidColorBrush x:Key="Brush.Action.AddPressed" Color="{StaticResource Color.Action.AddPressed}" />
+    <SolidColorBrush x:Key="Brush.Action.AddSoft" Color="{StaticResource Color.Action.AddSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.AddSoftHover" Color="{StaticResource Color.Action.AddSoftHover}" />
+    <SolidColorBrush x:Key="Brush.Action.AddSoftPressed" Color="{StaticResource Color.Action.AddSoftPressed}" />
+    <SolidColorBrush x:Key="Brush.Action.AddText" Color="#FFFFFFFF" />
+
+    <SolidColorBrush x:Key="Brush.Action.Edit" Color="{StaticResource Color.Action.Edit}" />
+    <SolidColorBrush x:Key="Brush.Action.EditHover" Color="{StaticResource Color.Action.EditHover}" />
+    <SolidColorBrush x:Key="Brush.Action.EditPressed" Color="{StaticResource Color.Action.EditPressed}" />
+    <SolidColorBrush x:Key="Brush.Action.EditSoft" Color="{StaticResource Color.Action.EditSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.EditSoftHover" Color="{StaticResource Color.Action.EditSoftHover}" />
+    <SolidColorBrush x:Key="Brush.Action.EditSoftPressed" Color="{StaticResource Color.Action.EditSoftPressed}" />
+    <SolidColorBrush x:Key="Brush.Action.EditText" Color="#FF07101A" />
+
+    <SolidColorBrush x:Key="Brush.Action.Delete" Color="{StaticResource Color.Action.Delete}" />
+    <SolidColorBrush x:Key="Brush.Action.DeleteHover" Color="{StaticResource Color.Action.DeleteHover}" />
+    <SolidColorBrush x:Key="Brush.Action.DeletePressed" Color="{StaticResource Color.Action.DeletePressed}" />
+    <SolidColorBrush x:Key="Brush.Action.DeleteSoft" Color="{StaticResource Color.Action.DeleteSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.DeleteSoftHover" Color="{StaticResource Color.Action.DeleteSoftHover}" />
+    <SolidColorBrush x:Key="Brush.Action.DeleteSoftPressed" Color="{StaticResource Color.Action.DeleteSoftPressed}" />
+    <SolidColorBrush x:Key="Brush.Action.DeleteText" Color="#FFFFFFFF" />
+
+    <!-- Filter brushes -->
+    <SolidColorBrush x:Key="Brush.Filter.Border" Color="{StaticResource Color.Filter.Border}" />
+    <SolidColorBrush x:Key="Brush.Filter.Text" Color="{StaticResource Color.Filter.Text}" />
+    <SolidColorBrush x:Key="Brush.Filter.Hover" Color="{StaticResource Color.Filter.Hover}" />
+    <SolidColorBrush x:Key="Brush.Filter.Active" Color="{StaticResource Color.Filter.Active}" />
+    <SolidColorBrush x:Key="Brush.Filter.ActiveHover" Color="{StaticResource Color.Filter.ActiveHover}" />
+    <SolidColorBrush x:Key="Brush.Filter.ActiveText" Color="{StaticResource Color.Filter.ActiveText}" />
 
     <SolidColorBrush x:Key="Brush.NavText" Color="{StaticResource Color.NavText}" />
     <SolidColorBrush x:Key="Brush.NavMuted" Color="{StaticResource Color.NavMuted}" />

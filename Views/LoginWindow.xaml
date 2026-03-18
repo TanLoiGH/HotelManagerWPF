@@ -1,4 +1,4 @@
-﻿<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.LoginWindow"
+<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels"
@@ -10,6 +10,7 @@
         WindowStyle="None"
         AllowsTransparency="False"
         Background="{DynamicResource Brush.Background}"
+        
         KeyDown="Window_KeyDown">
 
     <shell:WindowChrome.WindowChrome>
@@ -21,15 +22,15 @@
     </shell:WindowChrome.WindowChrome>
 
 
-    <Border CornerRadius="20" ClipToBounds="True">
-        <Grid>
+    <Border  ClipToBounds="True" MouseLeftButtonDown="Window_DragMove">
+        <Grid >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="420"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- ══ CỘT TRÁI: Gradient M365 ══ -->
-            <Border Grid.Column="0" CornerRadius="20 0 0 20">
+            <Border Grid.Column="0" >
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="{DynamicResource Color.Heading}" Offset="0.0"/>
@@ -80,9 +81,9 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                 <Border Width="32" Height="32" CornerRadius="8"
-                                        Background="#1A5276" Margin="0,0,12,0">
+                                         Margin="0,0,12,0">
                                     <TextBlock Text="📊" FontSize="17"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.SurfaceSoft}"/>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="Quản lý đặt phòng" FontSize="15"
@@ -92,9 +93,9 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                 <Border Width="32" Height="32" CornerRadius="8"
-                                        Background="#1A5276" Margin="0,0,12,0">
+                                         Margin="0,0,12,0">
                                     <TextBlock Text="💰" FontSize="17"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.SurfaceSoft}" />
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="Hóa đơn &amp; Doanh thu" FontSize="15"
@@ -104,9 +105,9 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="32" Height="32" CornerRadius="8"
-                                        Background="#1A5276" Margin="0,0,12,0">
+                                         Margin="0,0,12,0">
                                     <TextBlock Text="👥" FontSize="17"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.SurfaceSoft}"/>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="Quản lý nhân viên" FontSize="15"

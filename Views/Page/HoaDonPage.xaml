@@ -1,6 +1,7 @@
-﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.HoaDonPage"
+<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.HoaDonPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
       Background="Transparent" Title="Hoá Đơn">
 
     <Grid Margin="28,20">
@@ -13,10 +14,12 @@
         </Grid.RowDefinitions>
 
         <!-- Toolbar -->
-        <Border Grid.Row="0" CornerRadius="14" Background="{DynamicResource Brush.Surface}" Padding="16,12">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
-            </Border.Effect>
+        <ContentControl Grid.Row="0"
+                        Background="{DynamicResource Brush.Surface}" Padding="16,12"
+                        BorderThickness="0"
+                        Style="{DynamicResource MacFluent.ShadowCard}"
+                        helpers:ThemeProperties.CornerRadius="14"
+                        helpers:ThemeProperties.ShadowBlurRadius="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -29,14 +32,14 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0" x:Name="BtnTatCa" Content="Tất cả"
-                        Height="34" Padding="16,0" Click="FilterStatus_Click" Tag=""
-                        Background="{DynamicResource Brush.BrandPrimary}" Foreground="White" BorderThickness="0"/>
+                        Click="FilterStatus_Click" Tag=""
+                        Style="{DynamicResource MacFluent.FilterButton.Active}"/>
                 <Button Grid.Column="2" Content="Chưa TT"
-                        Height="34" Padding="14,0" Click="FilterStatus_Click" Tag="Chưa thanh toán"
-                        Background="Transparent" BorderThickness="1" BorderBrush="#DDE"/>
+                        Click="FilterStatus_Click" Tag="Chưa thanh toán"
+                        Style="{DynamicResource MacFluent.FilterButton}"/>
                 <Button Grid.Column="4" Content="Đã TT"
-                        Height="34" Padding="14,0" Click="FilterStatus_Click" Tag="Đã thanh toán"
-                        Background="Transparent" BorderThickness="1" BorderBrush="#DDE"/>
+                        Click="FilterStatus_Click" Tag="Đã thanh toán"
+                        Style="{DynamicResource MacFluent.FilterButton}"/>
 
                 <Border Grid.Column="6" CornerRadius="10" BorderBrush="{DynamicResource Brush.Border}"
                         BorderThickness="1.5" Padding="10,0" Height="36">
@@ -49,13 +52,14 @@
                     </StackPanel>
                 </Border>
             </Grid>
-        </Border>
+        </ContentControl>
 
         <!-- DataGrid -->
-        <Border Grid.Row="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
-            </Border.Effect>
+        <ContentControl Grid.Row="2"
+                        Background="{DynamicResource Brush.Surface}"
+                        BorderThickness="0"
+                        Style="{DynamicResource MacFluent.ShadowCard}"
+                        helpers:ThemeProperties.CornerRadius="16">
             <DataGrid x:Name="HoaDonGrid"
                       AutoGenerateColumns="False" IsReadOnly="True"
                       SelectionMode="Single" HeadersVisibility="Column"
@@ -91,26 +95,26 @@
                     </Style>
                 </DataGrid.RowStyle>
             </DataGrid>
-        </Border>
+        </ContentControl>
 
         <!-- Action buttons -->
         <!-- Action buttons — thêm BtnXuatHD -->
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="BtnXuatHD" Content="🧾  Xuất hóa đơn"
             Height="40" Padding="20,0" Margin="0,0,12,0"
-            FontSize="15" Background="{DynamicResource Brush.BrandPrimary}" Foreground="White"
-            BorderThickness="0" IsEnabled="False"
+            FontSize="15" IsEnabled="False"
+            Style="{DynamicResource MacFluent.ButtonAction.Edit}"
             Click="BtnXuatHD_Click"/>
             <Button x:Name="BtnThemDichVu" Content="🍽️  Thêm dịch vụ"
             Height="40" Padding="20,0" Margin="0,0,12,0"
-            FontSize="15" Background="#6C5CE7" Foreground="White"
-            BorderThickness="0" IsEnabled="False"
+            FontSize="15" IsEnabled="False"
+            Style="{DynamicResource MacFluent.ButtonAction.Add}"
             Click="BtnThemDichVu_Click"/>
             <Button x:Name="BtnThanhToan" Content="💳  Thanh toán"
             Height="40" Padding="20,0"
             FontSize="15" FontWeight="SemiBold"
-            Background="#00B894" Foreground="White"
-            BorderThickness="0" IsEnabled="False"
+            IsEnabled="False"
+            Style="{DynamicResource MacFluent.ButtonPrimary}"
             Click="BtnThanhToan_Click"/>
         </StackPanel>
 

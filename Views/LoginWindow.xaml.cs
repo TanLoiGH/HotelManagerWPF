@@ -14,6 +14,12 @@ public partial class LoginWindow : Window
         DataContext = vm;
     }
 
+    private void Window_DragMove(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+            DragMove();
+    }
+
     // ✅ Enter ở bất kỳ đâu trong Window → login
     private void Window_KeyDown(object sender, KeyEventArgs e)
     {

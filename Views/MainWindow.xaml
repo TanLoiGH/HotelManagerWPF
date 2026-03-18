@@ -1,4 +1,4 @@
-﻿<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.MainWindow"
+<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels"
@@ -263,24 +263,11 @@
                                     <TextBlock Text="{Binding MaQuyen}"
                                                FontSize="13" Foreground="{DynamicResource Brush.NavMuted}" Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="↩" Width="32" Height="32"
-                                        FontSize="18" BorderThickness="0"
+                                <Button Grid.Column="1" Content="↩"
+                                        FontSize="18"
                                         ToolTip="Đăng xuất" Cursor="Hand"
-                                        Click="Logout_Click">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="Bd" CornerRadius="8" Background="LightCoral"
-                                                    Width="32" Height="32">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="Red"  />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
+                                        Style="{DynamicResource MacFluent.IconButton.Danger}"
+                                        Click="Logout_Click"/>
                             </Grid>
                         </Border>
 

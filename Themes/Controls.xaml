@@ -1,7 +1,8 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers">
 
     <!-- macOS (soft, spacious, glassy) + Fluent (clear layers, responsive states) -->
 
@@ -93,6 +94,47 @@
         </Setter>
     </Style>
 
+    <!-- Shadow host for crisp text (shadow is rendered behind content) -->
+    <Style x:Key="MacFluent.ShadowCard" TargetType="{x:Type ContentControl}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="{StaticResource Radius.L}" />
+        <Setter Property="helpers:ThemeProperties.ShadowColor" Value="#000000" />
+        <Setter Property="helpers:ThemeProperties.ShadowBlurRadius" Value="12" />
+        <Setter Property="helpers:ThemeProperties.ShadowDepth" Value="0" />
+        <Setter Property="helpers:ThemeProperties.ShadowOpacity" Value="0.07" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
+                        <Border CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <Border.Effect>
+                                <DropShadowEffect Color="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowColor)}"
+                                                  BlurRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowBlurRadius)}"
+                                                  ShadowDepth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowDepth)}"
+                                                  Opacity="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowOpacity)}" />
+                            </Border.Effect>
+                        </Border>
+                        <Border CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Input frame: keep the view's internal TextBox/PasswordBox, but unify the border -->
     <Style x:Key="MacFluent.InputFrame" TargetType="{x:Type Border}">
         <Setter Property="CornerRadius" Value="{StaticResource Radius.M}" />
@@ -111,11 +153,17 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="{StaticResource Radius.M}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Hover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.SurfaceSoft}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="helpers:ThemeProperties.DisabledOpacity" Value="0.55" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border x:Name="Bd"
-                            CornerRadius="{StaticResource Radius.M}"
+                            CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
@@ -126,7 +174,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Hover}" />
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBorderBrush)}" />
                             <Setter TargetName="Bd" Property="Effect">
                                 <Setter.Value>
                                     <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" Color="#000000" />
@@ -134,6 +185,10 @@
                             </Setter>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBorderBrush)}" />
                             <Setter TargetName="Bd" Property="Effect">
                                 <Setter.Value>
                                     <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.04" Color="#000000" />
@@ -146,7 +201,8 @@
                             </Setter>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.55" />
+                            <Setter TargetName="Bd" Property="Opacity"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.DisabledOpacity)}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -203,6 +259,100 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- Action buttons (semantic tokens) -->
+    <Style x:Key="MacFluent.ButtonAction.Add" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Action.Add}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.Add}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Action.AddText}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Action.AddHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Action.AddPressed}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.Action.AddHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.AddPressed}" />
+    </Style>
+
+    <Style x:Key="MacFluent.ButtonAction.Edit" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Action.Edit}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.Edit}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Action.EditText}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Action.EditHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Action.EditPressed}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.Action.EditHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.EditPressed}" />
+    </Style>
+
+    <Style x:Key="MacFluent.ButtonAction.Delete" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Action.Delete}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.Delete}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Action.DeleteText}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Action.DeleteHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Action.DeletePressed}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.Action.DeleteHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.DeletePressed}" />
+    </Style>
+
+    <Style x:Key="MacFluent.ButtonAction.DeleteSoft" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Action.DeleteSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.DeleteSoft}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Action.Delete}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Action.DeleteSoftHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Action.DeleteSoftPressed}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.Action.DeleteSoftHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.DeleteSoftPressed}" />
+    </Style>
+
+    <!-- Filter buttons -->
+    <Style x:Key="MacFluent.FilterButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Filter.Border}" />
+        <Setter Property="BorderThickness" Value="1.5" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Filter.Text}" />
+        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="8" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Filter.Hover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Filter.Hover}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.Filter.Border}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Filter.Border}" />
+    </Style>
+
+    <Style x:Key="MacFluent.FilterButton.Active" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.FilterButton}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Filter.Active}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Filter.Active}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Filter.ActiveText}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Filter.ActiveHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Filter.ActiveHover}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.Filter.ActiveHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Filter.ActiveHover}" />
+    </Style>
+
+    <!-- Icon buttons -->
+    <Style x:Key="MacFluent.IconButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="8" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Hover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.SurfaceAlt}" />
+    </Style>
+
+    <Style x:Key="MacFluent.IconButton.Danger" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.IconButton}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Action.DeleteSoft}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Action.Delete}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Action.DeleteSoftHover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Action.DeleteSoftPressed}" />
     </Style>
 
 </ResourceDictionary>

@@ -1,16 +1,21 @@
-﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.DashboardPage"
+<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.DashboardPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
       Background="Transparent" Title="Dashboard">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="28,20,28,28">
 
             <!-- ── Bộ lọc thời gian ── -->
-            <Border CornerRadius="12" Background="{DynamicResource Brush.Surface}" Padding="16,10" Margin="0,0,0,20">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.07"/>
-                </Border.Effect>
+            <ContentControl Margin="0,0,0,20"
+                            Background="{DynamicResource Brush.Surface}" Padding="16,10"
+                            BorderThickness="0"
+                            Style="{DynamicResource MacFluent.ShadowCard}"
+                            helpers:ThemeProperties.CornerRadius="12"
+                            helpers:ThemeProperties.ShadowBlurRadius="10"
+                            helpers:ThemeProperties.ShadowDepth="0"
+                            helpers:ThemeProperties.ShadowOpacity="0.07">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Kỳ báo cáo:" FontSize="15" Foreground="{DynamicResource Brush.TextLabel}"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -21,16 +26,19 @@
                     <DatePicker x:Name="DpDenNgay" Height="32" FontSize="15" Width="140"
                                 SelectedDateChanged="DateFilter_Changed"/>
                     <Button Content="Tháng này" Height="32" Padding="12,0" Margin="12,0,0,0"
-                            Background="#EBF5FB" BorderThickness="0" FontSize="14"
+                            Style="{DynamicResource MacFluent.ButtonBase}"
+                            Background="{DynamicResource Brush.SurfaceSoft}" BorderThickness="0" FontSize="14"
                             Click="BtnThangNay_Click"/>
                     <Button Content="Quý này" Height="32" Padding="12,0" Margin="8,0,0,0"
-                            Background="#EBF5FB" BorderThickness="0" FontSize="14"
+                            Style="{DynamicResource MacFluent.ButtonBase}"
+                            Background="{DynamicResource Brush.SurfaceSoft}" BorderThickness="0" FontSize="14"
                             Click="BtnQuyNay_Click"/>
                     <Button Content="Năm này" Height="32" Padding="12,0" Margin="8,0,0,0"
-                            Background="#EBF5FB" BorderThickness="0" FontSize="14"
+                            Style="{DynamicResource MacFluent.ButtonBase}"
+                            Background="{DynamicResource Brush.SurfaceSoft}" BorderThickness="0" FontSize="14"
                             Click="BtnNamNay_Click"/>
                 </StackPanel>
-            </Border>
+            </ContentControl>
 
             <!-- ── KPI Cards ── -->
             <Grid Margin="0,0,0,20">
@@ -47,94 +55,114 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Doanh thu -->
-                <Border Grid.Column="0" CornerRadius="16" Padding="18,14" Height="100">
-                    <Border.Background>
+                <ContentControl Grid.Column="0" Padding="18,14" Height="100"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowColor="{DynamicResource Color.BrandPrimary}"
+                                helpers:ThemeProperties.ShadowBlurRadius="18"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.3">
+                    <ContentControl.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="{DynamicResource Color.BrandPrimary}" Offset="0"/>
                             <GradientStop Color="{DynamicResource Color.BrandSecondary}" Offset="1"/>
                         </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.Effect>
-                        <DropShadowEffect Color="{DynamicResource Color.BrandPrimary}" BlurRadius="18" ShadowDepth="0" Opacity="0.3"/>
-                    </Border.Effect>
+                    </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="💰 Doanh Thu" FontSize="13" Foreground="#CCE8FF"/>
                         <TextBlock x:Name="TxtDoanhThu" Text="—" FontSize="24"
                                    FontWeight="Bold" Foreground="White" Margin="0,4,0,0"/>
                     </StackPanel>
-                </Border>
+                </ContentControl>
 
                 <!-- Chi phí -->
-                <Border Grid.Column="2" CornerRadius="16" Padding="18,14" Height="100">
-                    <Border.Background>
+                <ContentControl Grid.Column="2" Padding="18,14" Height="100"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowColor="#E17055"
+                                helpers:ThemeProperties.ShadowBlurRadius="18"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.3">
+                    <ContentControl.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#E17055" Offset="0"/>
                             <GradientStop Color="#FDCB6E" Offset="1"/>
                         </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.Effect>
-                        <DropShadowEffect Color="#E17055" BlurRadius="18" ShadowDepth="0" Opacity="0.3"/>
-                    </Border.Effect>
+                    </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="💸 Chi Phí" FontSize="13" Foreground="#FFEAA7"/>
                         <TextBlock x:Name="TxtChiPhi" Text="—" FontSize="24"
                                    FontWeight="Bold" Foreground="White" Margin="0,4,0,0"/>
                     </StackPanel>
-                </Border>
+                </ContentControl>
 
                 <!-- Lợi nhuận -->
-                <Border Grid.Column="4" CornerRadius="16" Padding="18,14" Height="100">
-                    <Border.Background>
+                <ContentControl Grid.Column="4" Padding="18,14" Height="100"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowColor="#00B894"
+                                helpers:ThemeProperties.ShadowBlurRadius="18"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.3">
+                    <ContentControl.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#00B894" Offset="0"/>
                             <GradientStop Color="#00CEC9" Offset="1"/>
                         </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.Effect>
-                        <DropShadowEffect Color="#00B894" BlurRadius="18" ShadowDepth="0" Opacity="0.3"/>
-                    </Border.Effect>
+                    </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="📈 Lợi Nhuận" FontSize="13" Foreground="#B2F0E8"/>
                         <TextBlock x:Name="TxtLoiNhuan" Text="—" FontSize="24"
                                    FontWeight="Bold" Foreground="White" Margin="0,4,0,0"/>
                     </StackPanel>
-                </Border>
+                </ContentControl>
 
                 <!-- Tổng phòng -->
-                <Border Grid.Column="6" CornerRadius="16" Padding="18,14" Height="100">
-                    <Border.Background>
+                <ContentControl Grid.Column="6" Padding="18,14" Height="100"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowColor="#6C5CE7"
+                                helpers:ThemeProperties.ShadowBlurRadius="18"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.3">
+                    <ContentControl.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#6C5CE7" Offset="0"/>
                             <GradientStop Color="#A29BFE" Offset="1"/>
                         </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.Effect>
-                        <DropShadowEffect Color="#6C5CE7" BlurRadius="18" ShadowDepth="0" Opacity="0.3"/>
-                    </Border.Effect>
+                    </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="🏠 Tổng Phòng" FontSize="13" Foreground="#DDD9FF"/>
                         <TextBlock x:Name="TxtTongPhong" Text="—" FontSize="24"
                                    FontWeight="Bold" Foreground="White" Margin="0,4,0,0"/>
                     </StackPanel>
-                </Border>
+                </ContentControl>
 
                 <!-- Công suất -->
-                <Border Grid.Column="8" CornerRadius="16" Padding="18,14" Height="100">
-                    <Border.Background>
+                <ContentControl Grid.Column="8" Padding="18,14" Height="100"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowColor="#E84393"
+                                helpers:ThemeProperties.ShadowBlurRadius="18"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.3">
+                    <ContentControl.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#FD79A8" Offset="0"/>
                             <GradientStop Color="#E84393" Offset="1"/>
                         </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.Effect>
-                        <DropShadowEffect Color="#E84393" BlurRadius="18" ShadowDepth="0" Opacity="0.3"/>
-                    </Border.Effect>
+                    </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="📊 Công Suất" FontSize="13" Foreground="#FFD6EC"/>
                         <TextBlock x:Name="TxtCongSuat" Text="—" FontSize="24"
                                    FontWeight="Bold" Foreground="White" Margin="0,4,0,0"/>
                     </StackPanel>
-                </Border>
+                </ContentControl>
             </Grid>
 
             <!-- ── Row 2: Biểu đồ doanh thu + Trạng thái phòng ── -->
@@ -146,10 +174,14 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Biểu đồ doanh thu 12 tháng -->
-                <Border Grid.Column="0" CornerRadius="16" Background="{DynamicResource Brush.Surface}" Padding="20">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
-                    </Border.Effect>
+                <ContentControl Grid.Column="0"
+                                Background="{DynamicResource Brush.Surface}" Padding="20"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowBlurRadius="12"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.07">
                     <StackPanel>
                         <TextBlock Text="Doanh Thu 12 Tháng Gần Nhất" FontSize="17"
                                    FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,16"/>
@@ -191,13 +223,17 @@
                             </ItemsControl>
                         </Grid>
                     </StackPanel>
-                </Border>
+                </ContentControl>
 
                 <!-- Trạng thái phòng (pie-like) -->
-                <Border Grid.Column="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}" Padding="20">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
-                    </Border.Effect>
+                <ContentControl Grid.Column="2"
+                                Background="{DynamicResource Brush.Surface}" Padding="20"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowBlurRadius="12"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.07">
                     <StackPanel>
                         <TextBlock Text="Trạng Thái Phòng" FontSize="17"
                                    FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,16"/>
@@ -223,7 +259,7 @@
                                                    Foreground="{DynamicResource Brush.Heading}" VerticalAlignment="Center"/>
                                         <!-- Progress bar -->
                                         <Border Grid.Column="5" Height="6" CornerRadius="3"
-                                                Background="#EEF" VerticalAlignment="Center">
+                                                Background="{DynamicResource Brush.SurfaceSoft}" VerticalAlignment="Center">
                                             <Border HorizontalAlignment="Left" Height="6" CornerRadius="3"
                                                     Background="{Binding MauSac}"
                                                     Width="{Binding BarWidth}"/>
@@ -255,7 +291,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                </Border>
+                </ContentControl>
             </Grid>
 
             <!-- ── Row 3: Chi phí theo loại + Đặt phòng gần đây ── -->
@@ -267,10 +303,14 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Chi phí theo loại -->
-                <Border Grid.Column="0" CornerRadius="16" Background="{DynamicResource Brush.Surface}" Padding="20">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
-                    </Border.Effect>
+                <ContentControl Grid.Column="0"
+                                Background="{DynamicResource Brush.Surface}" Padding="20"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowBlurRadius="12"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.07">
                     <StackPanel>
                         <TextBlock Text="Chi Phí Theo Loại" FontSize="17"
                                    FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,16"/>
@@ -303,13 +343,17 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                </Border>
+                </ContentControl>
 
                 <!-- Đặt phòng gần đây -->
-                <Border Grid.Column="2" CornerRadius="16" Background="{DynamicResource Brush.Surface}" Padding="20">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.07"/>
-                    </Border.Effect>
+                <ContentControl Grid.Column="2"
+                                Background="{DynamicResource Brush.Surface}" Padding="20"
+                                BorderThickness="0"
+                                Style="{DynamicResource MacFluent.ShadowCard}"
+                                helpers:ThemeProperties.CornerRadius="16"
+                                helpers:ThemeProperties.ShadowBlurRadius="12"
+                                helpers:ThemeProperties.ShadowDepth="0"
+                                helpers:ThemeProperties.ShadowOpacity="0.07">
                     <StackPanel>
                         <TextBlock Text="Đặt Phòng Gần Đây" FontSize="17"
                                    FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,16"/>
@@ -341,7 +385,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                </Border>
+                </ContentControl>
             </Grid>
         </StackPanel>
     </ScrollViewer>
