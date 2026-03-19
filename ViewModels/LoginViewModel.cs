@@ -1,4 +1,4 @@
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Services;
@@ -26,7 +26,11 @@ public class LoginViewModel : BaseViewModel
     public bool IsLoading
     {
         get => _isLoading;
-        set => SetProperty(ref _isLoading, value);
+        set
+        {
+            if (SetProperty(ref _isLoading, value))
+                LoginCommand.RaiseCanExecuteChanged();
+        }
     }
 
     public RelayCommand LoginCommand { get; }
@@ -36,7 +40,7 @@ public class LoginViewModel : BaseViewModel
 
     public LoginViewModel()
     {
-        LoginCommand = new RelayCommand(ExecuteLogin);
+        LoginCommand = new RelayCommand(ExecuteLogin, _ => !IsLoading);
     }
 
     private async void ExecuteLogin(object? parameter)
@@ -85,3 +89,7 @@ public class LoginViewModel : BaseViewModel
         }
     }
 }
+
+
+
+

@@ -27,3 +27,5 @@ public partial class DatPhongChiTiet
 
     public virtual Phong MaPhongNavigation { get; set; } = null!;
 }
+
+

@@ -21,3 +21,5 @@ public partial class Phong
 
     public virtual ICollection<TienNghiPhong> TienNghiPhongs { get; set; } = new List<TienNghiPhong>();
 }
+
+

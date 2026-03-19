@@ -11,3 +11,5 @@ public partial class TienNghiTrangThai
 
     public virtual ICollection<TienNghiPhong> TienNghiPhongs { get; set; } = new List<TienNghiPhong>();
 }
+
+

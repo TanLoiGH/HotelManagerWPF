@@ -8,3 +8,5 @@ public class DichVuViewModel
     public string DonViTinh { get; set; } = "";
     public string GiaText => Gia.ToString("N0") + " ₫";
 }
+
+

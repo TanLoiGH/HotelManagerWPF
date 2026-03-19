@@ -11,3 +11,5 @@ public partial class LoaiChiPhi
 
     public virtual ICollection<ChiPhi> ChiPhis { get; set; } = new List<ChiPhi>();
 }
+
+

@@ -15,3 +15,5 @@ public partial class LoaiPhong
 
     public virtual ICollection<Phong> Phongs { get; set; } = new List<Phong>();
 }
+
+

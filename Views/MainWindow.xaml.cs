@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -144,3 +144,7 @@ public partial class MainWindow : Window
             b.Background = new SolidColorBrush(Colors.Transparent);
     }
 }
+
+
+
+

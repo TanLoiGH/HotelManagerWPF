@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
-using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Dtos;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -21,6 +22,8 @@ public class HoaDonService
         string maDatPhong, string maNhanVien,
         string? maKhuyenMai = null)
     {
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
         bool hdExist = await _db.HoaDons
             .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đã hủy");
         if (hdExist)
@@ -55,7 +58,7 @@ public class HoaDonService
 
         var hd = new HoaDon
         {
-            MaHoaDon = MaHelper.Next("HD", lastMa),
+            MaHoaDon = CodeHelper.Next("HD", lastMa),
             MaDatPhong = maDatPhong,
             MaNhanVien = maNhanVien,
             NgayLap = DateTime.Now,
@@ -80,6 +83,7 @@ public class HoaDonService
         }
 
         await _db.SaveChangesAsync();
+        await tx.CommitAsync();
         return hd;
     }
 
@@ -91,58 +95,77 @@ public class HoaDonService
         string loaiGiaoDich = "Thanh toán cuối",
         string? noiDung = null)
     {
-        var hd = await _db.HoaDons
-            .Include(h => h.MaDatPhongNavigation)
-                .ThenInclude(d => d!.MaKhachHangNavigation)
-            .Include(h => h.MaDatPhongNavigation)
-                .ThenInclude(d => d!.DatPhongChiTiets)
-            .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon)
-            ?? throw new KeyNotFoundException("Không tìm thấy hóa đơn");
+        if (soTien <= 0)
+            throw new ArgumentException("Số tiền thanh toán phải lớn hơn 0", nameof(soTien));
 
-        var lastTt = await _db.ThanhToans
-            .OrderByDescending(t => t.MaThanhToan)
-            .Select(t => t.MaThanhToan)
-            .FirstOrDefaultAsync();
-
-        _db.ThanhToans.Add(new ThanhToan
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        try
         {
-            MaThanhToan = MaHelper.Next("TT", lastTt),
-            MaHoaDon = maHoaDon,
-            MaPttt = maPTTT,
-            SoTien = soTien,
-            LoaiGiaoDich = loaiGiaoDich,
-            NgayThanhToan = DateTime.Now,
-            NguoiThu = nguoiThu,
-            NoiDung = noiDung
-        });
+            var hd = await _db.HoaDons
+                .Include(h => h.MaDatPhongNavigation)
+                    .ThenInclude(d => d!.MaKhachHangNavigation)
+                .Include(h => h.MaDatPhongNavigation)
+                    .ThenInclude(d => d!.DatPhongChiTiets)
+                .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon)
+                ?? throw new KeyNotFoundException("Không tìm thấy hóa đơn");
 
-        var tongDaThu = await _db.ThanhToans
-            .Where(t => t.MaHoaDon == maHoaDon)
-            .SumAsync(t => (decimal?)t.SoTien) ?? 0;
-        tongDaThu += soTien;
+            var tongDaThu = await _db.ThanhToans
+                .Where(t => t.MaHoaDon == maHoaDon)
+                .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
-        bool daThuDu = tongDaThu >= (hd.TongThanhToan ?? 0);
-
-        if (daThuDu)
-        {
-            hd.TrangThai = "Đã thanh toán";
-
-            foreach (var ct in hd.MaDatPhongNavigation?.DatPhongChiTiets ?? [])
+            if (hd.TrangThai == "Đã thanh toán" || tongDaThu >= (hd.TongThanhToan ?? 0))
             {
-                var phong = await _db.Phongs.FindAsync(ct.MaPhong);
-                if (phong != null) phong.MaTrangThaiPhong = "PTT03";
+                await tx.RollbackAsync();
+                return true;
             }
 
-            if (hd.MaDatPhongNavigation != null)
-                hd.MaDatPhongNavigation.TrangThai = "Đã trả phòng";
+            var lastTt = await _db.ThanhToans
+                .OrderByDescending(t => t.MaThanhToan)
+                .Select(t => t.MaThanhToan)
+                .FirstOrDefaultAsync();
 
-            var maKhach = hd.MaDatPhongNavigation?.MaKhachHang;
-            if (!string.IsNullOrWhiteSpace(maKhach))
-                await _khachHangSvc.NangHangAsync(maKhach, hd.TongThanhToan ?? 0);
+            _db.ThanhToans.Add(new ThanhToan
+            {
+                MaThanhToan = CodeHelper.Next("TT", lastTt),
+                MaHoaDon = maHoaDon,
+                MaPttt = maPTTT,
+                SoTien = soTien,
+                LoaiGiaoDich = loaiGiaoDich,
+                NgayThanhToan = DateTime.Now,
+                NguoiThu = nguoiThu,
+                NoiDung = noiDung
+            });
+
+            tongDaThu += soTien;
+            bool daThuDu = tongDaThu >= (hd.TongThanhToan ?? 0);
+
+            if (daThuDu)
+            {
+                hd.TrangThai = "Đã thanh toán";
+
+                foreach (var ct in hd.MaDatPhongNavigation?.DatPhongChiTiets ?? [])
+                {
+                    var phong = await _db.Phongs.FindAsync(ct.MaPhong);
+                    if (phong != null) phong.MaTrangThaiPhong = "PTT03";
+                }
+
+                if (hd.MaDatPhongNavigation != null)
+                    hd.MaDatPhongNavigation.TrangThai = "Đã trả phòng";
+
+                var maKhach = hd.MaDatPhongNavigation?.MaKhachHang;
+                if (!string.IsNullOrWhiteSpace(maKhach))
+                    await _khachHangSvc.NangHangAsync(maKhach, hd.TongThanhToan ?? 0);
+            }
+
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+            return daThuDu;
         }
-
-        await _db.SaveChangesAsync();
-        return daThuDu;
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<List<PhuongThucThanhToanDto>> GetPTTTAsync()
@@ -153,3 +176,8 @@ public class HoaDonService
                 TenPhuongThuc = p.TenPhuongThuc
             }).ToListAsync();
 }
+
+
+
+
+

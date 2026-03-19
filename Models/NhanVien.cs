@@ -35,3 +35,5 @@ public partial class NhanVien
 
     public virtual ICollection<ThanhToan> ThanhToans { get; set; } = new List<ThanhToan>();
 }
+
+

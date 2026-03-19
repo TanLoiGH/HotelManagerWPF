@@ -14,3 +14,5 @@ public class TienNghiPhongViewModel
     public string HanBaoHanhText => HanBaoHanh.HasValue
         ? HanBaoHanh.Value.ToString("dd/MM/yyyy") : "—";
 }
+
+

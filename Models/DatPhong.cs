@@ -19,3 +19,5 @@ public partial class DatPhong
 
     public virtual KhachHang? MaKhachHangNavigation { get; set; }
 }
+
+

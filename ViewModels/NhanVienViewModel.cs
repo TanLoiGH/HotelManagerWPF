@@ -11,3 +11,5 @@ public class NhanVienViewModel
     public string TenTrangThai { get; set; } = "";
     public List<string> Quyen { get; set; } = [];
 }
+
+

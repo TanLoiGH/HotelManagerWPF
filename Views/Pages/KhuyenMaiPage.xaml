@@ -1,0 +1,192 @@
+﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.KhuyenMaiPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+      Background="Transparent" Title="Khuyến Mãi">
+
+    <Grid Margin="28,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="360"/>
+        </Grid.ColumnDefinitions>
+
+        <ContentControl Grid.Column="0"
+                        Background="{DynamicResource Brush.Surface}"
+                        BorderThickness="0"
+                        Style="{DynamicResource MacFluent.ShadowCard}"
+                        helpers:ThemeProperties.CornerRadius="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Padding="16,12" BorderBrush="#F0F5FA" BorderThickness="0,0,0,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="TxtTong" FontSize="16" FontWeight="Bold"
+                                       Foreground="{DynamicResource Brush.Heading}" VerticalAlignment="Center"/>
+                            <Border CornerRadius="8" Padding="10,0" Height="34"
+                                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
+                                    Margin="16,0,0,0" Width="180">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🔍" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBox x:Name="TxtSearch" BorderThickness="0"
+                                             Background="Transparent" VerticalAlignment="Center"
+                                             FontSize="15" TextChanged="TxtSearch_TextChanged"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="➕  Thêm"
+                                Height="36" Padding="16,0" FontSize="15"
+                                FontWeight="SemiBold" Cursor="Hand"
+                                Style="{DynamicResource MacFluent.ButtonAction.Add}"
+                                Click="BtnThem_Click"/>
+                    </Grid>
+                </Border>
+
+                <DataGrid x:Name="KmGrid" Grid.Row="1"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal" FontSize="15"
+                          BorderThickness="0" Padding="8" RowHeight="44"
+                          SelectionChanged="KmGrid_SelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mã" Binding="{Binding MaKhuyenMai}" Width="80"/>
+                        <DataGridTextColumn Header="Tên khuyến mãi" Binding="{Binding TenKhuyenMai}" Width="*"/>
+                        <DataGridTextColumn Header="Loại" Binding="{Binding LoaiKhuyenMai}" Width="90"/>
+                        <DataGridTextColumn Header="Giá trị" Binding="{Binding GiaTriText}" Width="90"/>
+                        <DataGridTextColumn Header="Từ ngày" Binding="{Binding TuNgayText}" Width="95"/>
+                        <DataGridTextColumn Header="Đến ngày" Binding="{Binding DenNgayText}" Width="95"/>
+                        <DataGridTemplateColumn Header="Trạng thái" Width="110">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="6" Padding="8,3" Margin="4"
+                                            Background="{Binding StatusColor}" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding StatusText}" FontSize="13" Foreground="White"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F0FF"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </Grid>
+        </ContentControl>
+
+        <!-- Form -->
+        <ContentControl Grid.Column="2"
+                        Background="{DynamicResource Brush.Surface}" Padding="20"
+                        BorderThickness="0"
+                        Style="{DynamicResource MacFluent.ShadowCard}"
+                        helpers:ThemeProperties.CornerRadius="16">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock x:Name="TxtFormTitle" Text="Chi tiết"
+                               FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,20"/>
+
+                    <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
+                        <TextBlock Text="🎁" FontSize="50" HorizontalAlignment="Center" Margin="0,30,0,12"/>
+                        <TextBlock Text="Chọn hoặc thêm khuyến mãi"
+                                   FontSize="15" Foreground="#AAA" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PanelForm" Visibility="Collapsed">
+
+                        <TextBlock Text="Tên khuyến mãi *" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
+                                Height="36" Margin="0,0,0,12">
+                            <TextBox x:Name="TxtTen" BorderThickness="0" Padding="10,0"
+                                     VerticalAlignment="Center" FontSize="15"/>
+                        </Border>
+
+                        <TextBlock Text="Loại *" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="CboLoai" Height="34" FontSize="15" Margin="0,0,0,12"
+                                  SelectionChanged="CboLoai_Changed">
+                            <ComboBoxItem Content="Phần trăm" IsSelected="True"/>
+                            <ComboBoxItem Content="Số tiền"/>
+                        </ComboBox>
+
+                        <TextBlock x:Name="TxtLabelGiaTri" Text="Giá trị (%) *"
+                                   FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
+                                Height="36" Margin="0,0,0,12">
+                            <TextBox x:Name="TxtGiaTri" BorderThickness="0" Padding="10,0"
+                                     VerticalAlignment="Center" FontSize="15" TextAlignment="Right"/>
+                        </Border>
+
+                        <TextBlock Text="Giá trị tối thiểu đơn (₫)" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
+                                Height="36" Margin="0,0,0,12">
+                            <TextBox x:Name="TxtToiThieu" Text="0" BorderThickness="0" Padding="10,0"
+                                     VerticalAlignment="Center" FontSize="15" TextAlignment="Right"/>
+                        </Border>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Từ ngày *" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                <DatePicker x:Name="DpTuNgay" Height="34" FontSize="14"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Đến ngày *" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                <DatePicker x:Name="DpDenNgay" Height="34" FontSize="14"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Áp dụng cho hạng KH" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="CboLoaiKhach" Height="34" FontSize="15" Margin="0,0,0,12"/>
+
+                        <CheckBox x:Name="ChkActive" Content="Đang hoạt động"
+                                  IsChecked="True" FontSize="15" Margin="0,0,0,20"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
+                                    Height="38" FontSize="15" Cursor="Hand"
+                                    Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
+                                    Click="BtnXoa_Click"/>
+                            <Button Grid.Column="2" Content="💾 Lưu"
+                                    Height="38" FontSize="15" FontWeight="SemiBold"
+                                    Cursor="Hand"
+                                    Style="{DynamicResource MacFluent.ButtonPrimary}"
+                                    Click="BtnLuu_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </ContentControl>
+    </Grid>
+</Page>
+
+
+
+

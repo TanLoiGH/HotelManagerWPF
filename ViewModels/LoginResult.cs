@@ -11,3 +11,4 @@ public record LoginResult
 
     public bool HasRole(string role) => Quyen.Contains(role);
 }
+

@@ -17,3 +17,5 @@ public partial class TienNghiPhong
 
     public virtual TienNghiTrangThai? MaTrangThaiNavigation { get; set; }
 }
+
+

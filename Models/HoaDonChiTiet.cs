@@ -17,3 +17,5 @@ public partial class HoaDonChiTiet
 
     public virtual HoaDon MaHoaDonNavigation { get; set; } = null!;
 }
+
+

@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace QuanLyKhachSan_PhamTanLoi.Helpers
@@ -136,3 +136,5 @@ namespace QuanLyKhachSan_PhamTanLoi.Helpers
             obj.SetValue(ShadowOpacityProperty, value);
     }
 }
+
+

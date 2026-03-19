@@ -27,3 +27,5 @@ public partial class KhuyenMai
 
     public virtual LoaiKhach? MaLoaiKhachNavigation { get; set; }
 }
+
+

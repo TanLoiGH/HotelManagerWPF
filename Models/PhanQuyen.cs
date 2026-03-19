@@ -11,3 +11,5 @@ public partial class PhanQuyen
 
     public virtual ICollection<TaiKhoan> TaiKhoans { get; set; } = new List<TaiKhoan>();
 }
+
+

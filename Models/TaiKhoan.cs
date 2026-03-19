@@ -19,3 +19,5 @@ public partial class TaiKhoan
 
     public virtual PhanQuyen MaQuyenNavigation { get; set; } = null!;
 }
+
+

@@ -1,4 +1,5 @@
-using QuanLyKhachSan_PhamTanLoi.Views;
+﻿using QuanLyKhachSan_PhamTanLoi.Views;
+using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
 
 namespace QuanLyKhachSan_PhamTanLoi
@@ -6,7 +7,7 @@ namespace QuanLyKhachSan_PhamTanLoi
     public partial class App : Application
     {
         // Session toàn cục – dùng thay cho AppSession ở mọi nơi
-        public static ViewModels.LoginResult? CurrentUser { get; set; }
+        public static LoginResult? CurrentUser { get; set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -32,3 +33,7 @@ namespace QuanLyKhachSan_PhamTanLoi
         }
     }
 }
+
+
+
+

@@ -1,4 +1,4 @@
-namespace QuanLyKhachSan_PhamTanLoi.Helpers;
+﻿namespace QuanLyKhachSan_PhamTanLoi.Helpers;
 
 public static class AppSession
 {
@@ -17,3 +17,5 @@ public static class AppSession
         TenDangNhap = null;
     }
 }
+
+

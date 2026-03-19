@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
@@ -16,12 +17,27 @@ public class AuthService
             .Include(t => t.MaNhanVienNavigation)
                 .ThenInclude(nv => nv.MaTrangThaiNavigation)
             .Include(t => t.MaQuyenNavigation)
-            .FirstOrDefaultAsync(t =>
-                t.TenDangNhap == tenDangNhap &&
-                t.MatKhau == matKhau &&
-                t.IsActive == true);
+            .FirstOrDefaultAsync(t => t.TenDangNhap == tenDangNhap && t.IsActive == true);
 
         if (tk == null) return null;
+
+        bool authenticated = false;
+        string stored = tk.MatKhau ?? "";
+
+        // Ưu tiên hash PBKDF2
+        if (PasswordHasher.Verify(matKhau, stored))
+        {
+            authenticated = true;
+        }
+        else if (stored == matKhau && !string.IsNullOrEmpty(stored))
+        {
+            // Legacy plain → nâng cấp ngay sau khi login hợp lệ
+            authenticated = true;
+            tk.MatKhau = PasswordHasher.Hash(matKhau);
+            await _db.SaveChangesAsync();
+        }
+
+        if (!authenticated) return null;
 
         var nv = tk.MaNhanVienNavigation;
         if (nv.MaTrangThai != "TT01") return null;
@@ -60,3 +76,7 @@ public class AuthService
             })
             .ToListAsync();
 }
+
+
+
+

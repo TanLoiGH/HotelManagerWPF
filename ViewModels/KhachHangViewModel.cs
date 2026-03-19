@@ -10,3 +10,5 @@ public class KhachHangViewModel
     public decimal TongTichLuy { get; set; }
     public string TichLuyText => TongTichLuy.ToString("N0") + " ₫";
 }
+
+

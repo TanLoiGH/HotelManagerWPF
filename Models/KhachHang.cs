@@ -25,3 +25,5 @@ public partial class KhachHang
 
     public virtual LoaiKhach? MaLoaiKhachNavigation { get; set; }
 }
+
+

@@ -11,3 +11,5 @@ public partial class PhuongThucThanhToan
 
     public virtual ICollection<ThanhToan> ThanhToans { get; set; } = new List<ThanhToan>();
 }
+
+

@@ -75,3 +75,6 @@ public class DichVuService
     private static decimal TinhTong(decimal tienPhong, decimal tienDv, decimal vat)
         => (tienPhong + tienDv) * (1 + vat / 100m);
 }
+
+
+

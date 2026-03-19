@@ -23,13 +23,15 @@ public class PhongViewModel
         _ => new SolidColorBrush(Color.FromRgb(200, 200, 200))
     };
 
-    public SolidColorBrush MauChữTrangThai => MaTrangThai switch
+    public SolidColorBrush MauChu1TrangThai => MaTrangThai switch
     {
         "PTT01" => new SolidColorBrush(Color.FromRgb(25, 135, 84)),
         "PTT02" => new SolidColorBrush(Color.FromRgb(200, 80, 50)),
         "PTT03" => new SolidColorBrush(Color.FromRgb(160, 120, 0)),
         "PTT04" => new SolidColorBrush(Color.FromRgb(100, 100, 100)),
         "PTT05" => new SolidColorBrush(Color.FromRgb(90, 50, 180)),
-        _ => new SolidColorBrush(Color.FromRgb(100, 100, 100))
+        _ => new SolidColorBrush(Color.FromRgb(191, 0, 237))
     };
 }
+
+

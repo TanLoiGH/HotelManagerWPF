@@ -27,3 +27,5 @@ public partial class ThanhToan
 
     public virtual NhanVien? NguoiThuNavigation { get; set; }
 }
+
+

@@ -15,3 +15,5 @@ public partial class LoaiKhach
 
     public virtual ICollection<KhuyenMai> KhuyenMais { get; set; } = new List<KhuyenMai>();
 }
+
+

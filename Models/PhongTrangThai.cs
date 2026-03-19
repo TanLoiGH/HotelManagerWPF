@@ -11,3 +11,5 @@ public partial class PhongTrangThai
 
     public virtual ICollection<Phong> Phongs { get; set; } = new List<Phong>();
 }
+
+

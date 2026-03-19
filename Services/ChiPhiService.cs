@@ -3,7 +3,7 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
-using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Dtos;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -26,7 +26,7 @@ public class ChiPhiService
 
         _db.ChiPhis.Add(new ChiPhi
         {
-            MaChiPhi = MaHelper.Next("CP", lastMa),
+            MaChiPhi = CodeHelper.Next("CP", lastMa),
             MaLoaiCp = maLoaiCP,
             MaNhanVien = maNhanVien,
             MaNcc = maNCC,
@@ -47,3 +47,7 @@ public class ChiPhiService
                 TenLoaiCP = l.TenLoaiCp
             }).ToListAsync();
 }
+
+
+
+

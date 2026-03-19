@@ -29,7 +29,7 @@ public class KhachHangService
 
         var kh = new KhachHang
         {
-            MaKhachHang = MaHelper.Next("KH", lastMa),
+            MaKhachHang = CodeHelper.Next("KH", lastMa),
             TenKhachHang = tenKhachHang,
             DienThoai = dienThoai,
             Cccd = cccd,
@@ -80,5 +80,12 @@ public class KhachHangService
 
         if (loaiMoi != null && loaiMoi.MaLoaiKhach != kh.MaLoaiKhach)
             kh.MaLoaiKhach = loaiMoi.MaLoaiKhach;
+
+        // Lưu cập nhật hạng/tích lũy
+        await _db.SaveChangesAsync();
     }
 }
+
+
+
+

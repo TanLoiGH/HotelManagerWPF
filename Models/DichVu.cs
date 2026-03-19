@@ -17,3 +17,5 @@ public partial class DichVu
 
     public virtual ICollection<DichVuChiTiet> DichVuChiTiets { get; set; } = new List<DichVuChiTiet>();
 }
+
+

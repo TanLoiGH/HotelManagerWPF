@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
@@ -10,28 +11,33 @@ public class DatPhongService
     private readonly QuanLyKhachSanContext _db;
     public DatPhongService(QuanLyKhachSanContext db) => _db = db;
 
+    private async Task EnsurePhongAvailableAsync(string maPhong, DateTime ngayNhan, DateTime ngayTra, string? excludeMaDatPhong = null)
+    {
+        bool conflict = await _db.DatPhongChiTiets
+            .Where(c => c.MaPhong == maPhong && (excludeMaDatPhong == null || c.MaDatPhong != excludeMaDatPhong))
+            .Join(_db.DatPhongs,
+                  c => c.MaDatPhong,
+                  d => d.MaDatPhong,
+                  (c, d) => new { c, d })
+            .AnyAsync(x =>
+                x.d.TrangThai != "Đã trả phòng" &&
+                x.d.TrangThai != "Đã hủy" &&
+                x.c.NgayNhan < ngayTra &&
+                x.c.NgayTra > ngayNhan);
+
+        if (conflict)
+            throw new InvalidOperationException(
+                $"Phòng {maPhong} đã có đặt phòng trong khoảng thời gian này.");
+    }
+
     public async Task<DatPhong> TaoDatPhongAsync(
         string maKhachHang,
         List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)> rooms)
     {
-        foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
-        {
-            bool conflict = await _db.DatPhongChiTiets
-                .Where(c => c.MaPhong == maPhong)
-                .Join(_db.DatPhongs,
-                      c => c.MaDatPhong,
-                      d => d.MaDatPhong,
-                      (c, d) => new { c, d })
-                .AnyAsync(x =>
-                    x.d.TrangThai != "Đã trả phòng" &&
-                    x.d.TrangThai != "Đã hủy" &&
-                    x.c.NgayNhan < ngayTra &&
-                    x.c.NgayTra > ngayNhan);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
-            if (conflict)
-                throw new InvalidOperationException(
-                    $"Phòng {maPhong} đã có đặt phòng trong khoảng thời gian này.");
-        }
+        foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
+            await EnsurePhongAvailableAsync(maPhong, ngayNhan, ngayTra);
 
         var lastMa = await _db.DatPhongs
             .OrderByDescending(d => d.MaDatPhong)
@@ -40,7 +46,7 @@ public class DatPhongService
 
         var dp = new DatPhong
         {
-            MaDatPhong = MaHelper.Next("DP", lastMa),
+            MaDatPhong = CodeHelper.Next("DP", lastMa),
             MaKhachHang = maKhachHang,
             NgayDat = DateTime.Now,
             TrangThai = "Chờ nhận phòng"
@@ -66,6 +72,7 @@ public class DatPhongService
         }
 
         await _db.SaveChangesAsync();
+        await tx.CommitAsync();
         return dp;
     }
 
@@ -109,22 +116,31 @@ public class DatPhongService
 
     public async Task GiaHanAsync(string maDatPhong, string maPhong, DateTime ngayTraMoi)
     {
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
         var ct = await _db.DatPhongChiTiets.FindAsync(maDatPhong, maPhong)
             ?? throw new KeyNotFoundException("Không tìm thấy chi tiết đặt phòng");
 
         if (ngayTraMoi <= ct.NgayNhan)
             throw new ArgumentException("Ngày trả mới phải sau ngày nhận");
 
+        await EnsurePhongAvailableAsync(maPhong, ct.NgayNhan, ngayTraMoi, maDatPhong);
+
         ct.NgayTra = ngayTraMoi;
         await _db.SaveChangesAsync();
+        await tx.CommitAsync();
     }
 
     public async Task DoiPhongAsync(
         string maDatPhong, string maPhongCu, string maPhongMoi,
         DateTime ngayNhan, DateTime ngayTra)
     {
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
         var ctCu = await _db.DatPhongChiTiets.FindAsync(maDatPhong, maPhongCu)
             ?? throw new KeyNotFoundException("Không tìm thấy phòng cũ");
+
+        await EnsurePhongAvailableAsync(maPhongMoi, ngayNhan, ngayTra, maDatPhong);
 
         var phongMoi = await _db.Phongs
             .Include(p => p.MaLoaiPhongNavigation)
@@ -143,7 +159,13 @@ public class DatPhongService
             DonGia = phongMoi.MaLoaiPhongNavigation.GiaPhong,
             MaNhanVien = ctCu.MaNhanVien
         });
+
         phongMoi.MaTrangThaiPhong = "PTT02";
         await _db.SaveChangesAsync();
+        await tx.CommitAsync();
     }
 }
+
+
+
+

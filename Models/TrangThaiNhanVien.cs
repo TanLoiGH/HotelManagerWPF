@@ -11,3 +11,5 @@ public partial class TrangThaiNhanVien
 
     public virtual ICollection<NhanVien> NhanViens { get; set; } = new List<NhanVien>();
 }
+
+

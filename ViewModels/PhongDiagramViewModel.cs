@@ -5,7 +5,7 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
-public class PhongDiagramViewModel : BaseViewModel
+public class SoDoPhongViewModel : BaseViewModel
 {
     // ── Collections ────────────────────────────────────────────────────────
     private List<PhongViewModel> _allPhongs = new();
@@ -49,7 +49,7 @@ public class PhongDiagramViewModel : BaseViewModel
     public RelayCommand RefreshCommand { get; }
 
     // ── Constructor ─────────────────────────────────────────────────────────
-    public PhongDiagramViewModel()
+    public SoDoPhongViewModel()
     {
         FilterCommand = new RelayCommand(p => SelectedFilter = p?.ToString() ?? "Tất cả");
         FloorCommand = new RelayCommand(p => SelectedFloor = int.TryParse(p?.ToString(), out int f) ? f : 0);
@@ -58,7 +58,7 @@ public class PhongDiagramViewModel : BaseViewModel
         _ = LoadAsync();
     }
 
-    // ── Load data từ DB ─────────────────────────────────────────────────────
+    //  ─────────────────────────────────────────────────────
     // ── Load data từ DB ─────────────────────────────────────────────────────
     public async Task LoadAsync()
     {
@@ -129,3 +129,5 @@ public class PhongDiagramViewModel : BaseViewModel
 
 
 }
+
+

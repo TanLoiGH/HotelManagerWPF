@@ -54,3 +54,6 @@ public class TienNghiService
             .Where(t => t.IsActive == true)
             .ToListAsync();
 }
+
+
+

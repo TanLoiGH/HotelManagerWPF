@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using QuanLyKhachSan_PhamTanLoi.Models;
 
 namespace QuanLyKhachSan_PhamTanLoi.Data;
@@ -68,8 +69,16 @@ public partial class QuanLyKhachSanContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlServer(
-                "Server=LOI_WINDOW\\SQLEXPRESS;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True;");
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            var cs = config.GetConnectionString("Default")
+                     ?? "Server=LOI_WINDOW\\SQLEXPRESS;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True;";
+
+            optionsBuilder.UseSqlServer(cs);
         }
     }
 
@@ -714,3 +723,5 @@ public partial class QuanLyKhachSanContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
+
+

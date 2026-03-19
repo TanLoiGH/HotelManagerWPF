@@ -1,4 +1,4 @@
-<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.MainWindow"
+﻿<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels"
@@ -121,17 +121,6 @@
                    FontSize="{StaticResource Font.Size.Caption}" FontWeight="Bold"
                    Foreground="{DynamicResource Brush.NavMuted}" Margin="8,8,0,8"/>
 
-                                <!-- Hoá Đơn -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_HoaDon"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🧾"/>
-                                        <TextBlock Text="Hoá Đơn"/>
-                                    </StackPanel>
-                                </Border>
-
                                 <!-- Phòng -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
                 Background="Transparent" Cursor="Hand"
@@ -143,23 +132,23 @@
                                     </StackPanel>
                                 </Border>
 
+                                <!-- Hoá Đơn -->
+                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                Background="Transparent" Cursor="Hand"
+                MouseLeftButtonDown="Nav_HoaDon"
+                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🧾"/>
+                                        <TextBlock Text="Hoá Đơn"/>
+                                    </StackPanel>
+                                </Border>
+
                                 <!-- ===================== -->
                                 <!-- ADMIN -->
                                 <!-- ===================== -->
                                 <TextBlock Text="Admin"
                    FontSize="{StaticResource Font.Size.Caption}" FontWeight="Bold"
                    Foreground="{DynamicResource Brush.NavGroupLabel}" Margin="8,8,0,8"/>
-
-                                <!-- Loại Khách -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_LoaiKhach"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="⭐"/>
-                                        <TextBlock Text="Hạng Khách"/>
-                                    </StackPanel>
-                                </Border>
 
                                 <!-- Khách Hàng -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
@@ -245,6 +234,18 @@
                                     </StackPanel>
                                 </Border>
 
+                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                Background="Transparent" Cursor="Hand"
+                MouseLeftButtonDown="Nav_TienNghi"
+                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text=" #"/>
+                                        <TextBlock Text="Tiện Nghi"/>
+                                    </StackPanel>
+                                </Border>
+
+
+
                             </StackPanel>
                         </ScrollViewer>
                         <!-- ── PROFILE CARD ── -->
@@ -328,5 +329,7 @@
         </Grid>
     </Border>
 </Window>
+
+
 
 

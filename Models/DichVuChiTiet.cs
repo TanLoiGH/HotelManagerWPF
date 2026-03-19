@@ -25,3 +25,5 @@ public partial class DichVuChiTiet
 
     public virtual HoaDon MaHoaDonNavigation { get; set; } = null!;
 }
+
+

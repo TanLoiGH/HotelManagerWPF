@@ -1,4 +1,4 @@
-using QuanLyKhachSan_PhamTanLoi.ViewModels;
+﻿using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
 using System.Windows.Input;
 
@@ -51,3 +51,5 @@ public partial class LoginWindow : Window
         Application.Current.Shutdown();
     }
 }
+
+

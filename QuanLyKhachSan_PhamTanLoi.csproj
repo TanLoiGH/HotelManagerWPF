@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UserControls\" />
+    <Folder Include="Controls\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +23,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
     <PackageReference Include="WPF-UI" Version="4.2.0" />
   </ItemGroup>
 
@@ -33,7 +35,12 @@
     <Resource Include="Themes\Light.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Resource>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
     
+
+

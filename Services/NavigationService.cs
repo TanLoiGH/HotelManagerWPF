@@ -14,3 +14,5 @@ public class NavigationService
         window.Close();
     }
 }
+
+

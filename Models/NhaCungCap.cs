@@ -23,3 +23,5 @@ public partial class NhaCungCap
 
     public virtual ICollection<TienNghi> TienNghis { get; set; } = new List<TienNghi>();
 }
+
+

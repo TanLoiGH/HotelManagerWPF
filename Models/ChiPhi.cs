@@ -31,3 +31,5 @@ public partial class ChiPhi
 
     public virtual Phong? MaPhongNavigation { get; set; }
 }
+
+
