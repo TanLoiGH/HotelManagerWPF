@@ -86,6 +86,43 @@ public partial class PhongPage : Page
         }
     }
 
+    // ── Load thông tin đặt trước (PTT05) ────────────────────────────────────
+    private async Task LoadDatPhongInfoAsync(string maPhong)
+    {
+        try
+        {
+            using var db = new QuanLyKhachSanContext();
+
+            // Lấy chi tiết đặt phòng đang chờ nhận (trạng thái chưa check-in)
+            var ct = await db.DatPhongChiTiets
+                .Include(c => c.MaDatPhongNavigation)
+                    .ThenInclude(dp => dp.MaKhachHangNavigation)
+                .Where(c => c.MaPhong == maPhong &&
+                            c.MaDatPhongNavigation.TrangThai == "cho_nhan") // ← khớp enum/string trong DB của bạn
+                .OrderByDescending(c => c.MaDatPhongNavigation.NgayDat)
+                .FirstOrDefaultAsync();
+
+            if (ct is null)
+            {
+                LblTenKhachDat.Text = "Không tìm thấy";
+                LblTienCoc.Text = "—";
+                LblNgayNhanDat.Text = "—";
+                LblNgayTraDat.Text = "—";
+                return;
+            }
+
+            var dp = ct.MaDatPhongNavigation;
+            LblTenKhachDat.Text = dp.MaKhachHangNavigation?.TenKhachHang ?? "—";
+            LblTienCoc.Text = (dp.TienCoc ?? 0).ToString("N0", new CultureInfo("vi-VN")) + " ₫";
+            LblNgayNhanDat.Text = ct.NgayNhan.ToString("dd/MM/yyyy") ?? "—";
+            LblNgayTraDat.Text = ct.NgayTra.ToString("dd/MM/yyyy") ?? "—";
+        }
+        catch (Exception ex)
+        {
+            LblTenKhachDat.Text = $"Lỗi: {ex.Message}";
+        }
+    }
+
     // ── Filter ───────────────────────────────────────────────────────────
     private void Filter_Click(object sender, RoutedEventArgs e)
     {
@@ -159,14 +196,20 @@ public partial class PhongPage : Page
         }
         catch { TxtNoTienNghi.Visibility = Visibility.Visible; }
 
-        // Phòng trống → hiện form đặt phòng
+        // Phân luồng hiển thị theo trạng thái
         bool laTrong = vm.MaTrangThaiPhong == "PTT01";
+        bool laDaDat = vm.MaTrangThaiPhong == "PTT05";
+
         PanelDatPhong.Visibility = laTrong ? Visibility.Visible : Visibility.Collapsed;
-        PanelKhongTrong.Visibility = laTrong ? Visibility.Collapsed : Visibility.Visible;
+        PanelDaDatTruoc.Visibility = laDaDat ? Visibility.Visible : Visibility.Collapsed;
+        PanelKhongTrong.Visibility = (!laTrong && !laDaDat) ? Visibility.Visible : Visibility.Collapsed;
 
-        if (!laTrong)
-            TxtKhongTrong.Text = $"Phòng đang ở trạng thái \"{vm.TenTrangThai}\"\nKhông thể đặt phòng lúc này.";
+        if (!laTrong && !laDaDat)
+            TxtKhongTrong.Text =
+                $"Phòng đang ở trạng thái \"{vm.TenTrangThai}\"\nKhông thể đặt phòng lúc này.";
 
+        if (laDaDat)
+            await LoadDatPhongInfoAsync(vm.MaPhong);
         // Reset form
         ResetForm();
 
@@ -305,6 +348,60 @@ public partial class PhongPage : Page
             BtnDatPhong.IsEnabled = true;
         }
     }
+        // ── Xác nhận khách nhận phòng (PTT05 → PTT02) ───────────────────────────
+private async void BtnKhachNhanPhong_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedPhong is null) return;
+
+        var confirm = MessageBox.Show(
+            $"Xác nhận khách đã nhận phòng {_selectedPhong.MaPhong}?",
+            "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (confirm != MessageBoxResult.Yes) return;
+
+        try
+        {
+            BtnKhachNhanPhong.IsEnabled = false;
+
+            using var db = new QuanLyKhachSanContext();
+
+            // 1. Cập nhật trạng thái phòng → Đang ở
+            var phong = await db.Phongs.FindAsync(_selectedPhong.MaPhong);
+            if (phong is null) throw new Exception("Không tìm thấy phòng trong DB.");
+            phong.MaTrangThaiPhong = "PTT02";
+
+            // 2. Cập nhật trạng thái đặt phòng → dang_o (hoặc enum tương đương)
+            var ct = await db.DatPhongChiTiets
+                .Include(c => c.MaDatPhongNavigation)
+                .Where(c => c.MaPhong == _selectedPhong.MaPhong &&
+                            c.MaDatPhongNavigation.TrangThai == "cho_nhan")
+                .OrderByDescending(c => c.MaDatPhongNavigation.NgayDat)
+                .FirstOrDefaultAsync();
+
+            if (ct is not null)
+                ct.MaDatPhongNavigation.TrangThai = "dang_o"; // ← khớp enum/string trong DB
+
+            await db.SaveChangesAsync();
+
+            MessageBox.Show($"Phòng {_selectedPhong.MaPhong} đã chuyển sang trạng thái Đang ở!",
+                "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Refresh lại danh sách
+            await LoadPhongAsync();
+            PanelEmpty.Visibility = Visibility.Visible;
+            PanelDetail.Visibility = Visibility.Collapsed;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi:\n{ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            BtnKhachNhanPhong.IsEnabled = true;
+        }
+    }
+
 }
 
 

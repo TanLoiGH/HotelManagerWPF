@@ -144,10 +144,10 @@
                                        TextAlignment="Center" TextWrapping="Wrap"/>
                         </StackPanel>
 
-                        <!-- Detail + Form -->
+                        <!-- PanelDetail + Form -->
                         <StackPanel x:Name="PanelDetail" Visibility="Collapsed">
 
-                            <!-- Room header -->
+                            <!-- DetailHeader -->
                             <Border x:Name="DetailHeader" CornerRadius="12" Padding="16" Margin="0,0,0,16">
                                 <Grid>
                                     <StackPanel>
@@ -197,6 +197,61 @@
 
                             <!-- Divider -->
                             <Separator Background="#E0EAF4" Margin="0,4,0,16"/>
+
+                            <!-- ══ PANEL ĐÃ ĐẶT TRƯỚC (PTT05) ══ -->
+                            <StackPanel x:Name="PanelDaDatTruoc" Visibility="Collapsed" Margin="0,0,0,12">
+
+                                <TextBlock Text="📋  Thông tin đặt trước"
+               FontSize="16" FontWeight="Bold"
+               Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
+
+                                <!-- Tên khách -->
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Khách hàng"
+                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock x:Name="LblTenKhachDat"
+                   HorizontalAlignment="Right"
+                   FontSize="15" FontWeight="SemiBold"
+                   Foreground="{DynamicResource Brush.Heading}"/>
+                                </Grid>
+                                <Separator Background="#EEE" Margin="0,0,0,8"/>
+
+                                <!-- Ngày nhận / trả -->
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Ngày nhận"
+                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock x:Name="LblNgayNhanDat"
+                   HorizontalAlignment="Right"
+                   FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Ngày trả"
+                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock x:Name="LblNgayTraDat"
+                   HorizontalAlignment="Right"
+                   FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
+                                </Grid>
+                                <Separator Background="#EEE" Margin="0,0,0,8"/>
+
+                                <!-- Tiền cọc -->
+                                <Grid Margin="0,0,0,16">
+                                    <TextBlock Text="Tiền đặt cọc"
+                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock x:Name="LblTienCoc"
+                   HorizontalAlignment="Right"
+                   FontSize="16" FontWeight="Bold" Foreground="#0078D4"/>
+                                </Grid>
+
+                                <!-- Nút xác nhận nhận phòng -->
+                                <Button x:Name="BtnKhachNhanPhong" Height="44"
+            FontSize="16" FontWeight="SemiBold" Cursor="Hand"
+            Click="BtnKhachNhanPhong_Click"
+            Style="{DynamicResource MacFluent.ButtonPrimary}">
+                                    <TextBlock Text="✅  Khách đã nhận phòng"
+                   FontSize="16" FontWeight="SemiBold" Foreground="White"/>
+                                </Button>
+
+                            </StackPanel>
 
                             <!-- ══ FORM ĐẶT PHÒNG ══ -->
                             <StackPanel x:Name="PanelDatPhong">
