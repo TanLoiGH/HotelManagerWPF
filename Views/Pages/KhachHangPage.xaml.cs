@@ -127,7 +127,7 @@ public partial class KhachHangPage : Page
 
                 db.KhachHangs.Add(new KhachHang
                 {
-                    MaKhachHang = CodeHelper.Next("KH", lastMa),
+                    MaKhachHang = MaHelper.Next("KH", lastMa),
                     TenKhachHang = ten,
                     DienThoai = TxtDienThoai.Text.Trim(),
                     Cccd = TxtCCCD.Text.Trim(),

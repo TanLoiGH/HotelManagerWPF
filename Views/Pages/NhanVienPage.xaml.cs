@@ -169,7 +169,7 @@ public partial class NhanVienPage : Page
 
                 var nv = new NhanVien
                 {
-                    MaNhanVien = CodeHelper.Next("NV", lastMaNV),
+                    MaNhanVien = MaHelper.Next("NV", lastMaNV),
                     TenNhanVien = ten,
                     ChucVu = TxtChucVu.Text.Trim(),
                     DienThoai = TxtDienThoai.Text.Trim(),

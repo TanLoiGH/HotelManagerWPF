@@ -46,7 +46,7 @@ public class DatPhongService
 
         var dp = new DatPhong
         {
-            MaDatPhong = CodeHelper.Next("DP", lastMa),
+            MaDatPhong = MaHelper.Next("DP", lastMa),
             MaKhachHang = maKhachHang,
             NgayDat = DateTime.Now,
             TrangThai = "Chờ nhận phòng"

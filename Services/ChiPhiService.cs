@@ -26,7 +26,7 @@ public class ChiPhiService
 
         _db.ChiPhis.Add(new ChiPhi
         {
-            MaChiPhi = CodeHelper.Next("CP", lastMa),
+            MaChiPhi = MaHelper.Next("CP", lastMa),
             MaLoaiCp = maLoaiCP,
             MaNhanVien = maNhanVien,
             MaNcc = maNCC,

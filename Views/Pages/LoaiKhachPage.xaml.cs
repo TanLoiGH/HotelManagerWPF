@@ -121,7 +121,7 @@ public partial class LoaiKhachPage : Page
 
                 db.LoaiKhaches.Add(new LoaiKhach
                 {
-                    MaLoaiKhach = CodeHelper.Next("LK", lastMa),
+                    MaLoaiKhach = MaHelper.Next("LK", lastMa),
                     TenLoaiKhach = ten,
                     NguongTichLuy = nguong,
                 });

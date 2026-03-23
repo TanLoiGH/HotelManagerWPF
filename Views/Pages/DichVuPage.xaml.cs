@@ -124,7 +124,7 @@ public partial class DichVuPage : Page
 
                 db.DichVus.Add(new DichVu
                 {
-                    MaDichVu = CodeHelper.Next("DV", lastMa),
+                    MaDichVu = MaHelper.Next("DV", lastMa),
                     TenDichVu = ten,
                     Gia = gia,
                     DonViTinh = TxtDonVi.Text.Trim(),

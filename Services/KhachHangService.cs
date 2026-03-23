@@ -29,7 +29,7 @@ public class KhachHangService
 
         var kh = new KhachHang
         {
-            MaKhachHang = CodeHelper.Next("KH", lastMa),
+            MaKhachHang = MaHelper.Next("KH", lastMa),
             TenKhachHang = tenKhachHang,
             DienThoai = dienThoai,
             Cccd = cccd,

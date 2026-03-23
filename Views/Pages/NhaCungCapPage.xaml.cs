@@ -121,7 +121,7 @@ public partial class NhaCungCapPage : Page
 
                 db.NhaCungCaps.Add(new NhaCungCap
                 {
-                    MaNcc = CodeHelper.Next("NCC", lastMa),
+                    MaNcc = MaHelper.Next("NCC", lastMa),
                     TenNcc = ten,
                     DienThoai = TxtDienThoai.Text.Trim(),
                     Email = TxtEmail.Text.Trim(),

@@ -111,7 +111,7 @@ public partial class LoaiPhongPage : Page
 
                 db.LoaiPhongs.Add(new LoaiPhong
                 {
-                    MaLoaiPhong = CodeHelper.Next("LP", lastMa),
+                    MaLoaiPhong = MaHelper.Next("LP", lastMa),
                     TenLoaiPhong = ten,
                     SoNguoiToiDa = soNguoi > 0 ? soNguoi : null,
                     GiaPhong = gia,

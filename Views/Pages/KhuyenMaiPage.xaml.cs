@@ -178,7 +178,7 @@ public partial class KhuyenMaiPage : Page
 
                 db.KhuyenMais.Add(new KhuyenMai
                 {
-                    MaKhuyenMai = CodeHelper.Next("KM", lastMa),
+                    MaKhuyenMai = MaHelper.Next("KM", lastMa),
                     TenKhuyenMai = ten,
                     LoaiKhuyenMai = loai,
                     GiaTriKm = giaTri,

@@ -1,6 +1,6 @@
 ﻿namespace QuanLyKhachSan_PhamTanLoi.Helpers;
 
-public static class CodeHelper
+public static class MaHelper
 {
     /// <summary>Sinh mã tăng dần: "DP" + lastMa "DP007" → "DP008"</summary>
     public static string Next(string prefix, string? lastMa)

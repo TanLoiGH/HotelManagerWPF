@@ -1,12 +1,14 @@
-﻿using System.Globalization;
+﻿using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
+using System.Globalization;
+using System.Runtime.Intrinsics.Arm;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Microsoft.EntityFrameworkCore;
-using QuanLyKhachSan_PhamTanLoi.Data;
-using QuanLyKhachSan_PhamTanLoi.Models;
-using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -93,12 +95,11 @@ public partial class PhongPage : Page
         {
             using var db = new QuanLyKhachSanContext();
 
-            // Lấy chi tiết đặt phòng đang chờ nhận (trạng thái chưa check-in)
             var ct = await db.DatPhongChiTiets
                 .Include(c => c.MaDatPhongNavigation)
                     .ThenInclude(dp => dp.MaKhachHangNavigation)
                 .Where(c => c.MaPhong == maPhong &&
-                            c.MaDatPhongNavigation.TrangThai == "cho_nhan") // ← khớp enum/string trong DB của bạn
+                            c.MaDatPhongNavigation.TrangThai == "Chờ nhận phòng") // ← fix
                 .OrderByDescending(c => c.MaDatPhongNavigation.NgayDat)
                 .FirstOrDefaultAsync();
 
@@ -113,16 +114,15 @@ public partial class PhongPage : Page
 
             var dp = ct.MaDatPhongNavigation;
             LblTenKhachDat.Text = dp.MaKhachHangNavigation?.TenKhachHang ?? "—";
-            LblTienCoc.Text = (dp.TienCoc ?? 0).ToString("N0", new CultureInfo("vi-VN")) + " ₫";
-            LblNgayNhanDat.Text = ct.NgayNhan.ToString("dd/MM/yyyy") ?? "—";
-            LblNgayTraDat.Text = ct.NgayTra.ToString("dd/MM/yyyy") ?? "—";
+            LblTienCoc.Text = "Chưa thu";                           // DB không có cột TienCoc
+            LblNgayNhanDat.Text = ct.NgayNhan.ToString("dd/MM/yyyy");
+            LblNgayTraDat.Text = ct.NgayTra.ToString("dd/MM/yyyy");
         }
         catch (Exception ex)
         {
             LblTenKhachDat.Text = $"Lỗi: {ex.Message}";
         }
     }
-
     // ── Filter ───────────────────────────────────────────────────────────
     private void Filter_Click(object sender, RoutedEventArgs e)
     {
@@ -348,8 +348,8 @@ public partial class PhongPage : Page
             BtnDatPhong.IsEnabled = true;
         }
     }
-        // ── Xác nhận khách nhận phòng (PTT05 → PTT02) ───────────────────────────
-private async void BtnKhachNhanPhong_Click(object sender, RoutedEventArgs e)
+    // ── Xác nhận khách nhận phòng (PTT05 → PTT02) ───────────────────────────
+    private async void BtnKhachNhanPhong_Click(object sender, RoutedEventArgs e)
     {
         if (_selectedPhong is null) return;
 
@@ -365,43 +365,74 @@ private async void BtnKhachNhanPhong_Click(object sender, RoutedEventArgs e)
 
             using var db = new QuanLyKhachSanContext();
 
-            // 1. Cập nhật trạng thái phòng → Đang ở
+            // 1. Phòng → Đang ở
             var phong = await db.Phongs.FindAsync(_selectedPhong.MaPhong);
             if (phong is null) throw new Exception("Không tìm thấy phòng trong DB.");
             phong.MaTrangThaiPhong = "PTT02";
 
-            // 2. Cập nhật trạng thái đặt phòng → dang_o (hoặc enum tương đương)
+            // 2. Lấy chi tiết đặt phòng
             var ct = await db.DatPhongChiTiets
                 .Include(c => c.MaDatPhongNavigation)
                 .Where(c => c.MaPhong == _selectedPhong.MaPhong &&
-                            c.MaDatPhongNavigation.TrangThai == "cho_nhan")
+                            c.MaDatPhongNavigation.TrangThai == "Chờ nhận phòng") // ← fix
                 .OrderByDescending(c => c.MaDatPhongNavigation.NgayDat)
                 .FirstOrDefaultAsync();
 
-            if (ct is not null)
-                ct.MaDatPhongNavigation.TrangThai = "dang_o"; // ← khớp enum/string trong DB
+            if (ct is null) throw new Exception("Không tìm thấy thông tin đặt phòng.");
+
+            var dp = ct.MaDatPhongNavigation;
+            dp.TrangThai = "Đang ở";                                             // ← fix
 
             await db.SaveChangesAsync();
 
-            MessageBox.Show($"Phòng {_selectedPhong.MaPhong} đã chuyển sang trạng thái Đang ở!",
-                "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            // 3. Tự động tạo hóa đơn
+            int soDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays);
+            decimal tienPhong = soDem * _selectedPhong.GiaPhong;
+            decimal tienDichVu = 0m;
+            decimal tongThanhToan = (tienPhong + tienDichVu) * 1.10m;           // ← fix: (P+DV)*1.1
 
-            // Refresh lại danh sách
-            await LoadPhongAsync();
-            PanelEmpty.Visibility = Visibility.Visible;
-            PanelDetail.Visibility = Visibility.Collapsed;
+            var lastMaHd = await db.HoaDons
+                .OrderByDescending(h => h.MaHoaDon)
+                .Select(h => h.MaHoaDon)
+                .FirstOrDefaultAsync();
+
+            var hoaDon = new HoaDon
+            {
+                MaHoaDon = MaHelper.Next("HD", lastMaHd),
+                MaDatPhong = dp.MaDatPhong,
+                MaNhanVien = App.CurrentUser?.MaNhanVien,
+                NgayLap = DateTime.Now,
+                TienPhong = tienPhong,
+                TienDichVu = tienDichVu,
+                Vat = 10m,                                             // ← fix: lưu % không phải tiền
+                MaKhuyenMai = null,
+                TongThanhToan = tongThanhToan,
+                TrangThai = "Chưa thanh toán",
+            };
+
+            db.HoaDons.Add(hoaDon);
+            await db.SaveChangesAsync();
+
+            MessageBox.Show(
+                $"✅ Phòng {_selectedPhong.MaPhong} đã nhận khách!\n\n" +
+                $"🧾 Hóa đơn {hoaDon.MaHoaDon} tự động được tạo\n" +
+                $"   {soDem} đêm × {_selectedPhong.GiaPhong:N0} ₫ + VAT 10%\n" +
+                $"   Tổng tạm tính: {tongThanhToan:N0} ₫",
+                "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi:\n{ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Lỗi khi xác nhận khách nhận phòng:\n{ex.Message}",
+                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally
         {
             BtnKhachNhanPhong.IsEnabled = true;
+            await LoadPhongAsync();
+            PanelEmpty.Visibility = Visibility.Visible;
+            PanelDetail.Visibility = Visibility.Collapsed;
         }
-    }
-
+        }
 }
 
 

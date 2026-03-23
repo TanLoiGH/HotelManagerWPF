@@ -58,7 +58,7 @@ public class HoaDonService
 
         var hd = new HoaDon
         {
-            MaHoaDon = CodeHelper.Next("HD", lastMa),
+            MaHoaDon = MaHelper.Next("HD", lastMa),
             MaDatPhong = maDatPhong,
             MaNhanVien = maNhanVien,
             NgayLap = DateTime.Now,
@@ -126,7 +126,7 @@ public class HoaDonService
 
             _db.ThanhToans.Add(new ThanhToan
             {
-                MaThanhToan = CodeHelper.Next("TT", lastTt),
+                MaThanhToan = MaHelper.Next("TT", lastTt),
                 MaHoaDon = maHoaDon,
                 MaPttt = maPTTT,
                 SoTien = soTien,
