@@ -18,6 +18,13 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = this;
+
+        // Ẩn nhóm Admin nếu không có quyền phù hợp
+        var mq = (AppSession.MaQuyen ?? "").Trim();
+        bool isAdmin = mq == "ADMIN" || mq == "GIAM_DOC";
+        if (AdminSection != null)
+            AdminSection.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+
         NavigateTo(new DashboardPage(), "Dashboard", BtnDashboard);
     }
     private void CloseWindow_Click(object sender, MouseButtonEventArgs e)
@@ -129,7 +136,13 @@ public partial class MainWindow : Window
         => NavigateTo(new HoaDonPage(), "Hoá Đơn — Chọn hóa đơn để thanh toán", sender as Border);
 
     private void Nav_DichVu(object sender, MouseButtonEventArgs e)
-        => NavigateTo(new HoaDonPage(), "Hoá Đơn — Chọn hóa đơn để thêm dịch vụ", sender as Border);
+        => NavigateTo(new DichVuPage(), "Dịch vụ", sender as Border);
+
+    private void Nav_LoaiChiPhi(object sender, MouseButtonEventArgs e)
+        => NavigateTo(new LoaiChiPhiPage(), "Loại Chi Phí", sender as Border);
+
+    private void Nav_PhuongThucThanhToan(object sender, MouseButtonEventArgs e)
+        => NavigateTo(new PhuongThucThanhToanPage(), "Phương Thức Thanh Toán", sender as Border);
 
     // ── Hover effects ────────────────────────────────────────────────────────
     private void NavItem_MouseEnter(object sender, MouseEventArgs e)

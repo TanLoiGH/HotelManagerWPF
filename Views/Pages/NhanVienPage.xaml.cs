@@ -13,6 +13,8 @@ public class NhanVienRow : NhanVienViewModel
     public string QuyenText => string.Join(", ", Quyen);
 }
 
+public record BoolOption(bool Value, string Text);
+
 public partial class NhanVienPage : Page
 {
     private List<NhanVienRow> _allNV = [];
@@ -40,6 +42,14 @@ public partial class NhanVienPage : Page
         CboQuyen.DisplayMemberPath = "TenQuyen";
         CboQuyen.SelectedValuePath = "MaQuyen";
 
+        CboTaiKhoanActive.ItemsSource = new List<BoolOption>
+        {
+            new(true, "Hoạt động"),
+            new(false, "Khóa"),
+        };
+        CboTaiKhoanActive.DisplayMemberPath = "Text";
+        CboTaiKhoanActive.SelectedValuePath = "Value";
+
         _allNV = await db.NhanViens
             .Include(nv => nv.MaTrangThaiNavigation)
             .Include(nv => nv.TaiKhoans)
@@ -53,9 +63,10 @@ public partial class NhanVienPage : Page
                 TenTrangThai = nv.MaTrangThaiNavigation != null
                                ? nv.MaTrangThaiNavigation.TenTrangThai ?? "" : "",
                 Quyen = nv.TaiKhoans
-                               .Where(t => t.IsActive == true)
-                               .Select(t => t.MaQuyenNavigation.TenQuyen ?? "")
-                               .ToList()
+                    .OrderByDescending(t => t.IsActive == true)
+                    .Select(t => t.MaQuyenNavigation.TenQuyen ?? "")
+                    .Take(1)
+                    .ToList()
             })
             .ToListAsync();
 
@@ -101,6 +112,7 @@ public partial class NhanVienPage : Page
         PbMatKhau.Password = "";
         CboTrangThai.SelectedIndex = 0;
         CboQuyen.SelectedIndex = 0;
+        CboTaiKhoanActive.SelectedValue = true;
         BtnXoa.IsEnabled = false;
     }
 
@@ -127,10 +139,13 @@ public partial class NhanVienPage : Page
         TxtCCCD.Text = nv.Cccd ?? "";
         CboTrangThai.SelectedValue = nv.MaTrangThai;
 
-        var tk = nv.TaiKhoans.FirstOrDefault(t => t.IsActive == true);
+        var tk = nv.TaiKhoans
+            .OrderByDescending(t => t.IsActive == true)
+            .FirstOrDefault();
         TxtTenDangNhap.Text = tk?.TenDangNhap ?? "";
         PbMatKhau.Password = "";  // không hiện mật khẩu cũ
         CboQuyen.SelectedValue = tk?.MaQuyen;
+        CboTaiKhoanActive.SelectedValue = tk?.IsActive ?? false;
     }
 
     private async void BtnLuu_Click(object sender, RoutedEventArgs e)
@@ -147,19 +162,38 @@ public partial class NhanVienPage : Page
         {
             using var db = new QuanLyKhachSanContext();
 
+            string tenDangNhap = TxtTenDangNhap.Text.Trim();
+            string matKhau = PbMatKhau.Password;
+            string? maQuyen = CboQuyen.SelectedValue as string;
+            bool isTkActive = CboTaiKhoanActive.SelectedValue as bool? ?? true;
+
+            // Combo quyền luôn có thể đang chọn sẵn, nên chỉ coi là "có thao tác tài khoản"
+            // khi user nhập username/password, hoặc thay đổi trạng thái/quyền so với tài khoản hiện tại.
+            bool userTypedAccount = !string.IsNullOrWhiteSpace(tenDangNhap) || !string.IsNullOrWhiteSpace(matKhau);
+
+            void EnsureAccountInputsValid(bool requirePassword)
+            {
+                if (!userTypedAccount && !requirePassword) return;
+
+                if (string.IsNullOrWhiteSpace(tenDangNhap))
+                    throw new InvalidOperationException("Vui lòng nhập tên đăng nhập.");
+
+                if (string.IsNullOrWhiteSpace(maQuyen))
+                    throw new InvalidOperationException("Vui lòng chọn quyền.");
+
+                if (requirePassword && string.IsNullOrWhiteSpace(matKhau))
+                    throw new InvalidOperationException("Vui lòng nhập mật khẩu.");
+            }
+
             if (_isNew)
             {
-                // Kiểm tra tên đăng nhập trùng
-                string tdnhap = TxtTenDangNhap.Text.Trim();
-                if (!string.IsNullOrWhiteSpace(tdnhap))
+                if (userTypedAccount)
                 {
-                    bool trung = await db.TaiKhoans.AnyAsync(t => t.TenDangNhap == tdnhap);
+                    EnsureAccountInputsValid(requirePassword: true);
+
+                    bool trung = await db.TaiKhoans.AnyAsync(t => t.TenDangNhap == tenDangNhap);
                     if (trung)
-                    {
-                        MessageBox.Show("Tên đăng nhập đã tồn tại.", "Lỗi",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
+                        throw new InvalidOperationException("Tên đăng nhập đã tồn tại.");
                 }
 
                 var lastMaNV = await db.NhanViens
@@ -181,17 +215,15 @@ public partial class NhanVienPage : Page
                 db.NhanViens.Add(nv);
 
                 // Tạo tài khoản nếu có
-                if (!string.IsNullOrWhiteSpace(TxtTenDangNhap.Text)
-                    && !string.IsNullOrWhiteSpace(PbMatKhau.Password)
-                    && CboQuyen.SelectedValue is string maQuyen)
+                if (userTypedAccount && !string.IsNullOrWhiteSpace(maQuyen))
                 {
                     db.TaiKhoans.Add(new TaiKhoan
                     {
                         MaNhanVien = nv.MaNhanVien,
                         MaQuyen = maQuyen,
-                        TenDangNhap = TxtTenDangNhap.Text.Trim(),
-                        MatKhau = PbMatKhau.Password,
-                        IsActive = true,
+                        TenDangNhap = tenDangNhap,
+                        MatKhau = PasswordHasher.Hash(matKhau),
+                        IsActive = isTkActive,
                     });
                 }
             }
@@ -210,13 +242,65 @@ public partial class NhanVienPage : Page
                     nv.Cccd = TxtCCCD.Text.Trim();
                     nv.MaTrangThai = CboTrangThai.SelectedValue as string ?? "TT01";
 
-                    // Cập nhật tài khoản
-                    var tk = nv.TaiKhoans.FirstOrDefault(t => t.IsActive == true);
-                    if (tk != null && !string.IsNullOrWhiteSpace(PbMatKhau.Password))
-                        tk.MatKhau = PbMatKhau.Password;
+                    // Tài khoản: chỉ cho phép 1 quyền đang dùng
+                    var tkActive = nv.TaiKhoans.FirstOrDefault(t => t.IsActive == true);
 
-                    if (tk != null && CboQuyen.SelectedValue is string mq)
-                        tk.MaQuyen = mq;
+                    bool wantsAccountUpdate =
+                        userTypedAccount ||
+                        (tkActive != null && !string.IsNullOrWhiteSpace(maQuyen) && tkActive.MaQuyen != maQuyen) ||
+                        (tkActive != null && (tkActive.IsActive ?? false) != isTkActive);
+
+                    if (wantsAccountUpdate)
+                    {
+                        EnsureAccountInputsValid(requirePassword: tkActive == null);
+
+                        bool trung = await db.TaiKhoans.AnyAsync(t =>
+                            t.TenDangNhap == tenDangNhap && t.MaNhanVien != nv.MaNhanVien);
+                        if (trung)
+                            throw new InvalidOperationException("Tên đăng nhập đã tồn tại.");
+
+                        if (tkActive == null)
+                        {
+                            db.TaiKhoans.Add(new TaiKhoan
+                            {
+                                MaNhanVien = nv.MaNhanVien,
+                                MaQuyen = maQuyen!,
+                                TenDangNhap = tenDangNhap,
+                                MatKhau = PasswordHasher.Hash(matKhau),
+                                IsActive = isTkActive,
+                            });
+                        }
+                        else
+                        {
+                            // MaQuyen là PK → nếu đổi quyền thì xóa & tạo lại
+                            if (!string.Equals(tkActive.MaQuyen, maQuyen, StringComparison.Ordinal))
+                            {
+                                string keepPassword = string.IsNullOrWhiteSpace(matKhau)
+                                    ? (tkActive.MatKhau ?? "")
+                                    : PasswordHasher.Hash(matKhau);
+
+                                db.TaiKhoans.RemoveRange(nv.TaiKhoans);
+                                db.TaiKhoans.Add(new TaiKhoan
+                                {
+                                    MaNhanVien = nv.MaNhanVien,
+                                    MaQuyen = maQuyen!,
+                                    TenDangNhap = tenDangNhap,
+                                    MatKhau = keepPassword,
+                                    IsActive = isTkActive,
+                                });
+                            }
+                            else
+                            {
+                                tkActive.TenDangNhap = tenDangNhap;
+                                if (!string.IsNullOrWhiteSpace(matKhau))
+                                    tkActive.MatKhau = PasswordHasher.Hash(matKhau);
+                                tkActive.IsActive = isTkActive;
+
+                                foreach (var other in nv.TaiKhoans.Where(t => t != tkActive))
+                                    other.IsActive = false;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -226,6 +310,11 @@ public partial class NhanVienPage : Page
             PanelEmpty.Visibility = Visibility.Visible;
             MessageBox.Show("Lưu thành công!", "Thông báo",
                 MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (InvalidOperationException ex)
+        {
+            MessageBox.Show(ex.Message, "Thiếu thông tin",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         catch (Exception ex)
         {

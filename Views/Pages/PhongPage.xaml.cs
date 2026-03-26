@@ -51,6 +51,12 @@ public partial class PhongPage : Page
     private PhongCardViewModel? _selectedPhong;
     private KhachHang? _selectedKhach;
 
+    private static bool IsAdminRole()
+    {
+        var mq = (AppSession.MaQuyen ?? "").Trim();
+        return mq == "ADMIN" || mq == "GIAM_DOC";
+    }
+
     public PhongPage()
     {
         InitializeComponent();
@@ -62,6 +68,8 @@ public partial class PhongPage : Page
     {
         try
         {
+            BtnQuanTriPhong.Visibility = IsAdminRole() ? Visibility.Visible : Visibility.Collapsed;
+
             using var db = new QuanLyKhachSanContext();
             _allPhong = await db.Phongs
                 .Include(p => p.MaLoaiPhongNavigation)
@@ -86,6 +94,20 @@ public partial class PhongPage : Page
             MessageBox.Show($"Lỗi tải phòng: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+    }
+
+    private async void BtnQuanTriPhong_Click(object sender, RoutedEventArgs e)
+    {
+        if (!IsAdminRole())
+        {
+            MessageBox.Show("Bạn không có quyền quản trị phòng.", "Không đủ quyền",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var dlg = new QuanTriPhongDialog { Owner = Window.GetWindow(this) };
+        dlg.ShowDialog();
+        await LoadPhongAsync();
     }
 
     // ── Load thông tin đặt trước (PTT05) ────────────────────────────────────

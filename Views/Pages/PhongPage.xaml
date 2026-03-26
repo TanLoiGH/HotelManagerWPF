@@ -46,15 +46,23 @@
                             Click="Filter_Click"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                 </StackPanel>
-                <Border Grid.Column="2" Height="34" Width="200" Padding="10,0"
-                        Style="{DynamicResource MacFluent.InputFrame}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔍" FontSize="15" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBox x:Name="TxtSearch" BorderThickness="0"
-                                 Background="Transparent" VerticalAlignment="Center"
-                                 FontSize="15" TextChanged="TxtSearch_TextChanged" Width="150"/>
-                    </StackPanel>
-                </Border>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="BtnQuanTriPhong" Content="⚙  Quản trị"
+                            Height="34" Padding="14,0" Margin="0,0,10,0"
+                            FontSize="14" FontWeight="SemiBold" Cursor="Hand"
+                            Click="BtnQuanTriPhong_Click"
+                            Style="{DynamicResource MacFluent.ButtonAction.Add}"/>
+
+                    <Border Height="34" Width="200" Padding="10,0"
+                            Style="{DynamicResource MacFluent.InputFrame}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔍" FontSize="15" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="TxtSearch" BorderThickness="0"
+                                     Background="Transparent" VerticalAlignment="Center"
+                                     FontSize="15" TextChanged="TxtSearch_TextChanged" Width="150"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </Grid>
         </ContentControl>
 

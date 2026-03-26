@@ -173,6 +173,11 @@
                         <ComboBox x:Name="CboQuyen" Height="34" FontSize="15"
                                   Margin="0,0,0,20"/>
 
+                        <TextBlock Text="Trạng thái tài khoản" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="CboTaiKhoanActive" Height="34" FontSize="15"
+                                  Margin="0,0,0,20"/>
+
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>

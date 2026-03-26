@@ -80,10 +80,8 @@ public class AuthService
                 return null;
             }
 
-            var quyen = await _db.TaiKhoans
-                .Where(t => t.MaNhanVien == nv.MaNhanVien && t.IsActive == true)
-                .Select(t => t.MaQuyen)
-                .ToListAsync();
+            // Quy ước hệ thống: mỗi nhân viên chỉ có 1 quyền đang dùng (1 tài khoản active)
+            var quyen = new List<string> { tk.MaQuyen };
 
             System.Diagnostics.Debug.WriteLine("LOGIN_SUCCESS");
 

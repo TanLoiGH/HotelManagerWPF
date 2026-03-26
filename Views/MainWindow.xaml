@@ -146,64 +146,99 @@
                                 <!-- ===================== -->
                                 <!-- ADMIN -->
                                 <!-- ===================== -->
-                                <TextBlock Text="Admin"
-                   FontSize="{StaticResource Font.Size.Caption}" FontWeight="Bold"
-                   Foreground="{DynamicResource Brush.NavGroupLabel}" Margin="8,8,0,8"/>
+                                <StackPanel x:Name="AdminSection">
+                                    <TextBlock Text="Admin"
+                       FontSize="{StaticResource Font.Size.Caption}" FontWeight="Bold"
+                       Foreground="{DynamicResource Brush.NavGroupLabel}" Margin="8,8,0,8"/>
 
-                                <!-- Khách Hàng -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_KhachHang"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="👥"/>
-                                        <TextBlock Text="Khách Hàng"/>
-                                    </StackPanel>
-                                </Border>
+                                    <!-- Dịch vụ (CRUD danh mục) -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                   Background="Transparent" Cursor="Hand"
+                   MouseLeftButtonDown="Nav_DichVu"
+                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⭐"/>
+                                            <TextBlock Text="Dịch vụ"/>
+                                        </StackPanel>
+                                    </Border>
 
-                                <!-- Loại Khách -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_LoaiKhach"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="⭐"/>
-                                        <TextBlock Text="Loại Khách"/>
-                                    </StackPanel>
-                                </Border>
+                                    <!-- Loại chi phí (CRUD) -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                   Background="Transparent" Cursor="Hand"
+                   MouseLeftButtonDown="Nav_LoaiChiPhi"
+                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="💸"/>
+                                            <TextBlock Text="Loại Chi Phí"/>
+                                        </StackPanel>
+                                    </Border>
 
-                                <!-- Loại Phòng -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_LoaiPhong"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🏷️"/>
-                                        <TextBlock Text="Loại Phòng"/>
-                                    </StackPanel>
-                                </Border>
+                                    <!-- Phương thức thanh toán (CRUD) -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                   Background="Transparent" Cursor="Hand"
+                   MouseLeftButtonDown="Nav_PhuongThucThanhToan"
+                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="💳"/>
+                                            <TextBlock Text="PT Thanh Toán"/>
+                                        </StackPanel>
+                                    </Border>
 
-                                <!-- Nhà Cung Cấp -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_NhaCungCap"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🏭"/>
-                                        <TextBlock Text="Nhà Cung Cấp"/>
-                                    </StackPanel>
-                                </Border>
+                                    <!-- Khách Hàng -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                    Background="Transparent" Cursor="Hand"
+                    MouseLeftButtonDown="Nav_KhachHang"
+                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="👥"/>
+                                            <TextBlock Text="Khách Hàng"/>
+                                        </StackPanel>
+                                    </Border>
 
-                                <!-- Nhân Viên -->
-                                <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_NhanVien"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🪪"/>
-                                        <TextBlock Text="Nhân Viên"/>
-                                    </StackPanel>
-                                </Border>
+                                    <!-- Loại Khách -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                    Background="Transparent" Cursor="Hand"
+                    MouseLeftButtonDown="Nav_LoaiKhach"
+                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⭐"/>
+                                            <TextBlock Text="Loại Khách"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Loại Phòng -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                    Background="Transparent" Cursor="Hand"
+                    MouseLeftButtonDown="Nav_LoaiPhong"
+                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🏷️"/>
+                                            <TextBlock Text="Loại Phòng"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Nhà Cung Cấp -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                    Background="Transparent" Cursor="Hand"
+                    MouseLeftButtonDown="Nav_NhaCungCap"
+                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🏭"/>
+                                            <TextBlock Text="Nhà Cung Cấp"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Nhân Viên -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                    Background="Transparent" Cursor="Hand"
+                    MouseLeftButtonDown="Nav_NhanVien"
+                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🪪"/>
+                                            <TextBlock Text="Nhân Viên"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
 
                                 <!-- ===================== -->
                                 <!-- KHÁC -->
