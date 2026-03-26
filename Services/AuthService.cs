@@ -13,49 +13,94 @@ public class AuthService
 
     public async Task<LoginResult?> DangNhapAsync(string tenDangNhap, string matKhau)
     {
-        var tk = await _db.TaiKhoans
-            .Include(t => t.MaNhanVienNavigation)
-                .ThenInclude(nv => nv.MaTrangThaiNavigation)
-            .Include(t => t.MaQuyenNavigation)
-            .FirstOrDefaultAsync(t => t.TenDangNhap == tenDangNhap && t.IsActive == true);
-
-        if (tk == null) return null;
-
-        bool authenticated = false;
-        string stored = tk.MatKhau ?? "";
-
-        // Ưu tiên hash PBKDF2
-        if (PasswordHasher.Verify(matKhau, stored))
+        try
         {
-            authenticated = true;
+            var tk = await _db.TaiKhoans
+                .Include(t => t.MaNhanVienNavigation)
+                    .ThenInclude(nv => nv.MaTrangThaiNavigation)
+                .Include(t => t.MaQuyenNavigation)
+                .FirstOrDefaultAsync(t => t.TenDangNhap == tenDangNhap && t.IsActive == true);
+
+            if (tk == null)
+            {
+                System.Diagnostics.Debug.WriteLine("LOGIN_FAIL: User not found or inactive");
+                return null;
+            }
+
+            bool authenticated = false;
+            string stored = tk.MatKhau ?? "";
+
+            System.Diagnostics.Debug.WriteLine($"LOGIN_DEBUG: StoredPassword = {stored}");
+
+            if (!string.IsNullOrEmpty(stored) && stored.StartsWith("HASH2:"))
+            {
+                try
+                {
+                    authenticated = PasswordHasher.Verify(matKhau, stored);
+                    System.Diagnostics.Debug.WriteLine($"LOGIN_DEBUG: Verify HASH2 result = {authenticated}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"HASH_VERIFY_ERROR: {ex.Message}");
+                    return null;
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("LOGIN_DEBUG: Plaintext password detected");
+
+                if (stored == matKhau)
+                {
+                    authenticated = true;
+
+                    System.Diagnostics.Debug.WriteLine("LOGIN_DEBUG: Plaintext match → upgrading to HASH2");
+
+                    tk.MatKhau = PasswordHasher.Hash(matKhau);
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            if (!authenticated)
+            {
+                System.Diagnostics.Debug.WriteLine("LOGIN_FAIL: Password incorrect");
+                return null;
+            }
+
+            var nv = tk.MaNhanVienNavigation;
+
+            if (nv == null)
+            {
+                System.Diagnostics.Debug.WriteLine("LOGIN_FAIL: Employee record missing");
+                return null;
+            }
+
+            if (tk.MaNhanVienNavigation?.MaTrangThaiNavigation?.AllowLogin != true)
+            {
+                System.Diagnostics.Debug.WriteLine($"LOGIN_FAIL: Employee AllowLogin? invalid = {nv.MaTrangThai}");
+                return null;
+            }
+
+            var quyen = await _db.TaiKhoans
+                .Where(t => t.MaNhanVien == nv.MaNhanVien && t.IsActive == true)
+                .Select(t => t.MaQuyen)
+                .ToListAsync();
+
+            System.Diagnostics.Debug.WriteLine("LOGIN_SUCCESS");
+
+            return new LoginResult
+            {
+                MaNhanVien = nv.MaNhanVien,
+                TenNhanVien = nv.TenNhanVien,
+                ChucVu = nv.ChucVu ?? "",
+                Quyen = quyen
+            };
         }
-        else if (stored == matKhau && !string.IsNullOrEmpty(stored))
+        catch (Exception ex)
         {
-            // Legacy plain → nâng cấp ngay sau khi login hợp lệ
-            authenticated = true;
-            tk.MatKhau = PasswordHasher.Hash(matKhau);
-            await _db.SaveChangesAsync();
+            System.Diagnostics.Debug.WriteLine($"LOGIN_EXCEPTION: {ex}");
+            throw;
         }
-
-        if (!authenticated) return null;
-
-        var nv = tk.MaNhanVienNavigation;
-        if (nv.MaTrangThai != "TT01") return null;
-
-        var quyen = await _db.TaiKhoans
-            .Where(t => t.MaNhanVien == nv.MaNhanVien && t.IsActive == true)
-            .Select(t => t.MaQuyen)
-            .ToListAsync();
-
-        return new LoginResult
-        {
-            MaNhanVien = nv.MaNhanVien,
-            TenNhanVien = nv.TenNhanVien,
-            ChucVu = nv.ChucVu ?? "",
-            Quyen = quyen
-        };
     }
-
     public async Task<List<NhanVienViewModel>> GetNhanViensAsync()
         => await _db.NhanViens
             .Include(nv => nv.MaTrangThaiNavigation)

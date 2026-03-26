@@ -9,6 +9,8 @@ public partial class TrangThaiNhanVien
 
     public string TenTrangThai { get; set; } = null!;
 
+   public bool? AllowLogin { get; set; }
+
     public virtual ICollection<NhanVien> NhanViens { get; set; } = new List<NhanVien>();
 }
 
