@@ -54,7 +54,7 @@
     <Color x:Key="Color.Action.DeleteHover">#DC2626</Color>
     <Color x:Key="Color.Action.DeletePressed">#B91C1C</Color>
     <Color x:Key="Color.Action.DeleteSoft">#FEE2E2</Color>
-    <Color x:Key="Color.Action.DeleteSoftHover">#FECACA</Color>
+    <Color x:Key="Color.Action.DeleteSoftHover">#D5FA4545</Color>
     <Color x:Key="Color.Action.DeleteSoftPressed">#FCA5A5</Color>
 
     <!-- Filter -->

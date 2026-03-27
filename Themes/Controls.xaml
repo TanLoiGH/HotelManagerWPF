@@ -162,11 +162,11 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border x:Name="Bd"
-                            CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
+                            CornerRadius="60"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            Width="150">
+                            Width="30" HorizontalAlignment="Center">
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.08" Color="#000000" />
                         </Border.Effect>
