@@ -1,7 +1,7 @@
 <Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.QuanTriPhongDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Quản trị phòng" Width="1280" Height="840"
+        Title="Quản trị phòng" Width="1480" Height="840"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="ToolWindow">
@@ -79,8 +79,8 @@
         <!-- Form -->
         <Border Grid.Column="2" CornerRadius="12" Padding="16"
                 Background="{DynamicResource Brush.Surface}">
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden"
-                HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
                     <TextBlock x:Name="TxtFormTitle" Text="Chi tiết phòng"
                            FontSize="18" FontWeight="Bold"
@@ -115,7 +115,7 @@
                                Margin="0,0,0,16" TextWrapping="Wrap"/>
 
                         <!-- Tiện nghi theo phòng -->
-                        <StackPanel x:Name="PanelTienNghi" Visibility="Collapsed" CanHorizontallyScroll="True" >
+                        <StackPanel x:Name="PanelTienNghi" Visibility="Collapsed">
                             <Separator Background="#E0EAF4" Margin="0,4,0,12"/>
                             <TextBlock Text="🧰  Tiện nghi theo phòng" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,10"/>
@@ -124,18 +124,14 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" x:Name="BtnChonTienNghi" Content="➕  Chọn/Gỡ tiện nghi"
-                                            Height="34" Padding="14,0" FontSize="14"
-                                            FontWeight="SemiBold" Cursor="Hand"
-                                            Style="{DynamicResource MacFluent.ButtonAction.Add}"
-                                            Click="BtnChonTienNghi_Click"/>
-                                    <Button Grid.Column="2" x:Name="BtnGoTienNghiDaChon" Content="🗑  Gỡ đã chọn"
-                                            Height="34" Padding="14,0" FontSize="14"
-                                            FontWeight="SemiBold" Cursor="Hand"
-                                            Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
-                                            Click="BtnGoTienNghiDaChon_Click"/>
+                                    <ComboBox x:Name="CboThemTienNghi" Grid.Column="0" Height="34" FontSize="14"/>
+                                    <Button Grid.Column="2" Content="➕  Gán"
+                                    Height="34" Padding="14,0" FontSize="14"
+                                    FontWeight="SemiBold" Cursor="Hand"
+                                    Style="{DynamicResource MacFluent.ButtonAction.Add}"
+                                    Click="BtnGanTienNghi_Click"/>
                                 </Grid>
 
                             <DataGrid x:Name="TienNghiGrid"
@@ -150,8 +146,7 @@
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   ColumnWidth="SizeToCells"
-                  MinColumnWidth="120"
-                  SelectionMode="Extended">
+                  MinColumnWidth="120">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Tiện nghi" Binding="{Binding TenTienNghi}" Width="220"/>
                                     <DataGridComboBoxColumn Header="Trạng thái"
@@ -162,17 +157,20 @@
                                     <DataGridTemplateColumn Header="" Width="70">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Width="50"
+                                                <Button HorizontalContentAlignment="Left"
                                                         Padding="3"
                                                         Cursor="Hand"
                                                         Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
                                                         Click="BtnGoTienNghi_Click">
-                                                    <Grid Width="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=ActualWidth}">
-                                                        <TextBlock Text="Gỡ"
-                                                                   HorizontalAlignment="Center"
+                                                                                                    <Grid Width="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=ActualWidth}">
+                                                                                                        <TextBlock Text="Gỡ"
+                                                                   HorizontalAlignment="Left"
                                                                    VerticalAlignment="Center"/>
                                                     </Grid>
                                                 </Button>
+
+
+
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
