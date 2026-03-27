@@ -144,6 +144,9 @@ public partial class MainWindow : Window
     private void Nav_PhuongThucThanhToan(object sender, MouseButtonEventArgs e)
         => NavigateTo(new PhuongThucThanhToanPage(), "Phương Thức Thanh Toán", sender as Border);
 
+    private void Nav_DanhMucTienNghi(object sender, MouseButtonEventArgs e)
+        => NavigateTo(new DanhMucTienNghiPage(), "Danh mục Tiện Nghi", sender as Border);
+
     // ── Hover effects ────────────────────────────────────────────────────────
     private void NavItem_MouseEnter(object sender, MouseEventArgs e)
     {

@@ -184,6 +184,17 @@
                                         </StackPanel>
                                     </Border>
 
+                                    <!-- Danh mục tiện nghi (CRUD) -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                   Background="Transparent" Cursor="Hand"
+                   MouseLeftButtonDown="Nav_DanhMucTienNghi"
+                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🧰"/>
+                                            <TextBlock Text="DM Tiện Nghi"/>
+                                        </StackPanel>
+                                    </Border>
+
                                     <!-- Khách Hàng -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
                     Background="Transparent" Cursor="Hand"
