@@ -206,6 +206,9 @@ public partial class PhongPage : Page
             var tienNghis = await db.TienNghiPhongs
                 .Include(t => t.MaTienNghiNavigation)
                 .Where(t => t.MaPhong == vm.MaPhong)
+                .OrderBy(t => EF.Functions.Collate(
+                                    t.MaTienNghiNavigation.TenTienNghi,
+                                    "Vietnamese_CI_AI"))
                 .Select(t => new TienNghiItem
                 {
                     TenTienNghi = t.MaTienNghiNavigation.TenTienNghi

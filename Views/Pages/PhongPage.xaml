@@ -141,7 +141,7 @@
                             helpers:ThemeProperties.CornerRadius="16"
                             helpers:ThemeProperties.ShadowColor="{DynamicResource Color.BrandPrimary}">
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
                     <StackPanel Margin="20">
 
                         <!-- Empty state -->

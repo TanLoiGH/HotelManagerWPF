@@ -1,0 +1,87 @@
+<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.ChonTienNghiPhongDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chọn tiện nghi cho phòng" Width="560" Height="620"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="ToolWindow">
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Border CornerRadius="8" Padding="10,0" Height="34"
+                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🔍" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TxtSearch" BorderThickness="0"
+                             Background="Transparent" VerticalAlignment="Center"
+                             FontSize="15" TextChanged="TxtSearch_TextChanged"/>
+                </StackPanel>
+            </Border>
+            <Button Grid.Column="2" Content="Chọn hết" Height="34" Padding="14,0"
+                    Style="{DynamicResource MacFluent.ButtonAction.Add}"
+                    Click="BtnChonHet_Click"/>
+            <Button Grid.Column="4" Content="Bỏ chọn" Height="34" Padding="14,0"
+                    Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
+                    Click="BtnBoChon_Click"/>
+        </Grid>
+
+        <Border Grid.Row="2" CornerRadius="12" Padding="10"
+                Background="{DynamicResource Brush.Surface}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ListBox x:Name="ListTienNghi" BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="10" Padding="10,8" Margin="0,0,0,8"
+                                    Background="{DynamicResource Brush.SurfaceSoft}" Cursor="Hand">
+                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,10,0">
+                                <DockPanel LastChildFill="True">
+
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding TenTienNghi}" FontSize="15"
+                                                   Foreground="{DynamicResource Brush.Heading}"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding TenNCC}" FontSize="12"
+                                                   Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                </CheckBox>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
+        </Border>
+
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Hủy" Height="38"
+                    Background="#F5F5F5" BorderThickness="0"
+                    Click="BtnHuy_Click"/>
+            <Button Grid.Column="2" Content="Xác nhận" Height="38"
+                    Style="{DynamicResource MacFluent.ButtonPrimary}"
+                    Click="BtnXacNhan_Click"/>
+        </Grid>
+    </Grid>
+</Window>
+

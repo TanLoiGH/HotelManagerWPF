@@ -1,16 +1,16 @@
 <Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.QuanTriPhongDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Quản trị phòng" Width="980" Height="640"
+        Title="Quản trị phòng" Width="1480" Height="840"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
+        ResizeMode="CanResizeWithGrip"
         WindowStyle="ToolWindow">
 
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="16"/>
-            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="6"/>
+            <ColumnDefinition Width="1.5*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Danh sách phòng -->
@@ -60,67 +60,152 @@
                         <DataGridTextColumn Header="Mã phòng" Binding="{Binding MaPhong}" Width="110"/>
                         <DataGridTextColumn Header="Loại phòng" Binding="{Binding TenLoaiPhong}" Width="*"/>
                         <DataGridTextColumn Header="Trạng thái" Binding="{Binding TenTrangThai}" Width="160"/>
-                        <DataGridTextColumn Header="Đã dùng" Binding="{Binding UsedText}" Width="90"/>
+                        <DataGridTextColumn Header="Tiện nghi" Binding="{Binding UsedText}" Width="90"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
         </Border>
 
+        <!-- Splitter kéo -->
+        <GridSplitter Grid.Column="1"
+                  Width="6"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Background="#22000000"
+                  ResizeBehavior="PreviousAndNext"
+                  ResizeDirection="Columns"
+                  ShowsPreview="True"/>
+
         <!-- Form -->
         <Border Grid.Column="2" CornerRadius="12" Padding="16"
                 Background="{DynamicResource Brush.Surface}">
-            <StackPanel>
-                <TextBlock x:Name="TxtFormTitle" Text="Chi tiết phòng"
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden"
+                HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <TextBlock x:Name="TxtFormTitle" Text="Chi tiết phòng"
                            FontSize="18" FontWeight="Bold"
                            Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
 
-                <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
-                    <TextBlock Text="🏠" FontSize="54" HorizontalAlignment="Center" Margin="0,24,0,10"/>
-                    <TextBlock Text="Chọn phòng hoặc bấm Thêm mới"
+                    <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
+                        <TextBlock Text="🏠" FontSize="54" HorizontalAlignment="Center" Margin="0,24,0,10"/>
+                        <TextBlock Text="Chọn phòng hoặc bấm Thêm mới"
                                FontSize="14" Foreground="#AAA"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
-                </StackPanel>
+                    </StackPanel>
 
-                <StackPanel x:Name="PanelForm" Visibility="Collapsed">
-                    <TextBlock Text="Mã phòng *" FontSize="14" FontWeight="SemiBold"
+                    <StackPanel x:Name="PanelForm" Visibility="Collapsed">
+                        <TextBlock Text="Mã phòng *" FontSize="14" FontWeight="SemiBold"
                                Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
+                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                             Height="36" Margin="0,0,0,12">
-                        <TextBox x:Name="TxtMaPhong" BorderThickness="0" Padding="10,0"
+                            <TextBox x:Name="TxtMaPhong" BorderThickness="0" Padding="10,0"
                                  VerticalAlignment="Center" FontSize="15"/>
-                    </Border>
+                        </Border>
 
-                    <TextBlock Text="Loại phòng *" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock Text="Loại phòng *" FontSize="14" FontWeight="SemiBold"
                                Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CboLoaiPhong" Height="34" FontSize="15" Margin="0,0,0,12"/>
+                        <ComboBox x:Name="CboLoaiPhong" Height="34" FontSize="15" Margin="0,0,0,12"/>
 
-                    <TextBlock Text="Trạng thái *" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock Text="Trạng thái *" FontSize="14" FontWeight="SemiBold"
                                Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CboTrangThai" Height="34" FontSize="15" Margin="0,0,0,12"/>
+                        <ComboBox x:Name="CboTrangThai" Height="34" FontSize="15" Margin="0,0,0,12"/>
 
-                    <TextBlock x:Name="TxtHint" FontSize="13"
+                        <TextBlock x:Name="TxtHint" FontSize="13"
                                Foreground="{DynamicResource Brush.TextPlaceholder}"
                                Margin="0,0,0,16" TextWrapping="Wrap"/>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
+                        <!-- Tiện nghi theo phòng -->
+                        <StackPanel x:Name="PanelTienNghi" Visibility="Collapsed" CanHorizontallyScroll="True" >
+                            <Separator Background="#E0EAF4" Margin="0,4,0,12"/>
+                            <TextBlock Text="🧰  Tiện nghi theo phòng" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,10"/>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" x:Name="BtnChonTienNghi" Content="➕  Chọn/Gỡ tiện nghi"
+                                            Height="34" Padding="14,0" FontSize="14"
+                                            FontWeight="SemiBold" Cursor="Hand"
+                                            Style="{DynamicResource MacFluent.ButtonAction.Add}"
+                                            Click="BtnChonTienNghi_Click"/>
+                                    <Button Grid.Column="2" x:Name="BtnGoTienNghiDaChon" Content="🗑  Gỡ đã chọn"
+                                            Height="34" Padding="14,0" FontSize="14"
+                                            FontWeight="SemiBold" Cursor="Hand"
+                                            Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
+                                            Click="BtnGoTienNghiDaChon_Click"/>
+                                </Grid>
+
+                            <DataGrid x:Name="TienNghiGrid"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  FontSize="14"
+                  BorderThickness="0"
+                  RowHeight="40"
+                  MaxHeight="220"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ColumnWidth="SizeToCells"
+                  MinColumnWidth="120"
+                  SelectionMode="Extended">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tiện nghi" Binding="{Binding TenTienNghi}" Width="220"/>
+                                    <DataGridComboBoxColumn Header="Trạng thái"
+                                        SelectedValueBinding="{Binding MaTrangThai, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        SelectedValuePath="MaTrangThai"
+                                        DisplayMemberPath="TenTrangThai"
+                                        Width="160"/>
+                                    <DataGridTemplateColumn Header="" Width="70">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Width="50"
+                                                        Padding="3"
+                                                        Cursor="Hand"
+                                                        Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
+                                                        Click="BtnGoTienNghi_Click">
+                                                    <Grid Width="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=ActualWidth}">
+                                                        <TextBlock Text="Gỡ"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <Button x:Name="BtnLuuTienNghi" Content="💾  Lưu tiện nghi"
+                                Height="36" FontSize="14" FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Style="{DynamicResource MacFluent.ButtonPrimary}"
+                                Click="BtnLuuTienNghi_Click"
+                                Margin="0,0,0,14"/>
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
                                 Height="38" FontSize="15" Cursor="Hand"
                                 Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
                                 Click="BtnXoa_Click"/>
-                        <Button Grid.Column="2" x:Name="BtnLuu" Content="💾 Lưu"
+                            <Button Grid.Column="2" x:Name="BtnLuu" Content="💾 Lưu"
                                 Height="38" FontSize="15" FontWeight="SemiBold"
                                 Cursor="Hand"
                                 Style="{DynamicResource MacFluent.ButtonPrimary}"
                                 Click="BtnLuu_Click"/>
-                    </Grid>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </ScrollViewer>
         </Border>
     </Grid>
 </Window>
-
