@@ -124,14 +124,18 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="CboThemTienNghi" Grid.Column="0" Height="34" FontSize="14"/>
-                                    <Button Grid.Column="2" Content="➕  Gán"
-                                    Height="34" Padding="14,0" FontSize="14"
-                                    FontWeight="SemiBold" Cursor="Hand"
-                                    Style="{DynamicResource MacFluent.ButtonAction.Add}"
-                                    Click="BtnGanTienNghi_Click"/>
+                                    <Button Grid.Column="0" x:Name="BtnChonTienNghi" Content="➕  Chọn/Gỡ tiện nghi"
+                                            Height="34" Padding="14,0" FontSize="14"
+                                            FontWeight="SemiBold" Cursor="Hand"
+                                            Style="{DynamicResource MacFluent.ButtonAction.Add}"
+                                            Click="BtnChonTienNghi_Click"/>
+                                    <Button Grid.Column="2" x:Name="BtnGoTienNghiDaChon" Content="🗑  Gỡ đã chọn"
+                                            Height="34" Padding="14,0" FontSize="14"
+                                            FontWeight="SemiBold" Cursor="Hand"
+                                            Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
+                                            Click="BtnGoTienNghiDaChon_Click"/>
                                 </Grid>
 
                             <DataGrid x:Name="TienNghiGrid"

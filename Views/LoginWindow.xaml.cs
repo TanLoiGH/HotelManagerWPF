@@ -48,7 +48,16 @@ public partial class LoginWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        Application.Current.Shutdown();
+        // Đóng dialog đăng nhập một cách "sạch" (App/MainWindow sẽ quyết định shutdown hay mở MainWindow)
+        if (Application.Current?.ShutdownMode == ShutdownMode.OnExplicitShutdown)
+        {
+            DialogResult = false;
+            Close();
+            return;
+        }
+
+        // Fallback: nếu LoginWindow được mở như window thường
+        Close();
     }
 }
 

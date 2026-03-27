@@ -31,6 +31,7 @@ public partial class QuanTriPhongDialog : Window
     private List<QuanTriPhongRow> _all = [];
     private QuanTriPhongRow? _selected;
     private bool _isNew;
+
     private readonly ObservableCollection<TienNghiPhongRow> _tienNghiItems = new();
     private List<TienNghiTrangThai> _tienNghiTrangThais = [];
 
@@ -67,14 +68,6 @@ public partial class QuanTriPhongDialog : Window
         if (comboCol != null)
             comboCol.ItemsSource = _tienNghiTrangThais;
 
-        var allTienNghi = await db.TienNghis
-            .Where(t => t.IsActive == true)
-            .OrderBy(t => t.TenTienNghi)
-            .ToListAsync();
-        CboThemTienNghi.ItemsSource = allTienNghi;
-        CboThemTienNghi.DisplayMemberPath = "TenTienNghi";
-        CboThemTienNghi.SelectedValuePath = "MaTienNghi";
-
         _all = await db.Phongs
             .Include(p => p.MaLoaiPhongNavigation)
             .Include(p => p.MaTrangThaiPhongNavigation)
@@ -84,7 +77,9 @@ public partial class QuanTriPhongDialog : Window
                 MaLoaiPhong = p.MaLoaiPhong,
                 TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
                 MaTrangThaiPhong = p.MaTrangThaiPhong ?? "PTT01",
-                TenTrangThai = p.MaTrangThaiPhongNavigation != null ? (p.MaTrangThaiPhongNavigation.TenTrangThai ?? "") : "",
+                TenTrangThai = p.MaTrangThaiPhongNavigation != null
+                    ? (p.MaTrangThaiPhongNavigation.TenTrangThai ?? "")
+                    : "",
                 IsUsed = p.DatPhongChiTiets.Any() || p.TienNghiPhongs.Any() || p.ChiPhis.Any(),
             })
             .OrderBy(p => p.MaPhong)
@@ -176,27 +171,42 @@ public partial class QuanTriPhongDialog : Window
         foreach (var i in items) _tienNghiItems.Add(i);
     }
 
-    private async void BtnGanTienNghi_Click(object sender, RoutedEventArgs e)
+    private async void BtnChonTienNghi_Click(object sender, RoutedEventArgs e)
     {
         if (_selected == null || _isNew) return;
-        if (CboThemTienNghi.SelectedValue is not string maTienNghi) return;
+
+        var dlg = new ChonTienNghiPhongDialog(_selected.MaPhong) { Owner = this };
+        if (dlg.ShowDialog() != true) return;
+
+        var selectedIds = dlg.SelectedMaTienNghi;
 
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var item = await db.TienNghiPhongs.FindAsync(_selected.MaPhong, maTienNghi);
-            if (item == null)
+            var current = await db.TienNghiPhongs
+                .Where(t => t.MaPhong == _selected.MaPhong)
+                .Select(t => t.MaTienNghi)
+                .ToListAsync();
+
+            var toAdd = selectedIds.Except(current).ToList();
+            var toRemove = current.Except(selectedIds).ToList();
+
+            foreach (var id in toAdd)
             {
                 db.TienNghiPhongs.Add(new TienNghiPhong
                 {
                     MaPhong = _selected.MaPhong,
-                    MaTienNghi = maTienNghi,
+                    MaTienNghi = id,
                     MaTrangThai = "TNTT01"
                 });
             }
-            else
+
+            if (toRemove.Count > 0)
             {
-                item.MaTrangThai ??= "TNTT01";
+                var removeItems = await db.TienNghiPhongs
+                    .Where(t => t.MaPhong == _selected.MaPhong && toRemove.Contains(t.MaTienNghi))
+                    .ToListAsync();
+                db.TienNghiPhongs.RemoveRange(removeItems);
             }
 
             await db.SaveChangesAsync();
@@ -204,7 +214,39 @@ public partial class QuanTriPhongDialog : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi gán tiện nghi: {ex.Message}", "Lỗi",
+            MessageBox.Show($"Lỗi cập nhật tiện nghi: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void BtnGoTienNghiDaChon_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selected == null || _isNew) return;
+
+        var rows = TienNghiGrid.SelectedItems.Cast<object>()
+            .OfType<TienNghiPhongRow>()
+            .ToList();
+
+        if (rows.Count == 0) return;
+
+        if (MessageBox.Show($"Gỡ {rows.Count} tiện nghi đã chọn khỏi phòng {_selected.MaPhong}?",
+                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
+            != MessageBoxResult.Yes) return;
+
+        try
+        {
+            using var db = new QuanLyKhachSanContext();
+            var ids = rows.Select(r => r.MaTienNghi).ToList();
+            var removeItems = await db.TienNghiPhongs
+                .Where(t => t.MaPhong == _selected.MaPhong && ids.Contains(t.MaTienNghi))
+                .ToListAsync();
+            db.TienNghiPhongs.RemoveRange(removeItems);
+            await db.SaveChangesAsync();
+            await LoadTienNghiAsync(_selected.MaPhong);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi gỡ tiện nghi: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -358,3 +400,4 @@ public partial class QuanTriPhongDialog : Window
         }
     }
 }
+

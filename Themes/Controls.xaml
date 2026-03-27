@@ -150,6 +150,8 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="helpers:ThemeProperties.CornerRadius" Value="{StaticResource Radius.M}" />
@@ -162,15 +164,17 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border x:Name="Bd"
-                            CornerRadius="60"
+                            CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Width="30" HorizontalAlignment="Center">
+                            BorderThickness="{TemplateBinding BorderThickness}">
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.08" Color="#000000" />
                         </Border.Effect>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -210,10 +214,57 @@
         </Setter>
     </Style>
 
-    <Style x:Key="MacFluent.ButtonGhost" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
+    <Style x:Key="MacFluent.ButtonGhost" TargetType="{x:Type Button}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="{StaticResource Radius.M}"/>
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Hover}"/>
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.SurfaceSoft}"/>
+        <Setter Property="helpers:ThemeProperties.DisabledOpacity" Value="0.55"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="Bd"
+                        CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}"/>
+                            <Setter TargetName="Bd" Property="RenderTransform">
+                                <Setter.Value>
+                                    <TranslateTransform Y="1"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity"
+                                Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.DisabledOpacity)}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
+
 
     <Style x:Key="MacFluent.ButtonPrimary" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
         <Setter Property="Background" Value="{DynamicResource Brush.BrandGradient}" />

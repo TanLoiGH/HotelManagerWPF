@@ -310,11 +310,15 @@
                                     <TextBlock Text="{Binding MaQuyen}"
                                                FontSize="13" Foreground="{DynamicResource Brush.NavMuted}" Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="↩"
-                                        FontSize="18"
-                                        ToolTip="Đăng xuất" Cursor="Hand"
-                                        Style="{DynamicResource MacFluent.IconButton.Danger}"
-                                        Click="Logout_Click"/>
+                                <Button Grid.Column="1"
+                                                Content="↩"
+                                                Width="30"
+                                                Height="30"
+                                                ToolTip="Đăng xuất"
+                                                Cursor="Hand"
+                                                Style="{DynamicResource MacFluent.IconButton.Danger}"
+                                               
+                                                Click="Logout_Click"/>
                             </Grid>
                         </Border>
 
