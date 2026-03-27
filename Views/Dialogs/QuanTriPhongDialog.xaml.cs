@@ -219,60 +219,37 @@ public partial class QuanTriPhongDialog : Window
         }
     }
 
-    private async void BtnGoTienNghiDaChon_Click(object sender, RoutedEventArgs e)
-    {
-        if (_selected == null || _isNew) return;
+    //private async void BtnGoTienNghiDaChon_Click(object sender, RoutedEventArgs e)
+    //{
+    //    if (_selected == null || _isNew) return;
 
-        var rows = TienNghiGrid.SelectedItems.Cast<object>()
-            .OfType<TienNghiPhongRow>()
-            .ToList();
+    //    var rows = TienNghiGrid.SelectedItems.Cast<object>()
+    //        .OfType<TienNghiPhongRow>()
+    //        .ToList();
 
-        if (rows.Count == 0) return;
+    //    if (rows.Count == 0) return;
 
-        if (MessageBox.Show($"Gỡ {rows.Count} tiện nghi đã chọn khỏi phòng {_selected.MaPhong}?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+    //    if (MessageBox.Show($"Gỡ {rows.Count} tiện nghi đã chọn khỏi phòng {_selected.MaPhong}?",
+    //            "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
+    //        != MessageBoxResult.Yes) return;
 
-        try
-        {
-            using var db = new QuanLyKhachSanContext();
-            var ids = rows.Select(r => r.MaTienNghi).ToList();
-            var removeItems = await db.TienNghiPhongs
-                .Where(t => t.MaPhong == _selected.MaPhong && ids.Contains(t.MaTienNghi))
-                .ToListAsync();
-            db.TienNghiPhongs.RemoveRange(removeItems);
-            await db.SaveChangesAsync();
-            await LoadTienNghiAsync(_selected.MaPhong);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Lỗi gỡ tiện nghi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private async void BtnLuuTienNghi_Click(object sender, RoutedEventArgs e)
-    {
-        if (_selected == null || _isNew) return;
-
-        try
-        {
-            using var db = new QuanLyKhachSanContext();
-            foreach (var row in _tienNghiItems)
-            {
-                var item = await db.TienNghiPhongs.FindAsync(_selected.MaPhong, row.MaTienNghi);
-                if (item != null) item.MaTrangThai = row.MaTrangThai;
-            }
-
-            await db.SaveChangesAsync();
-            await LoadTienNghiAsync(_selected.MaPhong);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Lỗi lưu tiện nghi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
+    //    try
+    //    {
+    //        using var db = new QuanLyKhachSanContext();
+    //        var ids = rows.Select(r => r.MaTienNghi).ToList();
+    //        var removeItems = await db.TienNghiPhongs
+    //            .Where(t => t.MaPhong == _selected.MaPhong && ids.Contains(t.MaTienNghi))
+    //            .ToListAsync();
+    //        db.TienNghiPhongs.RemoveRange(removeItems);
+    //        await db.SaveChangesAsync();
+    //        await LoadTienNghiAsync(_selected.MaPhong);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        MessageBox.Show($"Lỗi gỡ tiện nghi: {ex.Message}", "Lỗi",
+    //            MessageBoxButton.OK, MessageBoxImage.Error);
+    //    }
+    //}
 
     private async void BtnGoTienNghi_Click(object sender, RoutedEventArgs e)
     {

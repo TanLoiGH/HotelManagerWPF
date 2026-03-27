@@ -114,29 +114,43 @@
                                Foreground="{DynamicResource Brush.TextPlaceholder}"
                                Margin="0,0,0,16" TextWrapping="Wrap"/>
 
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
+                                Height="38" FontSize="15" Cursor="Hand"
+                                Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
+                                Click="BtnXoa_Click"/>
+                            <Button Grid.Column="2" x:Name="BtnLuu" Content="💾 Lưu"
+                                Height="38" FontSize="15" FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Style="{DynamicResource MacFluent.ButtonPrimary}"
+                                Click="BtnLuu_Click"/>
+                        </Grid>
+
                         <!-- Tiện nghi theo phòng -->
                         <StackPanel x:Name="PanelTienNghi" Visibility="Collapsed">
                             <Separator Background="#E0EAF4" Margin="0,4,0,12"/>
                             <TextBlock Text="🧰  Tiện nghi theo phòng" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,10"/>
 
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="10"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" x:Name="BtnChonTienNghi" Content="➕  Chọn/Gỡ tiện nghi"
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" x:Name="BtnChonTienNghi" Content="➕  Chọn/Gỡ tiện nghi"
                                             Height="34" Padding="14,0" FontSize="14"
                                             FontWeight="SemiBold" Cursor="Hand"
                                             Style="{DynamicResource MacFluent.ButtonAction.Add}"
                                             Click="BtnChonTienNghi_Click"/>
-                                    <Button Grid.Column="2" x:Name="BtnGoTienNghiDaChon" Content="🗑  Gỡ đã chọn"
-                                            Height="34" Padding="14,0" FontSize="14"
-                                            FontWeight="SemiBold" Cursor="Hand"
-                                            Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
-                                            Click="BtnGoTienNghiDaChon_Click"/>
-                                </Grid>
+                            </Grid>
 
                             <DataGrid x:Name="TienNghiGrid"
                   AutoGenerateColumns="False"
@@ -166,8 +180,8 @@
                                                         Cursor="Hand"
                                                         Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
                                                         Click="BtnGoTienNghi_Click">
-                                                                                                    <Grid Width="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=ActualWidth}">
-                                                                                                        <TextBlock Text="Gỡ"
+                                                    <Grid Width="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=ActualWidth}">
+                                                        <TextBlock Text="Gỡ"
                                                                    HorizontalAlignment="Left"
                                                                    VerticalAlignment="Center"/>
                                                     </Grid>
@@ -181,30 +195,7 @@
                                 </DataGrid.Columns>
                             </DataGrid>
 
-                            <Button x:Name="BtnLuuTienNghi" Content="💾  Lưu tiện nghi"
-                                Height="36" FontSize="14" FontWeight="SemiBold"
-                                Cursor="Hand"
-                                Style="{DynamicResource MacFluent.ButtonPrimary}"
-                                Click="BtnLuuTienNghi_Click"
-                                Margin="0,0,0,14"/>
                         </StackPanel>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
-                                Height="38" FontSize="15" Cursor="Hand"
-                                Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
-                                Click="BtnXoa_Click"/>
-                            <Button Grid.Column="2" x:Name="BtnLuu" Content="💾 Lưu"
-                                Height="38" FontSize="15" FontWeight="SemiBold"
-                                Cursor="Hand"
-                                Style="{DynamicResource MacFluent.ButtonPrimary}"
-                                Click="BtnLuu_Click"/>
-                        </Grid>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
