@@ -1,4 +1,4 @@
-﻿// ===========================================================================
+// ===========================================================================
 // ThanhToanDialog.xaml.cs
 // THANH_TOAN + PHUONG_THUC_THANH_TOAN
 // ===========================================================================
@@ -6,6 +6,7 @@ using QuanLyKhachSan_PhamTanLoi;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 
@@ -81,14 +82,16 @@ public partial class ThanhToanDialog : Window
         if (!decimal.TryParse(TxtSoTien.Text.Replace(",", "").Replace(".", ""),
             out decimal soTien) || soTien <= 0)
         {
-            MessageBox.Show("Số tiền không hợp lệ.", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Số tiền không hợp lệ.");
             return;
         }
 
         string maNhanVien = App.CurrentUser?.MaNhanVien ?? "NV001";
         string loai = CboLoaiGD.SelectedIndex == 0
             ? "Thanh toán cuối" : CboLoaiGD.SelectedItem?.ToString() ?? "Thanh toán cuối";
+
+        if (!ConfirmHelper.Confirm($"Xác nhận thanh toán số tiền {soTien:N0} ₫ cho hóa đơn {_maHoaDon}?", "Xác nhận thanh toán"))
+            return;
 
         try
         {

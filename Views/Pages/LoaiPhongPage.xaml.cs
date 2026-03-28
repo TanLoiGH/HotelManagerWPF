@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
@@ -98,6 +98,8 @@ public partial class LoaiPhongPage : Page
 
         int.TryParse(TxtSoNguoi.Text, out int soNguoi);
 
+        if (!ConfirmHelper.ConfirmSave(ten)) return;
+
         try
         {
             using var db = new QuanLyKhachSanContext();
@@ -144,9 +146,7 @@ public partial class LoaiPhongPage : Page
     {
         if (_selected == null) return;
 
-        if (MessageBox.Show($"Xóa loại phòng \"{_selected.TenLoaiPhong}\"?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDelete(_selected.TenLoaiPhong)) return;
 
         try
         {
@@ -161,8 +161,7 @@ public partial class LoaiPhongPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi: {ex.Message}");
         }
     }
 }

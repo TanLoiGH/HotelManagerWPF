@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
@@ -32,12 +32,27 @@ public class DatPhongService
 
     public async Task<DatPhong> TaoDatPhongAsync(
         string maKhachHang,
-        List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)> rooms)
+        List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)> rooms,
+        decimal tienCoc = 0,
+        int soNguoi = 1)
     {
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
+        int tongSucChua = 0;
         foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
+        {
             await EnsurePhongAvailableAsync(maPhong, ngayNhan, ngayTra);
+
+            var phong = await _db.Phongs
+                .Include(p => p.MaLoaiPhongNavigation)
+                .FirstAsync(p => p.MaPhong == maPhong);
+
+            tongSucChua += phong.MaLoaiPhongNavigation.SoNguoiToiDa ?? 0;
+        }
+
+        if (soNguoi > tongSucChua)
+            throw new InvalidOperationException(
+                $"Tổng sức chứa các phòng ({tongSucChua} người) không đủ cho {soNguoi} người.");
 
         var lastMa = await _db.DatPhongs
             .OrderByDescending(d => d.MaDatPhong)
@@ -49,6 +64,7 @@ public class DatPhongService
             MaDatPhong = MaHelper.Next("DP", lastMa),
             MaKhachHang = maKhachHang,
             NgayDat = DateTime.Now,
+            TienCoc = tienCoc,
             TrangThai = "Chờ nhận phòng"
         };
         _db.DatPhongs.Add(dp);
@@ -109,7 +125,18 @@ public class DatPhongService
         foreach (var ct in dp.DatPhongChiTiets)
         {
             var phong = await _db.Phongs.FindAsync(ct.MaPhong);
-            if (phong != null) phong.MaTrangThaiPhong = "PTT01";
+            if (phong != null)
+            {
+                // Kiểm tra xem phòng có đang được sử dụng bởi đặt phòng khác không
+                bool isOccupied = await _db.DatPhongChiTiets
+                    .AnyAsync(c => c.MaPhong == ct.MaPhong && c.MaDatPhong != maDatPhong &&
+                                  c.MaDatPhongNavigation!.TrangThai == "Đang ở");
+
+                if (!isOccupied)
+                {
+                    phong.MaTrangThaiPhong = "PTT01"; // Trống
+                }
+            }
         }
         await _db.SaveChangesAsync();
     }

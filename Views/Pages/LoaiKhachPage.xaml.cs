@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
@@ -108,6 +108,8 @@ public partial class LoaiKhachPage : Page
         decimal.TryParse(TxtNguong.Text.Replace(",", "").Replace(".", ""),
             out decimal nguong);
 
+        if (!ConfirmHelper.ConfirmSave(ten)) return;
+
         try
         {
             using var db = new QuanLyKhachSanContext();
@@ -152,9 +154,7 @@ public partial class LoaiKhachPage : Page
     {
         if (_selected == null) return;
 
-        if (MessageBox.Show($"Xóa hạng \"{_selected.TenLoaiKhach}\"?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDelete(_selected.TenLoaiKhach)) return;
 
         try
         {
@@ -169,8 +169,7 @@ public partial class LoaiKhachPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi: {ex.Message}");
         }
     }
 }

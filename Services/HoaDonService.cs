@@ -36,6 +36,9 @@ public class HoaDonService
         if (!chiTiets.Any())
             throw new InvalidOperationException("Không có phòng nào trong đặt phòng.");
 
+        var dp = await _db.DatPhongs.FindAsync(maDatPhong);
+        decimal tienCoc = dp?.TienCoc ?? 0;
+
         decimal tienPhong = chiTiets
             .Sum(c => (decimal)(c.NgayTra - c.NgayNhan).TotalDays * c.DonGia);
 
@@ -56,6 +59,8 @@ public class HoaDonService
             .Select(h => h.MaHoaDon)
             .FirstOrDefaultAsync();
 
+        decimal vatPercent = 10; // Có thể lấy từ AppSettings hoặc DB sau này
+
         var hd = new HoaDon
         {
             MaHoaDon = MaHelper.Next("HD", lastMa),
@@ -64,9 +69,10 @@ public class HoaDonService
             NgayLap = DateTime.Now,
             TienPhong = tienPhong,
             TienDichVu = 0,
-            Vat = 10,
+            Vat = vatPercent,
             MaKhuyenMai = maKhuyenMai,
-            TongThanhToan = tienPhong * (1 + 10m / 100) * (1 - kmPercent / 100),
+            // Sửa logic: Giảm giá tính trên tiền phòng, cộng VAT, sau đó trừ tiền cọc
+            TongThanhToan = ((tienPhong * (1 - kmPercent / 100)) * (1 + vatPercent / 100m)) - tienCoc,
             TrangThai = "Chưa thanh toán"
         };
         _db.HoaDons.Add(hd);

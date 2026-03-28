@@ -1,4 +1,4 @@
-﻿<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.DatPhongDialog"
+<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.DatPhongDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Đặt Phòng" Width="520" Height="560"
@@ -80,6 +80,26 @@
                                     FontSize="15" Height="34"/>
                     </StackPanel>
                 </Grid>
+
+                <!-- Số người -->
+                <TextBlock Text="Số người" FontSize="14" FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                <Border CornerRadius="8" BorderBrush="#DDE" BorderThickness="1.5" Height="36" Margin="0,0,0,12">
+                    <TextBox x:Name="TxtSoNguoi" BorderThickness="0" Padding="10,0"
+                             VerticalAlignment="Center" FontSize="15"
+                             Text="1"
+                             />
+                </Border>
+
+                <!-- Tiền cọc -->
+                <TextBlock Text="Tiền cọc (nếu có)" FontSize="14" FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                <Border CornerRadius="8" BorderBrush="#DDE" BorderThickness="1.5" Height="36" Margin="0,0,0,12">
+                    <TextBox x:Name="TxtTienCoc" BorderThickness="0" Padding="10,0"
+                             VerticalAlignment="Center" FontSize="15"
+                             TextChanged="TxtTienCoc_TextChanged"
+                             />
+                </Border>
 
                 <Border CornerRadius="8"
                         Padding="12,10"

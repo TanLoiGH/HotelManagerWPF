@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
@@ -37,7 +37,6 @@ public class AuthService
                 try
                 {
                     authenticated = PasswordHasher.Verify(matKhau, stored);
-                    System.Diagnostics.Debug.WriteLine($"LOGIN_DEBUG: Verify HASH2 result = {authenticated}");
                 }
                 catch (Exception ex)
                 {
@@ -47,14 +46,11 @@ public class AuthService
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("LOGIN_DEBUG: Plaintext password detected");
-
-                if (stored == matKhau)
+                // Chỉ cho phép login plaintext một lần để nâng cấp mã hóa
+                // Sau khi tất cả đã được nâng cấp, đoạn code này nên bị loại bỏ
+                if (!string.IsNullOrEmpty(stored) && stored == matKhau)
                 {
                     authenticated = true;
-
-                    System.Diagnostics.Debug.WriteLine("LOGIN_DEBUG: Plaintext match → upgrading to HASH2");
-
                     tk.MatKhau = PasswordHasher.Hash(matKhau);
                     await _db.SaveChangesAsync();
                 }
@@ -110,6 +106,10 @@ public class AuthService
                 TenNhanVien = nv.TenNhanVien,
                 ChucVu = nv.ChucVu ?? "",
                 DienThoai = nv.DienThoai ?? "",
+                Email = nv.Email ?? "",
+                Cccd = nv.Cccd ?? "",
+                DiaChi = nv.DiaChi ?? "",
+                NgayVaoLamText = nv.NgayVaoLam.HasValue ? nv.NgayVaoLam.Value.ToString("dd/MM/yyyy") : "",
                 TenTrangThai = nv.MaTrangThaiNavigation != null
                                ? nv.MaTrangThaiNavigation.TenTrangThai ?? "" : "",
                 Quyen = nv.TaiKhoans

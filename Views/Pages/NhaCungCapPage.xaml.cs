@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore;
@@ -103,10 +103,11 @@ public partial class NhaCungCapPage : Page
         string ten = TxtTen.Text.Trim();
         if (string.IsNullOrWhiteSpace(ten))
         {
-            MessageBox.Show("Vui lòng nhập tên nhà cung cấp.", "Thiếu thông tin",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Vui lòng nhập tên nhà cung cấp.");
             return;
         }
+
+        if (!ConfirmHelper.ConfirmSave()) return;
 
         try
         {
@@ -160,9 +161,7 @@ public partial class NhaCungCapPage : Page
     {
         if (_selected == null) return;
 
-        if (MessageBox.Show($"Vô hiệu hóa \"{_selected.TenNcc}\"?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDeactivate(_selected.TenNcc)) return;
 
         try
         {
@@ -177,10 +176,12 @@ public partial class NhaCungCapPage : Page
                 if (coLienQuan)
                 {
                     ncc.IsActive = false;
-                    MessageBox.Show("NCC đã có dữ liệu liên quan — đã vô hiệu hóa thay vì xóa.",
-                        "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ConfirmHelper.ShowInfo("NCC đã có dữ liệu liên quan — đã vô hiệu hóa thay vì xóa.");
                 }
-                else db.NhaCungCaps.Remove(ncc);
+                else
+                {
+                    db.NhaCungCaps.Remove(ncc);
+                }
 
                 await db.SaveChangesAsync();
             }
@@ -191,8 +192,7 @@ public partial class NhaCungCapPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi: {ex.Message}");
         }
     }
 }

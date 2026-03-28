@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore;
@@ -106,10 +106,11 @@ public partial class DichVuPage : Page
         string giaRaw = TxtGia.Text.Replace(",", "").Replace(".", "").Trim();
         if (!decimal.TryParse(giaRaw, out decimal gia) || gia < 0)
         {
-            MessageBox.Show("Giá không hợp lệ.", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Giá không hợp lệ.");
             return;
         }
+
+        if (!ConfirmHelper.ConfirmSave(ten)) return;
 
         try
         {
@@ -160,11 +161,7 @@ public partial class DichVuPage : Page
     {
         if (_selected == null) return;
 
-        var confirm = MessageBox.Show(
-            $"Xóa dịch vụ \"{_selected.TenDichVu}\"?\nThao tác không thể hoàn tác.",
-            "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-        if (confirm != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDelete(_selected.TenDichVu)) return;
 
         try
         {
@@ -179,8 +176,7 @@ public partial class DichVuPage : Page
                 if (coGiaoDich)
                 {
                     dv.IsActive = false;
-                    MessageBox.Show("Dịch vụ đã có giao dịch — đã chuyển sang trạng thái Tắt thay vì xóa.",
-                        "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ConfirmHelper.ShowInfo("Dịch vụ đã có giao dịch — đã chuyển sang trạng thái Tắt thay vì xóa.");
                 }
                 else
                 {
@@ -196,8 +192,7 @@ public partial class DichVuPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi xóa: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi xóa: {ex.Message}");
         }
     }
 }

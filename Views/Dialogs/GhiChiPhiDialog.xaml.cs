@@ -1,9 +1,10 @@
-﻿// ===========================================================================
+// ===========================================================================
 // GhiChiPhiDialog.xaml.cs
 // CHI_PHI + LOAI_CHI_PHI + NHA_CUNG_CAP (optional) + PHONG (optional)
 // ===========================================================================
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 
@@ -70,10 +71,12 @@ public partial class GhiChiPhiDialog : Window
         if (!decimal.TryParse(TxtSoTien.Text.Replace(",", "").Replace(".", ""),
             out decimal soTien) || soTien <= 0)
         {
-            MessageBox.Show("Số tiền không hợp lệ.", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Số tiền không hợp lệ.");
             return;
         }
+
+        if (!ConfirmHelper.Confirm("Bạn có chắc chắn muốn ghi nhận chi phí này không?", "Xác nhận lưu"))
+            return;
 
         Result = (
             maLoaiCP,

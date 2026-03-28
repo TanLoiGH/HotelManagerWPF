@@ -42,31 +42,95 @@
 
         <Border Grid.Row="2" CornerRadius="12" Padding="10"
                 Background="{DynamicResource Brush.Surface}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListBox x:Name="ListTienNghi" BorderThickness="0">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border CornerRadius="10" Padding="10,8" Margin="0,0,0,8"
-                                    Background="{DynamicResource Brush.SurfaceSoft}" Cursor="Hand">
-                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                              VerticalAlignment="Center"
-                                              Margin="0,0,10,0">
-                                <DockPanel LastChildFill="True">
+            <!-- 
+                Sử dụng ListView kết hợp với Virtualization để hiệu năng mượt mà.
+                Đã khôi phục khả năng click toàn vùng Card (Hit-testing) và Keyboard Navigation (Space).
+            -->
+            <ListView x:Name="ListTienNghi" 
+                      BorderThickness="0"
+                      Background="Transparent"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling">
 
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding TenTienNghi}" FontSize="15"
-                                                   Foreground="{DynamicResource Brush.Heading}"
-                                                   FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding TenNCC}" FontSize="12"
-                                                   Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    </StackPanel>
-                                </DockPanel>
-                                </CheckBox>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </ScrollViewer>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <!-- Vô hiệu hóa selection mặc định để Card UI tự xử lý sự kiện click -->
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,0,0,8"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Focusable" Value="False"/> <!-- Để CheckBox bên trong nhận Focus thay thế -->
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <Border Background="Transparent">
+                                        <ContentPresenter />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <!-- CheckBox giờ đây là root của DataTemplate để chiếm toàn bộ vùng click -->
+                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" 
+                                  HorizontalAlignment="Stretch"
+                                  VerticalContentAlignment="Center"
+                                  Cursor="Hand"
+                                  Padding="0">
+                            
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="CheckBox">
+                                    <Border x:Name="CardBorder" CornerRadius="10" Padding="12,10" 
+                                            Background="{DynamicResource Brush.SurfaceSoft}" 
+                                            BorderThickness="1.5" BorderBrush="Transparent">
+                                        <Grid Background="Transparent"> <!-- Grid background Transparent rất quan trọng cho Hit-testing -->
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Checkbox Custom Look -->
+                                            <Border x:Name="CheckMark" Width="22" Height="22" 
+                                                    CornerRadius="5" BorderThickness="1.5"
+                                                    BorderBrush="{DynamicResource Brush.Border}"
+                                                    Background="White" Margin="0,0,14,0">
+                                                <TextBlock x:Name="Mark" Text="✓" FontSize="14" FontWeight="Bold" 
+                                                           Foreground="White" HorizontalAlignment="Center" 
+                                                           VerticalAlignment="Center" Visibility="Collapsed"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding TenTienNghi}" FontSize="15" 
+                                                           Foreground="{DynamicResource Brush.Heading}" 
+                                                           FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding TenNCC}" FontSize="12" 
+                                                           Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                    
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="CheckMark" Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                            <Setter TargetName="CheckMark" Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                            <Setter TargetName="Mark" Property="Visibility" Value="Visible"/>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="{DynamicResource Brush.Action.AddSoft}"/>
+                                        </Trigger>
+                                        <!-- Hiệu ứng hover cho toàn Card -->
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="CardBorder" Property="Background" Value="{DynamicResource Brush.Hover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Border>
 
         <Grid Grid.Row="4">

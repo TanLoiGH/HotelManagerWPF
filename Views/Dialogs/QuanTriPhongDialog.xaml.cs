@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -211,11 +212,11 @@ public partial class QuanTriPhongDialog : Window
 
             await db.SaveChangesAsync();
             await LoadTienNghiAsync(_selected.MaPhong);
+            await LoadAsync(); // Reload danh sách phòng để cập nhật IsUsed (Có/Không)
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi cập nhật tiện nghi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi cập nhật tiện nghi: {ex.Message}");
         }
     }
 
@@ -294,6 +295,8 @@ public partial class QuanTriPhongDialog : Window
 
         string maTrangThai = CboTrangThai.SelectedValue as string ?? "PTT01";
 
+        if (!ConfirmHelper.ConfirmSave($"phòng {maPhong}")) return;
+
         try
         {
             using var db = new QuanLyKhachSanContext();
@@ -342,9 +345,7 @@ public partial class QuanTriPhongDialog : Window
     {
         if (_selected == null) return;
 
-        if (MessageBox.Show($"Xóa phòng \"{_selected.MaPhong}\"?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDelete($"phòng {_selected.MaPhong}")) return;
 
         try
         {
@@ -355,7 +356,10 @@ public partial class QuanTriPhongDialog : Window
                 .AnyAsync(p => p.DatPhongChiTiets.Any() || p.TienNghiPhongs.Any() || p.ChiPhis.Any());
 
             if (used)
-                throw new InvalidOperationException("Phòng đã phát sinh dữ liệu, không thể xóa.");
+            {
+                ConfirmHelper.ShowWarning("Phòng đã phát sinh dữ liệu, không thể xóa.");
+                return;
+            }
 
             var p = await db.Phongs.FindAsync(_selected.MaPhong);
             if (p != null) db.Phongs.Remove(p);
@@ -365,15 +369,9 @@ public partial class QuanTriPhongDialog : Window
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
         }
-        catch (InvalidOperationException ex)
-        {
-            MessageBox.Show(ex.Message, "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi xóa: {ex.Message}");
         }
     }
 }

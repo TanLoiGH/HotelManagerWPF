@@ -1,7 +1,8 @@
-﻿// TienNghiPage.xaml.cs — thay toàn bộ
+// TienNghiPage.xaml.cs — thay toàn bộ
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,9 @@ public partial class TienNghiPage : Page
         if (CboPhong.SelectedValue is not string maPhong) return;
         if (CboTrangThai.SelectedValue is not string maTrangThai) return;
 
+        if (!ConfirmHelper.Confirm($"Bạn có chắc chắn muốn cập nhật trạng thái tiện nghi \"{item.TenTienNghi}\" tại phòng {maPhong}?", "Xác nhận cập nhật"))
+            return;
+
         try
         {
             using var db = new QuanLyKhachSanContext();
@@ -78,10 +82,12 @@ public partial class TienNghiPage : Page
 
         if (!decimal.TryParse(TxtChiPhiSuaChua.Text, out decimal cp) || cp <= 0)
         {
-            MessageBox.Show("Nhập số tiền chi phí hợp lệ.", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Nhập số tiền chi phí hợp lệ.");
             return;
         }
+
+        if (!ConfirmHelper.Confirm($"Bạn có muốn ghi nhận chi phí sửa chữa {cp:N0} ₫ cho tiện nghi \"{item.TenTienNghi}\" tại phòng {maPhong} không?", "Xác nhận ghi chi phí"))
+            return;
 
         try
         {

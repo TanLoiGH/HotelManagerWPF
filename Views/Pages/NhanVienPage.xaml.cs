@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
@@ -153,10 +153,11 @@ public partial class NhanVienPage : Page
         string ten = TxtTen.Text.Trim();
         if (string.IsNullOrWhiteSpace(ten))
         {
-            MessageBox.Show("Vui lòng nhập họ tên.", "Thiếu thông tin",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Vui lòng nhập họ tên.");
             return;
         }
+
+        if (!ConfirmHelper.ConfirmSave(ten)) return;
 
         try
         {
@@ -327,9 +328,7 @@ public partial class NhanVienPage : Page
     {
         if (_selected == null) return;
 
-        if (MessageBox.Show($"Vô hiệu hóa nhân viên \"{_selected.TenNhanVien}\"?\n(Không xóa dữ liệu, chỉ đổi trạng thái)",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDeactivate(_selected.TenNhanVien)) return;
 
         try
         {
@@ -352,8 +351,7 @@ public partial class NhanVienPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi: {ex.Message}");
         }
     }
 }

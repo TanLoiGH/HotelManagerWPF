@@ -1,9 +1,10 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -57,8 +58,11 @@ public partial class DatPhongDialog : Window
         UpdateTinhGia();
     }
 
-    // Tính tiền tự động khi thay đổi ngày
+    // Tính tiền tự động khi thay đổi ngày hoặc tiền cọc
     private void DatePicker_Changed(object sender, SelectionChangedEventArgs e)
+        => UpdateTinhGia();
+
+    private void TxtTienCoc_TextChanged(object sender, TextChangedEventArgs e)
         => UpdateTinhGia();
 
     private void UpdateTinhGia()
@@ -74,10 +78,16 @@ public partial class DatPhongDialog : Window
 
         int soDem = (int)(ngayTra.Value - ngayNhan.Value).TotalDays;
         decimal tienPhong = soDem * _phong.GiaPhong;
-        decimal tong = tienPhong * 1.10m;
+        decimal vat = tienPhong * 0.10m;
+        decimal tong = tienPhong + vat;
+
+        decimal.TryParse(TxtTienCoc?.Text, out decimal tienCoc);
+        decimal conLai = tong - tienCoc;
+
         TxtTinhGia.Text = $"{soDem} đêm × {_phong.GiaPhong:N0} ₫ " +
-                          $"+ VAT 10% " +
-                          $"= {tong:N0} ₫";
+                          $"+ VAT 10% ({vat:N0} ₫) " +
+                          $"= {tong:N0} ₫" +
+                          (tienCoc > 0 ? $"\n(Đã cọc: {tienCoc:N0} ₫ → Còn lại: {conLai:N0} ₫)" : "");
     }
 
     // Xác nhận đặt phòng
@@ -100,6 +110,13 @@ public partial class DatPhongDialog : Window
             return;
         }
 
+        decimal.TryParse(TxtTienCoc.Text, out decimal tienCoc);
+        int.TryParse(TxtSoNguoi.Text, out int soNguoi);
+        if (soNguoi <= 0) soNguoi = 1;
+
+        if (!ConfirmHelper.Confirm("Bạn có chắc chắn muốn thực hiện đặt phòng này không?", "Xác nhận đặt phòng"))
+            return;
+
         try
         {
             BtnXacNhan.IsEnabled = false;
@@ -121,7 +138,9 @@ public partial class DatPhongDialog : Window
             // Tạo DAT_PHONG + DAT_PHONG_CHI_TIET + cập nhật PHONG
             await dpSvc.TaoDatPhongAsync(
                 _selectedKhach.MaKhachHang,
-                [(_phong.MaPhong, ngayNhan.Value, ngayTra.Value)]);
+                [(_phong.MaPhong, ngayNhan.Value, ngayTra.Value)],
+                tienCoc,
+                soNguoi);
 
             DialogResult = true;
             Close();

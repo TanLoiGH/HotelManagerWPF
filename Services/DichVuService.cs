@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
@@ -49,31 +49,48 @@ public class DichVuService
 
     private async Task SyncTienDichVuAsync(string maHoaDon)
     {
-        var tong = await _db.DichVuChiTiets
+        var tongDv = await _db.DichVuChiTiets
             .Where(d => d.MaHoaDon == maHoaDon)
             .SumAsync(d => (decimal?)((decimal)d.SoLuong * d.DonGia)) ?? 0;
 
-        var hd = await _db.HoaDons.FindAsync(maHoaDon);
+        var hd = await _db.HoaDons
+            .Include(h => h.MaKhuyenMaiNavigation)
+            .Include(h => h.MaDatPhongNavigation) // Thêm Include để lấy tiền cọc
+            .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
+
         if (hd == null) return;
 
-        hd.TienDichVu = tong;
-        hd.TongThanhToan = TinhTong(hd.TienPhong ?? 0, tong, hd.Vat ?? 10);
+        hd.TienDichVu = tongDv;
+
+        decimal tienPhong = hd.TienPhong ?? 0;
+        decimal tienCoc = hd.MaDatPhongNavigation?.TienCoc ?? 0;
+        decimal kmPercent = 0;
+
+        if (hd.MaKhuyenMaiNavigation is { IsActive: true })
+        {
+            var km = hd.MaKhuyenMaiNavigation;
+            kmPercent = km.LoaiKhuyenMai == "Phần trăm"
+                ? km.GiaTriKm ?? 0
+                : tienPhong > 0 ? (km.GiaTriKm ?? 0) / tienPhong * 100 : 0;
+        }
+
+        // Re-calculate: ((Room * (1-KM%) * (1+VAT%)) + Services * (1+VAT%)) - Deposit
+        // Đơn giản hơn: ((Tiền phòng sau KM + Tiền DV) * (1+VAT)) - Tiền cọc
+        hd.TongThanhToan = (((tienPhong * (1 - kmPercent / 100)) + tongDv) * (1 + (hd.Vat ?? 10) / 100m)) - tienCoc;
+
         await _db.SaveChangesAsync();
     }
 
     public async Task<List<DichVuViewModel>> GetAllDichVuAsync()
         => await _db.DichVus
-            .Where(d => d.IsActive == true)
             .Select(d => new DichVuViewModel
             {
                 MaDichVu = d.MaDichVu,
                 TenDichVu = d.TenDichVu,
                 Gia = d.Gia ?? 0,
-                DonViTinh = d.DonViTinh ?? ""
+                DonViTinh = d.DonViTinh ?? "",
+                IsActive = d.IsActive ?? true
             }).ToListAsync();
-
-    private static decimal TinhTong(decimal tienPhong, decimal tienDv, decimal vat)
-        => (tienPhong + tienDv) * (1 + vat / 100m);
 }
 
 

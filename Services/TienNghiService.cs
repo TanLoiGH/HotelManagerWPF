@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
@@ -14,16 +14,37 @@ public class TienNghiService
         string maPhong, string maTienNghi, string maTrangThai)
     {
         var item = await _db.TienNghiPhongs.FindAsync(maPhong, maTienNghi);
+        var tienNghi = await _db.TienNghis.FindAsync(maTienNghi);
 
         if (item == null)
+        {
+            // Cấp mới tiện nghi vào phòng
+            if (tienNghi != null)
+            {
+                if ((tienNghi.TongSoLuong ?? 0) <= 0)
+                    throw new InvalidOperationException($"Tiện nghi {tienNghi.TenTienNghi} đã hết trong kho.");
+                
+                tienNghi.TongSoLuong--;
+            }
+
             _db.TienNghiPhongs.Add(new TienNghiPhong
             {
                 MaPhong = maPhong,
                 MaTienNghi = maTienNghi,
                 MaTrangThai = maTrangThai
             });
+        }
         else
+        {
+            // Nếu trạng thái cũ là bình thường mà trạng thái mới là hỏng/mất/thanh lý
+            // (Giả sử TNTT04 là "Đã thanh lý/Mất")
+            if (item.MaTrangThai != maTrangThai && maTrangThai == "TNTT04")
+            {
+                // Không cộng lại kho vì đã hỏng/mất, nhưng có thể cần logic khác
+            }
+            
             item.MaTrangThai = maTrangThai;
+        }
 
         await _db.SaveChangesAsync();
     }

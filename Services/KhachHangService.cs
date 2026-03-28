@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
@@ -59,7 +59,9 @@ public class KhachHangService
             MaKhachHang = k.MaKhachHang,
             TenKhachHang = k.TenKhachHang,
             DienThoai = k.DienThoai ?? "",
+            Email = k.Email ?? "",
             Cccd = k.Cccd ?? "",
+            DiaChi = k.DiaChi ?? "",
             TenLoaiKhach = k.MaLoaiKhachNavigation != null
                            ? k.MaLoaiKhachNavigation.TenLoaiKhach ?? "" : "",
             TongTichLuy = k.TongTichLuy ?? 0

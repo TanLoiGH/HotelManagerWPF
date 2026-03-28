@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
@@ -330,10 +330,12 @@ public partial class PhongPage : Page
         var ngayTra = DpNgayTra.SelectedDate;
         if (!ngayNhan.HasValue || !ngayTra.HasValue || ngayTra <= ngayNhan)
         {
-            MessageBox.Show("Ngày nhận/trả không hợp lệ.",
-                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Ngày nhận/trả không hợp lệ.");
             return;
         }
+
+        if (!ConfirmHelper.Confirm("Bạn có chắc chắn muốn thực hiện đặt phòng này không?", "Xác nhận đặt phòng"))
+            return;
 
         try
         {
@@ -457,7 +459,7 @@ public partial class PhongPage : Page
             PanelEmpty.Visibility = Visibility.Visible;
             PanelDetail.Visibility = Visibility.Collapsed;
         }
-        }
+    }
 }
 
 

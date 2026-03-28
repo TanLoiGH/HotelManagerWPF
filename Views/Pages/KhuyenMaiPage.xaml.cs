@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore;
@@ -163,6 +163,8 @@ public partial class KhuyenMaiPage : Page
         decimal.TryParse(TxtToiThieu.Text.Replace(",", "").Replace(".", ""),
             out decimal toiThieu);
 
+        if (!ConfirmHelper.ConfirmSave(ten)) return;
+
         string loai = CboLoai.SelectedIndex == 0 ? "Phần trăm" : "Số tiền";
 
         try
@@ -221,9 +223,7 @@ public partial class KhuyenMaiPage : Page
     {
         if (_selected == null) return;
 
-        if (MessageBox.Show($"Xóa \"{_selected.TenKhuyenMai}\"?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDelete(_selected.TenKhuyenMai)) return;
 
         try
         {
@@ -235,10 +235,12 @@ public partial class KhuyenMaiPage : Page
                 if (daDung)
                 {
                     km.IsActive = false;
-                    MessageBox.Show("Đã tắt khuyến mãi (có hóa đơn liên quan, không xóa được).",
-                        "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ConfirmHelper.ShowInfo("Đã tắt khuyến mãi (có hóa đơn liên quan, không xóa được).");
                 }
-                else db.KhuyenMais.Remove(km);
+                else
+                {
+                    db.KhuyenMais.Remove(km);
+                }
 
                 await db.SaveChangesAsync();
             }
@@ -249,8 +251,7 @@ public partial class KhuyenMaiPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi: {ex.Message}");
         }
     }
 }

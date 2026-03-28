@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,9 +30,6 @@ public class AmenityPickItem : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 }
-
-
-
 
 
 public partial class ChonTienNghiPhongDialog : Window
@@ -112,9 +110,13 @@ public partial class ChonTienNghiPhongDialog : Window
 
     private void BtnXacNhan_Click(object sender, RoutedEventArgs e)
     {
+        if (!ConfirmHelper.Confirm("Bạn có chắc chắn muốn thay đổi danh sách tiện nghi cho phòng này không?"))
+            return;
+
         SelectedMaTienNghi = _all.Where(i => i.IsChecked).Select(i => i.MaTienNghi).ToList();
         DialogResult = true;
         Close();
     }
+
 }
 

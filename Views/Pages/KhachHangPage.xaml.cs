@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
@@ -109,10 +109,11 @@ public partial class KhachHangPage : Page
         string ten = TxtTen.Text.Trim();
         if (string.IsNullOrWhiteSpace(ten))
         {
-            MessageBox.Show("Vui lòng nhập họ tên.", "Thiếu thông tin",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ConfirmHelper.ShowWarning("Vui lòng nhập họ tên.");
             return;
         }
+
+        if (!ConfirmHelper.ConfirmSave(ten)) return;
 
         try
         {
@@ -167,9 +168,7 @@ public partial class KhachHangPage : Page
     {
         if (_selected == null) return;
 
-        if (MessageBox.Show($"Xóa khách hàng \"{_selected.TenKhachHang}\"?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            != MessageBoxResult.Yes) return;
+        if (!ConfirmHelper.ConfirmDelete(_selected.TenKhachHang)) return;
 
         try
         {
@@ -180,8 +179,7 @@ public partial class KhachHangPage : Page
                 bool coDatPhong = await db.DatPhongs.AnyAsync(d => d.MaKhachHang == kh.MaKhachHang);
                 if (coDatPhong)
                 {
-                    MessageBox.Show("Không thể xóa — khách hàng đã có lịch sử đặt phòng.",
-                        "Không thể xóa", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ConfirmHelper.ShowWarning("Không thể xóa — khách hàng đã có lịch sử đặt phòng.");
                     return;
                 }
                 db.KhachHangs.Remove(kh);
@@ -194,8 +192,7 @@ public partial class KhachHangPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ConfirmHelper.ShowError($"Lỗi: {ex.Message}");
         }
     }
 }
