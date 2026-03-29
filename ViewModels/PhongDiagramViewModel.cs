@@ -8,9 +8,9 @@ namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 public class SoDoPhongViewModel : BaseViewModel
 {
     // ── Collections ────────────────────────────────────────────────────────
-    private List<PhongViewModel> _allPhongs = new();
+    private List<PhongCardViewModel> _allPhongs = new();
 
-    public ObservableCollection<PhongViewModel> FilteredPhongs { get; } = new();
+    public ObservableCollection<PhongCardViewModel> FilteredPhongs { get; } = new();
 
     // ── Filter state ────────────────────────────────────────────────────────
     private string _selectedFilter = "Tất cả";
@@ -80,11 +80,11 @@ public class SoDoPhongViewModel : BaseViewModel
                 .ToListAsync(); // ← Materialize về bộ nhớ trước
 
             // Bước 2: Map sang ViewModel — tính Tang bằng C# thuần
-            _allPhongs = rawData.Select(p => new PhongViewModel
+            _allPhongs = rawData.Select(p => new PhongCardViewModel
             {
                 MaPhong = p.MaPhong,
                 TenLoaiPhong = p.TenLoaiPhong,
-                MaTrangThai = p.MaTrangThai,
+                MaTrangThaiPhong = p.MaTrangThai,
                 Tang = ExtractFloor(p.MaPhong),
             }).ToList();
 
@@ -115,10 +115,10 @@ public class SoDoPhongViewModel : BaseViewModel
         var query = _allPhongs.Where(p =>
             (SelectedFloor <= 0 || p.Tang == SelectedFloor) &&
             (SelectedFilter == "Tất cả" ||
-             (SelectedFilter == "Phòng trống" && p.MaTrangThai == "PTT01") ||
-             (SelectedFilter == "Đang có khách" && p.MaTrangThai == "PTT02") ||
-             (SelectedFilter == "Dọn dẹp" && p.MaTrangThai == "PTT03") ||
-             (SelectedFilter == "Đã đặt trước" && p.MaTrangThai == "PTT05"))
+             (SelectedFilter == "Phòng trống" && p.MaTrangThaiPhong == "PTT01") ||
+             (SelectedFilter == "Đang có khách" && p.MaTrangThaiPhong == "PTT02") ||
+             (SelectedFilter == "Dọn dẹp" && p.MaTrangThaiPhong == "PTT03") ||
+             (SelectedFilter == "Đã đặt trước" && p.MaTrangThaiPhong == "PTT05"))
         );
 
         FilteredPhongs.Clear();

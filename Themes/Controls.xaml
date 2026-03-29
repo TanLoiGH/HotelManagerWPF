@@ -27,6 +27,12 @@
     <Thickness x:Key="Pad.M">14,8</Thickness>
     <Thickness x:Key="Pad.L">16,10</Thickness>
 
+    <!-- Shared room grid sizing (system-wide alignment) -->
+    <sys:Double x:Key="RoomCard.Width">140</sys:Double>
+    <sys:Double x:Key="RoomCard.Height">120</sys:Double>
+    <Thickness x:Key="RoomCard.Margin">8</Thickness>
+    <Thickness x:Key="RoomGrid.Padding">20,0,20,0</Thickness>
+
     <!-- Layer / material brushes -->
     <LinearGradientBrush x:Key="Brush.MicaLike" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#FAFFFFFF" Offset="0" />
@@ -132,6 +138,47 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- Room card: consistent sizing + hover animation -->
+    <Style x:Key="MacFluent.RoomCard" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource MacFluent.ShadowCard}">
+        <Setter Property="Width" Value="{StaticResource RoomCard.Width}" />
+        <Setter Property="Height" Value="{StaticResource RoomCard.Height}" />
+        <Setter Property="Margin" Value="{StaticResource RoomCard.Margin}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="14" />
+        <Setter Property="helpers:ThemeProperties.ShadowBlurRadius" Value="10" />
+        <Setter Property="helpers:ThemeProperties.ShadowDepth" Value="0" />
+        <Setter Property="helpers:ThemeProperties.ShadowOpacity" Value="0.30" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <ScaleTransform ScaleX="1" ScaleY="1" />
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                                         To="1.04" Duration="0:0:0.12" />
+                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                                         To="1.04" Duration="0:0:0.12" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                                         To="1" Duration="0:0:0.14" />
+                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                                         To="1" Duration="0:0:0.14" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Input frame: keep the view's internal TextBox/PasswordBox, but unify the border -->

@@ -80,7 +80,7 @@
                             BorderThickness="0"
                             Style="{DynamicResource MacFluent.ShadowCard}"
                             helpers:ThemeProperties.CornerRadius="16"
-                            helpers:ThemeProperties.ShadowColor="{DynamicResource Color.BrandPrimary}">
+                            helpers:ThemeProperties.ShadowColor="{DynamicResource Color.BrandPrimary}" Grid.ColumnSpan="2" Margin="0,0,10,0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -88,25 +88,73 @@
                     </Grid.RowDefinitions>
                     <TextBlock x:Name="TxtRoomCount" Grid.Row="0"
                                FontSize="15" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,12"/>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    
+                    <!-- List Room (grouped by floor) -->
+                    <ScrollViewer Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False">
                         <ItemsControl x:Name="PhongList">
+                            
+                            <!-- Group Style: Header cho mỗi tầng -->
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <!-- Tầng + Tổng phòng-->
+                                            <Border Background="{DynamicResource Brush.SurfaceTranslucent}"
+                                                    BorderBrush="{DynamicResource Brush.Border}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="14"
+                                                    Padding="12,8"
+                                                    Margin="0,0,0,12">
+                                                <DockPanel LastChildFill="False">
+                                                    <TextBlock DockPanel.Dock="Left"
+                                                        FontSize="16"
+                                                        FontWeight="Bold"
+                                                        Foreground="{DynamicResource Brush.Heading}">
+                                                <Run Text="Tầng "/>
+                                                <Run Text="{Binding Name, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                    <TextBlock DockPanel.Dock="Right"
+                                                               FontSize="13"
+                                                               Foreground="{DynamicResource Brush.TextPlaceholder}"
+                                                               VerticalAlignment="Center">
+                                                        <Run Text="{Binding ItemCount, Mode=OneWay}"/>
+                                                        <Run Text=" phòng"/>
+                                                    </TextBlock>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                    <GroupStyle.Panel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </GroupStyle.Panel>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
+
+                            <!-- Panel Layout: WrapPanel để tự động xuống hàng -->
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel/>
+                                    <WrapPanel Margin="20,0" Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
+
+                            <!-- Item Template: Card phòng (giữ nguyên như cũ) -->
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <ContentControl Width="140" Height="120" Margin="8"
-                                                    Background="{Binding CardBackground}" Cursor="Hand"
-                                                    MouseLeftButtonDown="PhongCard_Click" Tag="{Binding}"
-                                                    BorderThickness="0"
-                                                    Style="{DynamicResource MacFluent.ShadowCard}"
-                                                    helpers:ThemeProperties.CornerRadius="14"
-                                                    helpers:ThemeProperties.ShadowColor="{Binding ShadowColor}"
-                                                    helpers:ThemeProperties.ShadowBlurRadius="10"
-                                                    helpers:ThemeProperties.ShadowDepth="0"
-                                                    helpers:ThemeProperties.ShadowOpacity="0.30">
+                            Background="{Binding CardBackground}" Cursor="Hand"
+                            MouseLeftButtonDown="PhongCard_Click" Tag="{Binding}"
+                            BorderThickness="0"
+                            Style="{DynamicResource MacFluent.ShadowCard}"
+                            helpers:ThemeProperties.CornerRadius="14"
+                            helpers:ThemeProperties.ShadowColor="{Binding ShadowColor}"
+                            helpers:ThemeProperties.ShadowBlurRadius="10"
+                            helpers:ThemeProperties.ShadowDepth="0"
+                            helpers:ThemeProperties.ShadowOpacity="0.30">
                                         <Grid Margin="14">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="*"/>
@@ -114,21 +162,22 @@
                                             </Grid.RowDefinitions>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding MaPhong}"
-                                                           FontSize="24" FontWeight="Bold" Foreground="White"/>
+                                   FontSize="24" FontWeight="Bold" Foreground="White"/>
                                                 <TextBlock Text="{Binding TenLoaiPhong}"
-                                                           FontSize="13" Foreground="#DDF"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                   FontSize="13" Foreground="#DDF"
+                                   TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
                                             <Border Grid.Row="1" CornerRadius="6" Padding="6,3"
-                                                    Background="#22FFFFFF" HorizontalAlignment="Left">
+                            Background="#22FFFFFF" HorizontalAlignment="Left">
                                                 <TextBlock Text="{Binding TenTrangThai}"
-                                                           FontSize="12" Foreground="White" FontWeight="SemiBold"/>
+                                   FontSize="12" Foreground="White" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
                                     </ContentControl>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        
                     </ScrollViewer>
                 </Grid>
             </ContentControl>

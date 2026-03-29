@@ -19,10 +19,10 @@ public partial class PrintPreviewDialog : Window
         _doc = doc;
         _jobName = jobName;
         InitializeComponent();
-        
+
         // Hiển thị tài liệu bằng FlowDocumentScrollViewer
         DocViewer.Document = _doc;
-        
+
         CheckPrinterStatus();
     }
 
@@ -52,7 +52,8 @@ public partial class PrintPreviewDialog : Window
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
     {
-        PrintDialog pd = new PrintDialog();
+        var pd = new PrintDialog();
+        // pd.PrintQueue = new PrintServer().GetPrintQueue //Kết nối với máy in thật thì uncomemt dòng này("Tên_Máy_In_Của_Bạn");
         if (pd.ShowDialog() == true)
         {
             try
@@ -85,7 +86,7 @@ public partial class PrintPreviewDialog : Window
                 // Ở đây ta dùng Microsoft Print to PDF làm giả lập xuất file
                 PrintDialog pd = new PrintDialog();
                 // Tự động tìm máy in PDF nếu có
-                
+
                 ConfirmHelper.ShowInfo("Vui lòng chọn 'Microsoft Print to PDF' trong hộp thoại tiếp theo để xuất file.");
                 if (pd.ShowDialog() == true)
                 {

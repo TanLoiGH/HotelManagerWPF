@@ -3,44 +3,16 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
-using System.Globalization;
 using System.Runtime.Intrinsics.Arm;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Data;
+using System.ComponentModel;
+using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
-
-public class PhongCardViewModel
-{
-    public string MaPhong { get; set; } = "";
-    public string TenLoaiPhong { get; set; } = "";
-    public string TenTrangThai { get; set; } = "";
-    public string MaTrangThaiPhong { get; set; } = "";
-    public int SoNguoiToiDa { get; set; }
-    public decimal GiaPhong { get; set; }
-    public string GiaPhongText => GiaPhong.ToString("N0", new CultureInfo("vi-VN")) + " ₫";
-
-    public SolidColorBrush CardBackground => MaTrangThaiPhong switch
-    {
-        "PTT01" => new SolidColorBrush(Color.FromRgb(0, 184, 148)),
-        "PTT02" => new SolidColorBrush(Color.FromRgb(225, 112, 85)),
-        "PTT03" => new SolidColorBrush(Color.FromRgb(243, 156, 18)),
-        "PTT04" => new SolidColorBrush(Color.FromRgb(127, 140, 141)),
-        "PTT05" => new SolidColorBrush(Color.FromRgb(108, 92, 231)),
-        _ => new SolidColorBrush(Color.FromRgb(99, 110, 114)),
-    };
-
-    public Color ShadowColor => MaTrangThaiPhong switch
-    {
-        "PTT01" => Color.FromRgb(0, 184, 148),
-        "PTT02" => Color.FromRgb(225, 112, 85),
-        "PTT03" => Color.FromRgb(243, 156, 18),
-        "PTT05" => Color.FromRgb(108, 92, 231),
-        _ => Color.FromRgb(0, 120, 212),
-    };
-}
 
 public class TienNghiItem { public string TenTienNghi { get; set; } = ""; }
 
@@ -61,6 +33,22 @@ public partial class PhongPage : Page
     {
         InitializeComponent();
         Loaded += async (_, _) => await LoadPhongAsync();
+    }
+
+    private static int GetFloorNumber(string maPhong)
+    {
+        if (string.IsNullOrWhiteSpace(maPhong)) return 0;
+
+        // Common formats: "101" -> 1, "P101" -> 1
+        var s = maPhong.Trim();
+
+        if (s.Length >= 1 && char.IsDigit(s[0]) && int.TryParse(s[0].ToString(), out int floor0))
+            return floor0;
+
+        if (s.Length >= 2 && char.IsDigit(s[1]) && int.TryParse(s[1].ToString(), out int floor1))
+            return floor1;
+
+        return 0;
     }
 
     // ── Load phòng ───────────────────────────────────────────────────────
@@ -84,6 +72,7 @@ public partial class PhongPage : Page
                     MaTrangThaiPhong = p.MaTrangThaiPhong ?? "PTT01",
                     SoNguoiToiDa = p.MaLoaiPhongNavigation.SoNguoiToiDa ?? 0,
                     GiaPhong = p.MaLoaiPhongNavigation.GiaPhong,
+                    Tang = GetFloorNumber(p.MaPhong)
                 })
                 .ToListAsync();
 
@@ -169,7 +158,15 @@ public partial class PhongPage : Page
                 p.TenLoaiPhong.ToLower().Contains(kw));
 
         var list = q.ToList();
-        PhongList.ItemsSource = list;
+
+        var view = (ListCollectionView)CollectionViewSource.GetDefaultView(list);
+        view.GroupDescriptions.Clear();
+        view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(PhongCardViewModel.Tang)));
+        view.SortDescriptions.Clear();
+        view.SortDescriptions.Add(new SortDescription(nameof(PhongCardViewModel.Tang), ListSortDirection.Ascending));
+        view.SortDescriptions.Add(new SortDescription(nameof(PhongCardViewModel.SoPhongSort), ListSortDirection.Ascending));
+
+        PhongList.ItemsSource = view;
         TxtRoomCount.Text = $"{list.Count} phòng";
     }
 
