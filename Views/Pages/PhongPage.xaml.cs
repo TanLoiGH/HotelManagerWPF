@@ -59,11 +59,25 @@ public partial class PhongPage : Page
             BtnQuanTriPhong.Visibility = IsAdminRole() ? Visibility.Visible : Visibility.Collapsed;
 
             using var db = new QuanLyKhachSanContext();
-            _allPhong = await db.Phongs
+            
+            // Get rooms with basic info
+            var rooms = await db.Phongs
                 .Include(p => p.MaLoaiPhongNavigation)
                 .Include(p => p.MaTrangThaiPhongNavigation)
                 .OrderBy(p => p.MaPhong)
-                .Select(p => new PhongCardViewModel
+                .ToListAsync();
+
+            // Get active bookings to show guest names on cards
+            var activeBookings = await db.DatPhongChiTiets
+                .Include(c => c.MaDatPhongNavigation)
+                    .ThenInclude(dp => dp.MaKhachHangNavigation)
+                .Where(c => c.MaDatPhongNavigation.TrangThai == "Đang ở" || 
+                            c.MaDatPhongNavigation.TrangThai == "Chờ nhận phòng")
+                .ToListAsync();
+
+            _allPhong = rooms.Select(p => {
+                var booking = activeBookings.FirstOrDefault(b => b.MaPhong == p.MaPhong);
+                return new PhongCardViewModel
                 {
                     MaPhong = p.MaPhong,
                     TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
@@ -72,9 +86,10 @@ public partial class PhongPage : Page
                     MaTrangThaiPhong = p.MaTrangThaiPhong ?? "PTT01",
                     SoNguoiToiDa = p.MaLoaiPhongNavigation.SoNguoiToiDa ?? 0,
                     GiaPhong = p.MaLoaiPhongNavigation.GiaPhong,
-                    Tang = GetFloorNumber(p.MaPhong)
-                })
-                .ToListAsync();
+                    Tang = GetFloorNumber(p.MaPhong),
+                    GuestName = booking?.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang
+                };
+            }).ToList();
 
             ApplyFilter();
         }

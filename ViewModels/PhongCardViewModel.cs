@@ -25,22 +25,53 @@ public class PhongCardViewModel
         }
     }
 
-    public SolidColorBrush CardBackground => MaTrangThaiPhong switch
+    // Card Background is now consistently white for "Luxury Refined" style
+    public SolidColorBrush CardBackground => new SolidColorBrush(Color.FromRgb(255, 255, 255));
+
+    // Badge Background (Soft status colors)
+    public SolidColorBrush BadgeBackground => MaTrangThaiPhong switch
     {
-        "PTT01" => new SolidColorBrush(Color.FromRgb(0, 184, 148)),
-        "PTT02" => new SolidColorBrush(Color.FromRgb(225, 112, 85)),
-        "PTT03" => new SolidColorBrush(Color.FromRgb(243, 156, 18)),
-        "PTT04" => new SolidColorBrush(Color.FromRgb(127, 140, 141)),
-        "PTT05" => new SolidColorBrush(Color.FromRgb(108, 92, 231)),
-        _ => new SolidColorBrush(Color.FromRgb(99, 110, 114)),
+        "PTT01" => new SolidColorBrush(Color.FromRgb(209, 250, 229)), // #D1FAE5 (Emerald 100)
+        "PTT02" => new SolidColorBrush(Color.FromRgb(255, 228, 230)), // #FFE4E6 (Rose 100)
+        "PTT03" => new SolidColorBrush(Color.FromRgb(254, 243, 199)), // #FEF3C7 (Amber 100)
+        "PTT04" => new SolidColorBrush(Color.FromRgb(241, 245, 249)), // #F1F5F9 (Slate 100)
+        "PTT05" => new SolidColorBrush(Color.FromRgb(224, 231, 255)), // #E0E7FF (Indigo 100)
+        _ => new SolidColorBrush(Color.FromRgb(241, 245, 249)),
+    };
+
+    // Badge Foreground (Deep status colors)
+    public SolidColorBrush BadgeForeground => MaTrangThaiPhong switch
+    {
+        "PTT01" => new SolidColorBrush(Color.FromRgb(16, 185, 129)),  // #10B981
+        "PTT02" => new SolidColorBrush(Color.FromRgb(225, 29, 72)),   // #E11D48
+        "PTT03" => new SolidColorBrush(Color.FromRgb(245, 158, 11)),  // #F59E0B
+        "PTT04" => new SolidColorBrush(Color.FromRgb(100, 116, 139)), // #64748B
+        "PTT05" => new SolidColorBrush(Color.FromRgb(99, 102, 241)),  // #6366F1
+        _ => new SolidColorBrush(Color.FromRgb(100, 116, 139)),
     };
 
     public Color ShadowColor => MaTrangThaiPhong switch
     {
-        "PTT01" => Color.FromRgb(0, 184, 148),
-        "PTT02" => Color.FromRgb(225, 112, 85),
-        "PTT03" => Color.FromRgb(243, 156, 18),
-        "PTT05" => Color.FromRgb(108, 92, 231),
-        _ => Color.FromRgb(0, 120, 212),
+        "PTT01" => Color.FromRgb(16, 185, 129),
+        "PTT02" => Color.FromRgb(225, 29, 72),
+        "PTT03" => Color.FromRgb(245, 158, 11),
+        "PTT05" => Color.FromRgb(99, 102, 241),
+        _ => Color.FromRgb(37, 99, 235), // BrandPrimary (#2563EB)
     };
+
+    // Status Icon based on state
+    public string StatusIcon => MaTrangThaiPhong switch
+    {
+        "PTT01" => "✨",
+        "PTT02" => "👤",
+        "PTT03" => "🧹",
+        "PTT04" => "🛠️",
+        "PTT05" => "📅",
+        _ => "ℹ️"
+    };
+
+    // Additional info text for the bottom part
+    public string? GuestName { get; set; }
+    public string InfoText => !string.IsNullOrEmpty(GuestName) ? GuestName : "Chưa có thông tin";
+    public string CapacityText => $"Phòng {SoNguoiToiDa} người";
 }

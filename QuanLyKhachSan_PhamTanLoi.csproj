@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Page Remove="Themes\Dark.xaml" />
     <Page Remove="Themes\Light.xaml" />
   </ItemGroup>
 
@@ -29,9 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Themes\Dark.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Resource>
     <Resource Include="Themes\Light.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Resource>

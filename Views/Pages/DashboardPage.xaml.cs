@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -46,10 +46,10 @@ public class DashboardBookingItem
     public string TrangThai { get; set; } = "";
     public SolidColorBrush StatusColor => TrangThai switch
     {
-        "Chờ nhận phòng" => new SolidColorBrush(Color.FromRgb(108, 92, 231)),
-        "Đang ở" => new SolidColorBrush(Color.FromRgb(0, 184, 148)),
-        "Đã trả phòng" => new SolidColorBrush(Color.FromRgb(99, 110, 114)),
-        _ => new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+        "Chờ nhận phòng" => new SolidColorBrush(Color.FromRgb(99, 102, 241)),  // Luxury Indigo (#6366F1)
+        "Đang ở" => new SolidColorBrush(Color.FromRgb(16, 185, 129)),         // Luxury Emerald (#10B981)
+        "Đã trả phòng" => new SolidColorBrush(Color.FromRgb(100, 116, 139)),   // Luxury Slate (#64748B)
+        _ => new SolidColorBrush(Color.FromRgb(37, 99, 235)),                 // BrandPrimary (#2563EB)
     };
 }
 
@@ -176,8 +176,8 @@ public partial class DashboardPage : Page
                 GiaTriGoc = total,
                 Tooltip = $"Tháng {month}/{year}: {FormatVnd(total)}",
                 BarColor = new SolidColorBrush(isCurrentMonth
-                    ? Color.FromRgb(0, 120, 212)
-                    : Color.FromRgb(147, 197, 253))
+                    ? Color.FromRgb(37, 99, 235)   // BrandPrimary (#2563EB)
+                    : Color.FromRgb(147, 197, 253)) // BrandBorder (#93C5FD)
             });
         }
 
@@ -198,15 +198,15 @@ public partial class DashboardPage : Page
         {
             TenTT = s.TenTrangThai ?? "",
             SoPhong = s.Count,
-            BarWidth = s.Count / max * 44,
+            BarWidth = (double)s.Count / max * 80, // Tăng chiều rộng progress bar
             MauSac = new SolidColorBrush(s.MaTrangThaiPhong switch
             {
-                "PTT01" => Color.FromRgb(0, 184, 148),
-                "PTT02" => Color.FromRgb(225, 112, 85),
-                "PTT03" => Color.FromRgb(253, 203, 110),
-                "PTT04" => Color.FromRgb(127, 140, 141),
-                "PTT05" => Color.FromRgb(108, 92, 231),
-                _ => Color.FromRgb(99, 110, 114),
+                "PTT01" => Color.FromRgb(16, 185, 129),  // Luxury Available (#10B981)
+                "PTT02" => Color.FromRgb(225, 29, 72),   // Luxury Occupied (#E11D48)
+                "PTT03" => Color.FromRgb(245, 158, 11),  // Luxury Cleaning (#F59E0B)
+                "PTT04" => Color.FromRgb(100, 116, 139), // Luxury Maintenance (#64748B)
+                "PTT05" => Color.FromRgb(99, 102, 241),  // Luxury Reserved (#6366F1)
+                _ => Color.FromRgb(100, 116, 139),
             })
         }).ToList();
     }
