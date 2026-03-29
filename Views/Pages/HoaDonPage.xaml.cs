@@ -21,10 +21,10 @@ public class HoaDonRowViewModel
 
     public SolidColorBrush StatusColor => TrangThai switch
     {
-        "Đã thanh toán" => new SolidColorBrush(Color.FromRgb(0, 184, 148)),
-        "Chưa thanh toán" => new SolidColorBrush(Color.FromRgb(225, 112, 85)),
-        "Đã hủy" => new SolidColorBrush(Color.FromRgb(150, 150, 150)),
-        _ => new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+        "Đã thanh toán" => new SolidColorBrush(Color.FromRgb(16, 185, 129)),
+        "Chưa thanh toán" => new SolidColorBrush(Color.FromRgb(245, 158, 11)),
+        "Đã hủy" => new SolidColorBrush(Color.FromRgb(100, 116, 139)),
+        _ => new SolidColorBrush(Color.FromRgb(37, 99, 235)),
     };
 }
 

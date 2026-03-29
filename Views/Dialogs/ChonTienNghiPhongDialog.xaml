@@ -24,7 +24,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Border CornerRadius="8" Padding="10,0" Height="34"
-                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5">
+                    Style="{DynamicResource MacFluent.InputFrame}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="🔍" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <TextBox x:Name="TxtSearch" BorderThickness="0"
@@ -140,7 +140,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Content="Hủy" Height="38"
-                    Background="#F5F5F5" BorderThickness="0"
+                    Background="{DynamicResource Brush.SurfaceSecondary}" BorderThickness="0"
                     Click="BtnHuy_Click"/>
             <Button Grid.Column="2" Content="Xác nhận" Height="38"
                     Style="{DynamicResource MacFluent.ButtonPrimary}"
@@ -148,4 +148,3 @@
         </Grid>
     </Grid>
 </Window>
-

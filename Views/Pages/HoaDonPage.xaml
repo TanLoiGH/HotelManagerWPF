@@ -86,7 +86,7 @@
                             <DataTemplate>
                                 <Border CornerRadius="6" Padding="8,3" Margin="4"
                                         Background="{Binding StatusColor}" HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding TrangThai}" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    <TextBlock Text="{Binding TrangThai}" FontSize="13" FontWeight="Bold" Foreground="White"/>
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

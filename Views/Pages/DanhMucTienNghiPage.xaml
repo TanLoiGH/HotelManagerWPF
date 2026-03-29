@@ -23,7 +23,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Padding="16,12" BorderBrush="#F0F5FA" BorderThickness="0,0,0,1">
+                <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,0,1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -98,7 +98,7 @@
                     <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
                         <TextBlock Text="🧰" FontSize="50" HorizontalAlignment="Center" Margin="0,30,0,12"/>
                         <TextBlock Text="Chọn tiện nghi hoặc bấm Thêm mới"
-                                   FontSize="15" Foreground="#AAA"
+                                   FontSize="15" Foreground="{DynamicResource Brush.TextMuted}"
                                    HorizontalAlignment="Center" TextAlignment="Center"/>
                     </StackPanel>
 
@@ -177,4 +177,3 @@
         </ContentControl>
     </Grid>
 </Page>
-

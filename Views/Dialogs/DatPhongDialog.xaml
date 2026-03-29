@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header: thông tin phòng -->
-        <Border Grid.Row="0" CornerRadius="10" Padding="14,10" Background="#EBF5FB">
+        <Border Grid.Row="0" CornerRadius="10" Padding="14,10" Background="{DynamicResource Brush.BrandSoft}">
             <TextBlock x:Name="TxtPhong" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Heading}"/>
         </Border>
 
@@ -27,7 +27,7 @@
                 <!-- Tìm khách hàng -->
                 <TextBlock Text="Khách hàng" FontSize="14" FontWeight="SemiBold"
                            Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                <Border CornerRadius="8" BorderBrush="#DDE" BorderThickness="1.5" Height="36" Margin="0,0,0,4">
+                <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="36" Margin="0,0,0,4">
                     <TextBox x:Name="TxtTimKhach" BorderThickness="0" Padding="10,0"
                              VerticalAlignment="Center" FontSize="15"
                              TextChanged="TxtTimKhach_TextChanged"
@@ -38,22 +38,22 @@
                 <ListBox x:Name="ListKhach" MaxHeight="120" Visibility="Collapsed"
                          SelectionChanged="ListKhach_SelectionChanged"
                          DisplayMemberPath="TenKhachHang"
-                         BorderBrush="#DDE" BorderThickness="1" Margin="0,0,0,4"/>
+                         BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" Margin="0,0,0,4"/>
 
                 <!-- Info hạng KH -->
-                <TextBlock x:Name="TxtKhachInfo" FontSize="13" Foreground="#0078D4"
+                <TextBlock x:Name="TxtKhachInfo" FontSize="13" Foreground="{DynamicResource Brush.BrandPrimary}"
                            Visibility="Collapsed" Margin="0,0,0,8"/>
 
                 <!-- Nếu khách mới: nhập thêm -->
                 <Expander Header="Khách mới — nhập thông tin" Margin="0,0,0,12">
                     <StackPanel Margin="0,8,0,0">
                         <TextBlock Text="Số điện thoại" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                        <Border CornerRadius="8" BorderBrush="#DDE" BorderThickness="1.5" Height="34" Margin="0,0,0,8">
+                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34" Margin="0,0,0,8">
                             <TextBox x:Name="TxtDienThoai" BorderThickness="0" Padding="10,0"
                                      VerticalAlignment="Center" FontSize="15"/>
                         </Border>
                         <TextBlock Text="CCCD" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                        <Border CornerRadius="8" BorderBrush="#DDE" BorderThickness="1.5" Height="34">
+                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
                             <TextBox x:Name="TxtCCCD" BorderThickness="0" Padding="10,0"
                                      VerticalAlignment="Center" FontSize="15"/>
                         </Border>
@@ -84,7 +84,7 @@
                 <!-- Số người -->
                 <TextBlock Text="Số người" FontSize="14" FontWeight="SemiBold"
                            Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                <Border CornerRadius="8" BorderBrush="#DDE" BorderThickness="1.5" Height="36" Margin="0,0,0,12">
+                <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="36" Margin="0,0,0,12">
                     <TextBox x:Name="TxtSoNguoi" BorderThickness="0" Padding="10,0"
                              VerticalAlignment="Center" FontSize="15"
                              Text="1"
@@ -94,7 +94,7 @@
                 <!-- Tiền cọc -->
                 <TextBlock Text="Tiền cọc (nếu có)" FontSize="14" FontWeight="SemiBold"
                            Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                <Border CornerRadius="8" BorderBrush="#DDE" BorderThickness="1.5" Height="36" Margin="0,0,0,12">
+                <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="36" Margin="0,0,0,12">
                     <TextBox x:Name="TxtTienCoc" BorderThickness="0" Padding="10,0"
                              VerticalAlignment="Center" FontSize="15"
                              TextChanged="TxtTienCoc_TextChanged"
@@ -128,7 +128,7 @@
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" x:Name="BtnHuy" Content="Hủy" Height="38"
                     FontSize="15" Click="BtnHuy_Click"
-                    Background="#F5F5F5" BorderThickness="0"/>
+                    Background="{DynamicResource Brush.SurfaceSecondary}" BorderThickness="0"/>
             <Button Grid.Column="2" x:Name="BtnXacNhan" Content="Xác nhận đặt phòng" Height="38"
                     FontSize="15" FontWeight="SemiBold"
                     Style="{DynamicResource MacFluent.ButtonPrimary}"

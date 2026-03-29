@@ -71,7 +71,7 @@
                   Width="6"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
-                  Background="#22000000"
+                  Background="{DynamicResource Brush.OverlayBlack13}"
                   ResizeBehavior="PreviousAndNext"
                   ResizeDirection="Columns"
                   ShowsPreview="True"/>
@@ -89,7 +89,7 @@
                     <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
                         <TextBlock Text="🏠" FontSize="54" HorizontalAlignment="Center" Margin="0,24,0,10"/>
                         <TextBlock Text="Chọn phòng hoặc bấm Thêm mới"
-                               FontSize="14" Foreground="#AAA"
+                               FontSize="14" Foreground="{DynamicResource Brush.TextMuted}"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
                     </StackPanel>
 
@@ -135,7 +135,7 @@
 
                         <!-- Tiện nghi theo phòng -->
                         <StackPanel x:Name="PanelTienNghi" Visibility="Collapsed">
-                            <Separator Background="#E0EAF4" Margin="0,4,0,12"/>
+                            <Separator Background="{DynamicResource Brush.Border}" Margin="0,4,0,12"/>
                             <TextBlock Text="🧰  Tiện nghi theo phòng" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,10"/>
 

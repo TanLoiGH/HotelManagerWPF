@@ -64,6 +64,7 @@
                             BorderBrush="{DynamicResource Brush.RoomReserved}"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                 </StackPanel>
+                
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button x:Name="BtnQuanTriPhong" Content="⚙  Quản trị"
                             Height="34" Padding="14,0" Margin="0,0,10,0"
@@ -160,7 +161,6 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
 
-                            <!-- Item Template: Card phòng (Luxury Refined Style) -->
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <ContentControl 
@@ -179,7 +179,6 @@
                                                 <RowDefinition Height="*"/>
                                             </Grid.RowDefinitions>
                                             
-                                            <!-- Top section: ID + Badge -->
                                             <DockPanel LastChildFill="False">
                                                 <StackPanel DockPanel.Dock="Left">
                                                     <TextBlock Text="{Binding MaPhong}"
@@ -198,11 +197,9 @@
                                                 </Border>
                                             </DockPanel>
 
-                                            <!-- Divider -->
                                             <Separator Grid.Row="1" Background="{DynamicResource Brush.Border}" 
                                                        Margin="0,10" Height="1" Opacity="0.5"/>
 
-                                            <!-- Bottom section: Icon + Info -->
                                             <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
                                                 <TextBlock Text="{Binding StatusIcon}" 
                                                            FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,4"
@@ -237,7 +234,7 @@
                         <StackPanel x:Name="PanelEmpty" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="🏠" FontSize="50" HorizontalAlignment="Center" Margin="0,40,0,12"/>
                             <TextBlock Text="Chọn một phòng để xem chi tiết và đặt phòng"
-                                       FontSize="15" Foreground="#AAA" HorizontalAlignment="Center"
+                                       FontSize="15" Foreground="{DynamicResource Brush.TextMuted}" HorizontalAlignment="Center"
                                        TextAlignment="Center" TextWrapping="Wrap"/>
                         </StackPanel>
 
@@ -250,10 +247,10 @@
                                     <StackPanel>
                                         <TextBlock x:Name="DetailMaPhong" FontSize="30"
                                                    FontWeight="Bold" Foreground="White"/>
-                                        <TextBlock x:Name="DetailLoaiPhong" FontSize="15" Foreground="#DDEEFF"/>
+                                        <TextBlock x:Name="DetailLoaiPhong" FontSize="15" Foreground="White" Opacity="0.9"/>
                                     </StackPanel>
                                     <Border HorizontalAlignment="Right" VerticalAlignment="Top"
-                                            CornerRadius="8" Padding="8,4" Background="#22FFFFFF">
+                                            CornerRadius="8" Padding="8,4" Background="{DynamicResource Brush.OverlayWhite20}">
                                         <TextBlock x:Name="DetailTrangThai" FontSize="13"
                                                    Foreground="White" FontWeight="SemiBold"/>
                                     </Border>
@@ -264,13 +261,13 @@
                             <Grid Margin="0,0,0,8">
                                 <TextBlock Text="Sức chứa" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
                                 <TextBlock x:Name="InfoSoNguoi" HorizontalAlignment="Right"
-                                           FontSize="15" FontWeight="SemiBold" Foreground="#1A3A5C"/>
+                                           FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextHeading}"/>
                             </Grid>
-                            <Separator Background="#EEE" Margin="0,0,0,8"/>
+                            <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
                             <Grid Margin="0,0,0,12">
                                 <TextBlock Text="Giá/đêm" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
                                 <TextBlock x:Name="InfoGia" HorizontalAlignment="Right"
-                                           FontSize="16" FontWeight="Bold" Foreground="#0078D4"/>
+                                           FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
                             </Grid>
 
                             <!-- Tiện nghi -->
@@ -282,18 +279,18 @@
                                         <Border CornerRadius="8" Padding="8,4" Margin="0,0,0,4"
                                                 Background="{DynamicResource Brush.SurfaceSoft}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="✓ " Foreground="#0078D4" FontWeight="Bold"/>
-                                                <TextBlock Text="{Binding TenTienNghi}" FontSize="14" Foreground="#2C4A6E"/>
+                                                <TextBlock Text="✓ " Foreground="{DynamicResource Brush.BrandPrimary}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding TenTienNghi}" FontSize="14" Foreground="{DynamicResource Brush.TextPrimary}"/>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <TextBlock x:Name="TxtNoTienNghi" Text="Chưa có tiện nghi"
-                                       FontSize="14" Foreground="#BBB" Margin="0,0,0,12"/>
+                                       FontSize="14" Foreground="{DynamicResource Brush.TextDisabled}" Margin="0,0,0,12"/>
 
                             <!-- Divider -->
-                            <Separator Background="#E0EAF4" Margin="0,4,0,16"/>
+                            <Separator Background="{DynamicResource Brush.Border}" Margin="0,4,0,16"/>
 
                             <!-- ══ PANEL ĐÃ ĐẶT TRƯỚC (PTT05) ══ -->
                             <StackPanel x:Name="PanelDaDatTruoc" Visibility="Collapsed" Margin="0,0,0,12">
@@ -311,7 +308,7 @@
                    FontSize="15" FontWeight="SemiBold"
                    Foreground="{DynamicResource Brush.Heading}"/>
                                 </Grid>
-                                <Separator Background="#EEE" Margin="0,0,0,8"/>
+                                <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
 
                                 <!-- Ngày nhận / trả -->
                                 <Grid Margin="0,0,0,8">
@@ -328,7 +325,7 @@
                    HorizontalAlignment="Right"
                    FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
                                 </Grid>
-                                <Separator Background="#EEE" Margin="0,0,0,8"/>
+                                <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
 
                                 <!-- Tiền cọc -->
                                 <Grid Margin="0,0,0,16">
@@ -336,7 +333,7 @@
                    FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
                                     <TextBlock x:Name="LblTienCoc"
                    HorizontalAlignment="Right"
-                   FontSize="16" FontWeight="Bold" Foreground="#0078D4"/>
+                   FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
                                 </Grid>
 
                                 <!-- Nút xác nhận nhận phòng -->
@@ -369,7 +366,7 @@
                                          SelectionChanged="ListKhach_SelectionChanged"
                                          DisplayMemberPath="TenKhachHang"
                                          BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" Margin="0,0,0,4"/>
-                                <TextBlock x:Name="TxtKhachInfo" FontSize="13" Foreground="#0078D4"
+                                <TextBlock x:Name="TxtKhachInfo" FontSize="13" Foreground="{DynamicResource Brush.BrandPrimary}"
                                            Visibility="Collapsed" Margin="0,0,0,8" TextWrapping="Wrap"/>
 
                                 <!-- Khách mới -->

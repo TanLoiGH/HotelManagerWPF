@@ -59,7 +59,7 @@ public partial class PhongPage : Page
             BtnQuanTriPhong.Visibility = IsAdminRole() ? Visibility.Visible : Visibility.Collapsed;
 
             using var db = new QuanLyKhachSanContext();
-            
+
             // Get rooms with basic info
             var rooms = await db.Phongs
                 .Include(p => p.MaLoaiPhongNavigation)
@@ -71,11 +71,12 @@ public partial class PhongPage : Page
             var activeBookings = await db.DatPhongChiTiets
                 .Include(c => c.MaDatPhongNavigation)
                     .ThenInclude(dp => dp.MaKhachHangNavigation)
-                .Where(c => c.MaDatPhongNavigation.TrangThai == "Đang ở" || 
+                .Where(c => c.MaDatPhongNavigation.TrangThai == "Đang ở" ||
                             c.MaDatPhongNavigation.TrangThai == "Chờ nhận phòng")
                 .ToListAsync();
 
-            _allPhong = rooms.Select(p => {
+            _allPhong = rooms.Select(p =>
+            {
                 var booking = activeBookings.FirstOrDefault(b => b.MaPhong == p.MaPhong);
                 return new PhongCardViewModel
                 {
@@ -205,7 +206,7 @@ public partial class PhongPage : Page
         DetailMaPhong.Text = vm.MaPhong;
         DetailLoaiPhong.Text = vm.TenLoaiPhong;
         DetailTrangThai.Text = vm.TenTrangThai;
-        DetailHeader.Background = vm.CardBackground;
+        DetailHeader.Background = vm.BadgeForeground;
 
         // Info
         InfoSoNguoi.Text = $"{vm.SoNguoiToiDa} người";

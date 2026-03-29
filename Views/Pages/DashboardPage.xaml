@@ -67,7 +67,7 @@
                         <SolidColorBrush Color="{DynamicResource Color.BrandPrimary}" />
                     </ContentControl.Background>
                     <StackPanel>
-                        <TextBlock Text="💰 Doanh Thu" FontSize="13" Foreground="#E0E7FF" Opacity="0.9"/>
+                        <TextBlock Text="💰 Doanh Thu" FontSize="13" Foreground="White" Opacity="0.85"/>
                         <TextBlock x:Name="TxtDoanhThu" Text="—" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
@@ -86,7 +86,7 @@
                         <SolidColorBrush Color="{DynamicResource Color.RoomOccupied}" />
                     </ContentControl.Background>
                     <StackPanel>
-                        <TextBlock Text="💸 Chi Phí" FontSize="13" Foreground="#FEE2E2" Opacity="0.9"/>
+                        <TextBlock Text="💸 Chi Phí" FontSize="13" Foreground="White" Opacity="0.85"/>
                         <TextBlock x:Name="TxtChiPhi" Text="—" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
@@ -105,7 +105,7 @@
                         <SolidColorBrush Color="{DynamicResource Color.RoomAvailable}" />
                     </ContentControl.Background>
                     <StackPanel>
-                        <TextBlock Text="📈 Lợi Nhuận" FontSize="13" Foreground="#DCFCE7" Opacity="0.9"/>
+                        <TextBlock Text="📈 Lợi Nhuận" FontSize="13" Foreground="White" Opacity="0.85"/>
                         <TextBlock x:Name="TxtLoiNhuan" Text="—" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
@@ -124,7 +124,7 @@
                         <SolidColorBrush Color="{DynamicResource Color.RoomReserved}" />
                     </ContentControl.Background>
                     <StackPanel>
-                        <TextBlock Text="🏠 Tổng Phòng" FontSize="13" Foreground="#EDE9FE" Opacity="0.9"/>
+                        <TextBlock Text="🏠 Tổng Phòng" FontSize="13" Foreground="White" Opacity="0.85"/>
                         <TextBlock x:Name="TxtTongPhong" Text="—" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
@@ -143,7 +143,7 @@
                         <SolidColorBrush Color="{DynamicResource Color.Info}" />
                     </ContentControl.Background>
                     <StackPanel>
-                        <TextBlock Text="📊 Công Suất" FontSize="13" Foreground="#E0F2FE" Opacity="0.9"/>
+                        <TextBlock Text="📊 Công Suất" FontSize="13" Foreground="White" Opacity="0.85"/>
                         <TextBlock x:Name="TxtCongSuat" Text="—" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
@@ -308,14 +308,14 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Loai}" FontSize="15" Foreground="#333"/>
+                                            <TextBlock Text="{Binding Loai}" FontSize="15" Foreground="{DynamicResource Brush.TextPrimary}"/>
                                             <Border Height="6" CornerRadius="3"
                                                     Margin="0,4,0,0" HorizontalAlignment="Left"
                                                     Width="{Binding BarWidth}">
                                                 <Border.Background>
                                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                        <GradientStop Color="#E17055" Offset="0"/>
-                                                        <GradientStop Color="#FDCB6E" Offset="1"/>
+                                                        <GradientStop Color="{DynamicResource Color.RoomOccupied}" Offset="0"/>
+                                                        <GradientStop Color="{DynamicResource Color.RoomCleaning}" Offset="1"/>
                                                     </LinearGradientBrush>
                                                 </Border.Background>
                                             </Border>
@@ -362,7 +362,7 @@
                                             <Border Grid.Column="1" CornerRadius="6" Padding="8,4"
                                                     Background="{Binding StatusColor}">
                                                 <TextBlock Text="{Binding TrangThai}"
-                                                           FontSize="15" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                           FontSize="15" FontWeight="Bold" Foreground="White"/>
                                             </Border>
                                         </Grid>
                                     </Border>

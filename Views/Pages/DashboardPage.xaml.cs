@@ -176,8 +176,8 @@ public partial class DashboardPage : Page
                 GiaTriGoc = total,
                 Tooltip = $"Tháng {month}/{year}: {FormatVnd(total)}",
                 BarColor = new SolidColorBrush(isCurrentMonth
-                    ? Color.FromRgb(37, 99, 235)   // BrandPrimary (#2563EB)
-                    : Color.FromRgb(147, 197, 253)) // BrandBorder (#93C5FD)
+                    ? Color.FromRgb(37, 99, 235)
+                    : Color.FromRgb(147, 197, 253))
             });
         }
 
@@ -198,14 +198,14 @@ public partial class DashboardPage : Page
         {
             TenTT = s.TenTrangThai ?? "",
             SoPhong = s.Count,
-            BarWidth = (double)s.Count / max * 80, // Tăng chiều rộng progress bar
+            BarWidth = (double)s.Count / max * 80,
             MauSac = new SolidColorBrush(s.MaTrangThaiPhong switch
             {
-                "PTT01" => Color.FromRgb(16, 185, 129),  // Luxury Available (#10B981)
-                "PTT02" => Color.FromRgb(225, 29, 72),   // Luxury Occupied (#E11D48)
-                "PTT03" => Color.FromRgb(245, 158, 11),  // Luxury Cleaning (#F59E0B)
-                "PTT04" => Color.FromRgb(100, 116, 139), // Luxury Maintenance (#64748B)
-                "PTT05" => Color.FromRgb(99, 102, 241),  // Luxury Reserved (#6366F1)
+                "PTT01" => Color.FromRgb(16, 185, 129),
+                "PTT02" => Color.FromRgb(225, 29, 72),
+                "PTT03" => Color.FromRgb(245, 158, 11),
+                "PTT04" => Color.FromRgb(100, 116, 139),
+                "PTT05" => Color.FromRgb(99, 102, 241),
                 _ => Color.FromRgb(100, 116, 139),
             })
         }).ToList();

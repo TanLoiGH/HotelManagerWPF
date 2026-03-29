@@ -31,7 +31,7 @@
     <Color x:Key="Color.TextPlaceholder">#94A3B8</Color>
 
     <!-- ===== BRAND COLORS (Màu thương hiệu) ===== -->
-    <Color x:Key="Color.BrandPrimary">#2563EB</Color>
+    <Color x:Key="Color.BrandPrimary">#739FFE</Color>
     <Color x:Key="Color.BrandHover">#1D4ED8</Color>
     <Color x:Key="Color.BrandPressed">#1E40AF</Color>
     <Color x:Key="Color.BrandSoft">#DBEAFE</Color>
@@ -135,6 +135,7 @@
     
     <SolidColorBrush x:Key="Brush.WarningSurface" Color="{StaticResource Color.WarningSurface}" />
     <SolidColorBrush x:Key="Brush.WarningText" Color="{StaticResource Color.WarningText}" />
+    <SolidColorBrush x:Key="Brush.ErrorSoft" Color="{StaticResource Color.RoomOccupiedSoft}" />
 
     <!-- Sidebar brushes -->
     <SolidColorBrush x:Key="Brush.SidebarBackground" Color="{StaticResource Color.SidebarBackground}" />
@@ -156,18 +157,34 @@
     <!-- Action (Semantic Buttons) mapping -->
     <SolidColorBrush x:Key="Brush.Action.Add" Color="{StaticResource Color.BrandPrimary}" />
     <SolidColorBrush x:Key="Brush.Action.AddHover" Color="{StaticResource Color.BrandHover}" />
+    <SolidColorBrush x:Key="Brush.Action.AddPressed" Color="{StaticResource Color.BrandPressed}" />
     <SolidColorBrush x:Key="Brush.Action.AddSoft" Color="{StaticResource Color.BrandSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.AddSoftHover" Color="{StaticResource Color.BrandBorder}" />
+    <SolidColorBrush x:Key="Brush.Action.AddSoftPressed" Color="{StaticResource Color.BrandBorder}" />
     <SolidColorBrush x:Key="Brush.Action.AddText" Color="#FFFFFF" />
 
     <SolidColorBrush x:Key="Brush.Action.Edit" Color="{StaticResource Color.RoomCleaning}" />
     <SolidColorBrush x:Key="Brush.Action.EditHover" Color="#D97706" />
+    <SolidColorBrush x:Key="Brush.Action.EditPressed" Color="#B45309" />
     <SolidColorBrush x:Key="Brush.Action.EditSoft" Color="{StaticResource Color.RoomCleaningSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.EditSoftHover" Color="{StaticResource Color.RoomCleaningSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.EditSoftPressed" Color="{StaticResource Color.RoomCleaningSoft}" />
     <SolidColorBrush x:Key="Brush.Action.EditText" Color="#FFFFFF" />
 
     <SolidColorBrush x:Key="Brush.Action.Delete" Color="{StaticResource Color.RoomOccupied}" />
     <SolidColorBrush x:Key="Brush.Action.DeleteHover" Color="#DC2626" />
+    <SolidColorBrush x:Key="Brush.Action.DeletePressed" Color="#B91C1C" />
     <SolidColorBrush x:Key="Brush.Action.DeleteSoft" Color="{StaticResource Color.RoomOccupiedSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.DeleteSoftHover" Color="{StaticResource Color.RoomOccupiedSoft}" />
+    <SolidColorBrush x:Key="Brush.Action.DeleteSoftPressed" Color="{StaticResource Color.RoomOccupiedSoft}" />
     <SolidColorBrush x:Key="Brush.Action.DeleteText" Color="#FFFFFF" />
+
+    <SolidColorBrush x:Key="Brush.Filter.Border" Color="{StaticResource Color.BorderStrong}" />
+    <SolidColorBrush x:Key="Brush.Filter.Text" Color="{StaticResource Color.TextSecondary}" />
+    <SolidColorBrush x:Key="Brush.Filter.Hover" Color="{StaticResource Color.SurfaceSecondary}" />
+    <SolidColorBrush x:Key="Brush.Filter.Active" Color="{StaticResource Color.BrandSoft}" />
+    <SolidColorBrush x:Key="Brush.Filter.ActiveText" Color="{StaticResource Color.BrandPrimary}" />
+    <SolidColorBrush x:Key="Brush.Filter.ActiveHover" Color="{StaticResource Color.BrandBorder}" />
 
     <!-- Gradients -->
     <LinearGradientBrush x:Key="Brush.NavGradient" StartPoint="0,0" EndPoint="0,1">
@@ -183,5 +200,7 @@
     <!-- Misc -->
     <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="{StaticResource Color.SurfaceAlt}" />
     <SolidColorBrush x:Key="Brush.Hover" Color="{StaticResource Color.SurfaceSecondary}" />
+    <SolidColorBrush x:Key="Brush.OverlayWhite20" Color="#FFFFFF" Opacity="0.20" />
+    <SolidColorBrush x:Key="Brush.OverlayBlack13" Color="#000000" Opacity="0.13" />
 
 </ResourceDictionary>
