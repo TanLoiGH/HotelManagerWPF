@@ -114,14 +114,28 @@ public class DatPhongService
         await _db.SaveChangesAsync();
     }
 
-    public async Task HuyDatPhongAsync(string maDatPhong, string lyDo)
+    public async Task HuyDatPhongAsync(string maDatPhong, string lyDo, decimal tienHoanTra = 0)
     {
         var dp = await _db.DatPhongs
             .Include(d => d.DatPhongChiTiets)
             .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
             ?? throw new KeyNotFoundException("Không tìm thấy đặt phòng");
 
-        dp.TrangThai = "Đã hủy";
+        // Xác định trạng thái hủy cụ thể dựa trên tiền hoàn trả
+        if (dp.TienCoc > 0)
+        {
+            if (tienHoanTra >= dp.TienCoc)
+                dp.TrangThai = "Đã hủy - Hoàn cọc";
+            else if (tienHoanTra > 0)
+                dp.TrangThai = $"Đã hủy - Hoàn cọc {tienHoanTra:N0}";
+            else
+                dp.TrangThai = "Đã hủy - Mất cọc";
+        }
+        else
+        {
+            dp.TrangThai = "Đã hủy";
+        }
+
         foreach (var ct in dp.DatPhongChiTiets)
         {
             var phong = await _db.Phongs.FindAsync(ct.MaPhong);
@@ -190,6 +204,18 @@ public class DatPhongService
         phongMoi.MaTrangThaiPhong = "PTT02";
         await _db.SaveChangesAsync();
         await tx.CommitAsync();
+    }
+
+    public async Task<object> GetDepositSummaryAsync()
+    {
+        var all = await _db.DatPhongs.ToListAsync();
+        return new
+        {
+            TongCocHienTai = all.Where(d => d.TrangThai == "Chờ nhận phòng").Sum(d => d.TienCoc ?? 0),
+            TongCocDaKhauTru = all.Where(d => d.TrangThai == "Đã trả phòng").Sum(d => d.TienCoc ?? 0),
+            TongCocBiMat = all.Where(d => d.TrangThai == "Đã hủy - Mất cọc").Sum(d => d.TienCoc ?? 0),
+            SoLuongDatPhongCoCoc = all.Count(d => d.TienCoc > 0)
+        };
     }
 }
 

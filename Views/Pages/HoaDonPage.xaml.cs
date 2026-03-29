@@ -1,9 +1,10 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -98,16 +99,49 @@ public partial class HoaDonPage : Page
     private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
         => ApplyFilter();
 
+    private void BtnTestPrint_Click(object sender, RoutedEventArgs e)
+    {
+        PrintHelper.TestPrint();
+    }
+
 
 
     // Cập nhật HoaDonGrid_SelectionChanged
     private void HoaDonGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         _selected = HoaDonGrid.SelectedItem as HoaDonRowViewModel;
+        bool hasSelected = _selected != null;
         bool chuaTT = _selected?.TrangThai == "Chưa thanh toán";
 
+        BtnInHoaDon.IsEnabled = hasSelected;
         BtnThemDichVu.IsEnabled = chuaTT;
         BtnThanhToan.IsEnabled = chuaTT;
+    }
+
+    private async void BtnInHoaDon_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selected == null) return;
+
+        try
+        {
+            using var db = new QuanLyKhachSanContext();
+            var hd = await db.HoaDons
+                .Include(h => h.MaKhuyenMaiNavigation)
+                .Include(h => h.MaDatPhongNavigation)
+                .Include(h => h.MaNhanVienNavigation)
+                .FirstOrDefaultAsync(h => h.MaHoaDon == _selected.MaHoaDon);
+
+            if (hd == null) return;
+
+            string khName = _selected.TenKhachHang;
+            string staffName = hd.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
+
+            PrintHelper.PrintPOSInvoice(hd, khName, staffName);
+        }
+        catch (Exception ex)
+        {
+            ConfirmHelper.ShowError($"Lỗi in hóa đơn: {ex.Message}");
+        }
     }
 
     // Thêm handler mới
