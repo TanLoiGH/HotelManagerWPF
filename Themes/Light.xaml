@@ -62,12 +62,12 @@
 
     <!-- ===== SIDEBAR COLOR SYSTEM (Nền tối) ===== -->
     <Color x:Key="Color.SidebarBackground">#1E293B</Color>
-    <Color x:Key="Color.SidebarSurface">#273449</Color>
-    <Color x:Key="Color.SidebarBorder">#334155</Color>
+    <Color x:Key="Color.SidebarSurface">#33BFC0C6</Color>
+    <Color x:Key="Color.SidebarBorder">#B7181414</Color>
     <Color x:Key="Color.SidebarText">#E2E8F0</Color>
     <Color x:Key="Color.SidebarTextMuted">#94A3B8</Color>
     <Color x:Key="Color.SidebarActive">#2563EB</Color>
-    <Color x:Key="Color.SidebarHover">#273449</Color>
+  
 
     <!-- Sidebar legacy mappings -->
     <Color x:Key="Color.NavStart">#1E293B</Color>
@@ -76,9 +76,9 @@
     <Color x:Key="Color.NavText">#E2E8F0</Color>
     <Color x:Key="Color.NavMuted">#94A3B8</Color>
     <Color x:Key="Color.NavGroupLabel">#94A3B8</Color>
-    <Color x:Key="Color.NavHover">#273449</Color>
+    <Color x:Key="Color.NavHover">#334155</Color>
     <Color x:Key="Color.NavSelected">#2563EB</Color>
-    <Color x:Key="Color.NavChip">#2563EB</Color>
+    <Color x:Key="Color.NavChip">#EEF2FF</Color>
     <Color x:Key="Color.NavProfileBg">#273449</Color>
 
     <!-- ===== BRUSHES ===== -->

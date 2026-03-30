@@ -1,0 +1,171 @@
+﻿<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.Pages.CaiDatPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:QuanLyKhachSan_PhamTanLoi.Views.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="CaiDatPage"
+      Background="WhiteSmoke">
+
+    <Grid>
+        <Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                <StackPanel Margin="30" Width="900">
+
+                    <!-- Title -->
+                    <TextBlock Text="Settings"
+                       FontSize="{StaticResource Font.Size.Hero}"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,20"/>
+
+                    <!-- ================= SYSTEM ================= -->
+                    <Border Style="{StaticResource MacFluent.Card}"
+                    Padding="20"
+                    Margin="0,0,0,20">
+
+                        <StackPanel>
+
+                            <TextBlock Text="System"
+                               FontSize="{StaticResource Font.Size.Subtitle}"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,15"/>
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Hotel Name"/>
+                                <TextBox Grid.Column="1"
+                                 Width="300"/>
+                            </Grid>
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Address"/>
+                                <TextBox Grid.Column="1"
+                                 Width="400"/>
+                            </Grid>
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Phone"/>
+                                <TextBox Grid.Column="1"
+                                 Width="200"/>
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- ================= UI ================= -->
+                    <Border Style="{StaticResource MacFluent.Card}"
+                    Padding="20"
+                    Margin="0,0,0,20">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Interface"
+                               FontSize="{StaticResource Font.Size.Subtitle}"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,15"/>
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Theme"/>
+                                <ComboBox Grid.Column="1" Width="160">
+                                    <ComboBoxItem Content="Light"/>
+                                    <ComboBoxItem Content="Dark"/>
+                                    <ComboBoxItem Content="System"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Language"/>
+                                <ComboBox Grid.Column="1" Width="160">
+                                    <ComboBoxItem Content="Vietnamese"/>
+                                    <ComboBoxItem Content="English"/>
+                                </ComboBox>
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- ================= NOTIFICATION ================= -->
+                    <Border Style="{StaticResource MacFluent.Card}"
+                    Padding="20"
+                    Margin="0,0,0,20">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Notification"
+                               FontSize="{StaticResource Font.Size.Subtitle}"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,15"/>
+
+                            <CheckBox Content="Show check-in reminder"/>
+                            <CheckBox Content="Show check-out reminder"/>
+                            <CheckBox Content="Low room availability warning"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- ================= SECURITY ================= -->
+                    <Border Style="{StaticResource MacFluent.Card}"
+                    Padding="20">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Security"
+                               FontSize="{StaticResource Font.Size.Subtitle}"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,15"/>
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Change Password"/>
+                                <Button Grid.Column="1"
+                                Width="150"
+                                Content="Update"/>
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </StackPanel>
+
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

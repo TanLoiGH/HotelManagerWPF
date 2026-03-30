@@ -19,8 +19,6 @@
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    
-
     <!-- Root border bo tròn -->
     <Border CornerRadius="20" ClipToBounds="True">
         <Border.Background>
@@ -55,17 +53,24 @@
                     <Ellipse Width="260" Height="260"
                              HorizontalAlignment="Right" VerticalAlignment="Top"
                              Margin="0,-100,-130,0" Opacity="0.03">
-                        <Ellipse.Fill><RadialGradientBrush>
-                            <GradientStop Color="{DynamicResource Color.BrandPrimary}" Offset="0"/>
-                            <GradientStop Color="Transparent" Offset="1"/>
-                        </RadialGradientBrush></Ellipse.Fill>
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="{DynamicResource Color.BrandPrimary}" Offset="0"/>
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
                     </Ellipse>
 
                     <Grid Margin="0">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>  <!-- Logo -->
-                            <RowDefinition Height="*"/>     <!-- Menu -->
-                            <RowDefinition Height="Auto"/>  <!-- Profile -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Logo -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Profile Card -->
+                            <RowDefinition Height="*"/>
+                            <!-- Menu (scrollable) -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Settings Button -->
                         </Grid.RowDefinitions>
 
                         <!-- ── LOGO ── -->
@@ -86,18 +91,49 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- ── SIDEBAR MENU ITEMS ── -->
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+                        <!-- ── PROFILE CARD (Đưa lên ngay dưới Logo) ── -->
+                        <Border Grid.Row="1" Margin="16,8,16,16" CornerRadius="14" Padding="14,12"
+                                Background="{DynamicResource Brush.SidebarSurface}"
+                                BorderBrush="{DynamicResource Brush.SidebarBorder}" BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="{Binding WelcomeMessage}"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource Brush.SidebarText}" 
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding MaQuyen}"
+                                               FontSize="12" Foreground="{DynamicResource Brush.SidebarTextMuted}" 
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <Button Grid.Column="1" 
+                                        Content="out"
+                                        Width="40"
+                                        Height="30"
+                                        ToolTip="Đăng xuất"
+                                        Cursor="Hand"
+                                        Style="{DynamicResource MacFluent.IconButton.Danger}"
+                                        Click="Logout_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── SIDEBAR MENU ITEMS (Scrollable) ── -->
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
                             <StackPanel Margin="16,0">
 
                                 <!-- ===================== -->
                                 <!-- DASHBOARD (Trang chính) -->
                                 <!-- ===================== -->
                                 <Border x:Name="BtnDashboard"
-                 CornerRadius="12" Padding="14,12" Margin="0,2"
-                 Background="{DynamicResource Brush.SidebarActive}" Cursor="Hand"
-                 MouseLeftButtonDown="Nav_Dashboard"
-                 MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        CornerRadius="12" Padding="14,12" Margin="0,2"
+                                        Background="{DynamicResource Brush.SidebarActive}" Cursor="Hand"
+                                        MouseLeftButtonDown="Nav_Dashboard"
+                                        MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📊" Margin="0,0,12,0"/>
                                         <TextBlock Text="Dashboard" FontWeight="SemiBold"/>
@@ -108,14 +144,15 @@
                                 <!-- LỄ TÂN -->
                                 <!-- ===================== -->
                                 <TextBlock Text="LỄ TÂN"
-                   FontSize="11" FontWeight="Bold"
-                   Foreground="{DynamicResource Brush.SidebarTextMuted}" Margin="12,20,0,8" Opacity="0.6"/>
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource Brush.SidebarTextMuted}" 
+                                           Margin="12,20,0,8" Opacity="0.6"/>
 
                                 <!-- Phòng -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_Phong"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        Background="Transparent" Cursor="Hand"
+                                        MouseLeftButtonDown="Nav_Phong"
+                                        MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🏠" Margin="0,0,12,0"/>
                                         <TextBlock Text="Phòng"/>
@@ -124,9 +161,9 @@
 
                                 <!-- Hoá Đơn -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_HoaDon"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        Background="Transparent" Cursor="Hand"
+                                        MouseLeftButtonDown="Nav_HoaDon"
+                                        MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🧾" Margin="0,0,12,0"/>
                                         <TextBlock Text="Hoá Đơn"/>
@@ -138,47 +175,48 @@
                                 <!-- ===================== -->
                                 <StackPanel x:Name="AdminSection">
                                     <TextBlock Text="HỆ THỐNG"
-                       FontSize="11" FontWeight="Bold"
-                       Foreground="{DynamicResource Brush.SidebarTextMuted}" Margin="12,20,0,8" Opacity="0.6"/>
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource Brush.SidebarTextMuted}" 
+                                               Margin="12,20,0,8" Opacity="0.6"/>
 
-                                    <!-- Dịch vụ (CRUD danh mục) -->
+                                    <!-- Dịch vụ -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                   Background="Transparent" Cursor="Hand"
-                   MouseLeftButtonDown="Nav_DichVu"
-                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_DichVu"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="⭐" Margin="0,0,12,0"/>
                                             <TextBlock Text="Dịch vụ"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Loại chi phí (CRUD) -->
+                                    <!-- Loại chi phí -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                   Background="Transparent" Cursor="Hand"
-                   MouseLeftButtonDown="Nav_LoaiChiPhi"
-                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_LoaiChiPhi"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="💸" Margin="0,0,12,0"/>
                                             <TextBlock Text="Loại Chi Phí"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Phương thức thanh toán (CRUD) -->
+                                    <!-- Phương thức thanh toán -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                   Background="Transparent" Cursor="Hand"
-                   MouseLeftButtonDown="Nav_PhuongThucThanhToan"
-                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_PhuongThucThanhToan"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="💳" Margin="0,0,12,0"/>
                                             <TextBlock Text="PT Thanh Toán"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Danh mục tiện nghi (CRUD) -->
+                                    <!-- Danh mục tiện nghi -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                   Background="Transparent" Cursor="Hand"
-                   MouseLeftButtonDown="Nav_DanhMucTienNghi"
-                   MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_DanhMucTienNghi"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🧰" Margin="0,0,12,0"/>
                                             <TextBlock Text="DM Tiện Nghi"/>
@@ -187,9 +225,9 @@
 
                                     <!-- Khách Hàng -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                    Background="Transparent" Cursor="Hand"
-                    MouseLeftButtonDown="Nav_KhachHang"
-                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_KhachHang"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="👥" Margin="0,0,12,0"/>
                                             <TextBlock Text="Khách Hàng"/>
@@ -198,9 +236,9 @@
 
                                     <!-- Loại Khách -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                    Background="Transparent" Cursor="Hand"
-                    MouseLeftButtonDown="Nav_LoaiKhach"
-                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_LoaiKhach"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="💎" Margin="0,0,12,0"/>
                                             <TextBlock Text="Loại Khách"/>
@@ -209,9 +247,9 @@
 
                                     <!-- Loại Phòng -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                    Background="Transparent" Cursor="Hand"
-                    MouseLeftButtonDown="Nav_LoaiPhong"
-                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_LoaiPhong"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🏷️" Margin="0,0,12,0"/>
                                             <TextBlock Text="Loại Phòng"/>
@@ -220,9 +258,9 @@
 
                                     <!-- Nhà Cung Cấp -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                    Background="Transparent" Cursor="Hand"
-                    MouseLeftButtonDown="Nav_NhaCungCap"
-                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_NhaCungCap"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🏭" Margin="0,0,12,0"/>
                                             <TextBlock Text="Nhà Cung Cấp"/>
@@ -231,9 +269,9 @@
 
                                     <!-- Nhân Viên -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                    Background="Transparent" Cursor="Hand"
-                    MouseLeftButtonDown="Nav_NhanVien"
-                    MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_NhanVien"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🪪" Margin="0,0,12,0"/>
                                             <TextBlock Text="Nhân Viên"/>
@@ -245,14 +283,15 @@
                                 <!-- QUẢN LÝ -->
                                 <!-- ===================== -->
                                 <TextBlock Text="QUẢN LÝ"
-                   FontSize="11" FontWeight="Bold"
-                   Foreground="{DynamicResource Brush.SidebarTextMuted}" Margin="12,20,0,8" Opacity="0.6"/>
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource Brush.SidebarTextMuted}" 
+                                           Margin="12,20,0,8" Opacity="0.6"/>
 
                                 <!-- Chi Phí -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_ChiPhi"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        Background="Transparent" Cursor="Hand"
+                                        MouseLeftButtonDown="Nav_ChiPhi"
+                                        MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="💸" Margin="0,0,12,0"/>
                                         <TextBlock Text="Chi Phí"/>
@@ -261,54 +300,38 @@
 
                                 <!-- Khuyến Mãi -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_KhuyenMai"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        Background="Transparent" Cursor="Hand"
+                                        MouseLeftButtonDown="Nav_KhuyenMai"
+                                        MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🎁" Margin="0,0,12,0"/>
                                         <TextBlock Text="Khuyến Mãi"/>
                                     </StackPanel>
                                 </Border>
 
+                                <!-- Tiện Nghi -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
-                Background="Transparent" Cursor="Hand"
-                MouseLeftButtonDown="Nav_TienNghi"
-                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        Background="Transparent" Cursor="Hand"
+                                        MouseLeftButtonDown="Nav_TienNghi"
+                                        MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🛏️" Margin="0,0,12,0"/>
                                         <TextBlock Text="Tiện Nghi"/>
                                     </StackPanel>
                                 </Border>
-
-
-
                             </StackPanel>
                         </ScrollViewer>
-                        <!-- ── PROFILE CARD ── -->
-                        <Border Grid.Row="2" Margin="16,16,16,16" CornerRadius="14" Padding="14,12"
-                                Background="{DynamicResource Brush.SidebarSurface}"
-                                BorderBrush="{DynamicResource Brush.SidebarBorder}" BorderThickness="1">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding WelcomeMessage}"
-                                               FontSize="14" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource Brush.SidebarText}" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Text="{Binding MaQuyen}"
-                                               FontSize="12" Foreground="{DynamicResource Brush.SidebarTextMuted}" Margin="0,2,0,0"/>
-                                </StackPanel>
-                                <Button Grid.Column="1"
-                                                Content="↩"
-                                                Width="30"
-                                                Height="30"
-                                                ToolTip="Đăng xuất"
-                                                Cursor="Hand"
-                                                Style="{DynamicResource MacFluent.IconButton.Danger}"
-                                                Click="Logout_Click"/>
-                            </Grid>
+
+                        <!-- ── CÀI ĐẶT (Đặt dưới cùng, ngoài scroll) ── -->
+                        <Border Grid.Row="3" Margin="16,0,16,16" CornerRadius="15" Padding="15"
+                                 Cursor="Hand"
+                                Background="#F2474B54"
+                                MouseLeftButtonDown="Nav_CaiDat"
+                                MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⛭" Margin="40,0,10,0" FontSize="25" TextAlignment="Center"/>
+                                <TextBlock Text="Cài đặt" FontWeight="SemiBold"/>
+                            </StackPanel>
                         </Border>
 
                     </Grid>
@@ -316,7 +339,7 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════
-                 NỘI DUNG PHẢI — Content Area
+                 NỘI DUNG PHẢI — Content Area (giữ nguyên)
             ══════════════════════════════════════════════════ -->
             <Grid Grid.Column="1" >
                 <Grid.RowDefinitions>
@@ -344,10 +367,9 @@
                         <StackPanel Grid.Column="1" Orientation="Horizontal"
                                     VerticalAlignment="Center">
                             <TextBlock Text="{Binding NgayHienTai}"
-                                       FontSize="13" Foreground="{DynamicResource Brush.TextMuted}"
-                                       VerticalAlignment="Center" Margin="0,0,20,0"/>
-                            
-                            
+                                       FontSize="17" Foreground="{DynamicResource Brush.TextMuted}"
+                                       VerticalAlignment="Center" Margin="0,0,600,0"/>
+
                             <Border Width="32" Height="32" CornerRadius="8"
                                     Background="{DynamicResource Brush.SurfaceSoft}" Cursor="Hand" Margin="8,0,0,0"
                                     MouseLeftButtonDown="CloseWindow_Click" ToolTip="Đóng">
@@ -368,7 +390,3 @@
         </Grid>
     </Border>
 </Window>
-
-
-
-

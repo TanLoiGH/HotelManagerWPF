@@ -4,13 +4,15 @@ using System.Windows.Input;
 using System.Windows.Media;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Views.Dialogs;
+using QuanLyKhachSan_PhamTanLoi.Views.Pages;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class MainWindow : Window
 {
     private Border? _activeNavItem;
-    public string WelcomeMessage => $"Xin chào, {AppSession.TenNhanVien ?? "Admin"}";
+    public string WelcomeMessage => $"{AppSession.TenNhanVien ?? "Admin"}";
     public string MaQuyen => AppSession.MaQuyen ?? "";
     public string NgayHienTai => DateTime.Now.ToString("dddd, dd/MM/yyyy");
 
@@ -147,6 +149,8 @@ public partial class MainWindow : Window
     private void Nav_DanhMucTienNghi(object sender, MouseButtonEventArgs e)
         => NavigateTo(new DanhMucTienNghiPage(), "Danh mục Tiện Nghi", sender as Border);
 
+    private void Nav_CaiDat(object sender, MouseButtonEventArgs e)
+    => NavigateTo(new CaiDatPage(), "Danh mục Tiện Nghi", sender as Border);
     // ── Hover effects ────────────────────────────────────────────────────────
     private void NavItem_MouseEnter(object sender, MouseEventArgs e)
     {
