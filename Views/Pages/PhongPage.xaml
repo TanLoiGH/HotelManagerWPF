@@ -176,33 +176,75 @@
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="*"/>
                                             </Grid.RowDefinitions>
-                                            
-                                            <DockPanel LastChildFill="False">
-                                                <StackPanel DockPanel.Dock="Left">
-                                                    <TextBlock Text="{Binding MaPhong}"
-                                                               FontSize="28" FontWeight="ExtraBold" 
-                                                               Foreground="{DynamicResource Brush.TextHeading}"/>
-                                                    <TextBlock Text="{Binding CapacityText}"
-                                                               FontSize="11" FontStyle="Italic"
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Mã phòng -->
+                                                <TextBlock Grid.Row="0" Grid.Column="0"
+                                                           Text="{Binding MaPhong}"
+                                                           FontSize="28"
+                                                           FontWeight="ExtraBold"
+                                                           Foreground="{DynamicResource Brush.TextHeading}"/>
+
+                                                <!-- Badge trạng thái -->
+                                                <Border Grid.Row="0" Grid.Column="1"
+                                                        CornerRadius="10"
+                                                        Margin="0,3,0,2"
+                                                        Padding="8,5"
+                                                        Background="{Binding BadgeBackground}"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding TenTrangThai}"
+                                                               FontSize="13"
+                                                               FontWeight="Bold" 
+                                                               Foreground="{Binding BadgeForeground}"/>
+                                                </Border>
+
+                                                <!-- Thông tin phòng -->
+                                                <StackPanel Grid.Row="1"
+                                                            Grid.Column="0"
+                                                            Grid.ColumnSpan="2"
+                                                            Orientation="Horizontal"
+                                                            Margin="0,4,0,0">
+
+                                                    <TextBlock Text="{Binding CapacityText1}"
+                                                               FontSize="11"
+                                                               FontStyle="Italic"
+                                                               Margin="0,0,6,0"
+                                                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+
+                                                    <TextBlock Text="|"
+                                                               FontSize="11"
+                                                               Margin="15,0,15,0"
+                                                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+
+                                                    <TextBlock Text="{Binding CapacityText2}"
+                                                               FontSize="13" 
+                                                               FontStyle="Italic"  FontWeight="Bold"
                                                                Foreground="{DynamicResource Brush.TextSecondary}"/>
                                                 </StackPanel>
-
-                                                <Border DockPanel.Dock="Right" CornerRadius="10" Padding="10,4"
-                                                        Background="{Binding BadgeBackground}" VerticalAlignment="Top">
-                                                    <TextBlock Text="{Binding TenTrangThai}"
-                                                               FontSize="12" Foreground="{Binding BadgeForeground}" 
-                                                               FontWeight="Bold"/>
-                                                </Border>
-                                            </DockPanel>
+                                            </Grid>
 
                                             <Separator Grid.Row="1" Background="{DynamicResource Brush.Border}" 
-                                                       Margin="0,10" Height="1" Opacity="0.5"/>
+                                                       Margin="0,5,0,70" Height="1" Opacity="0.9"/>
 
                                             <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
                                                 <TextBlock Text="{Binding StatusIcon}" 
-                                                           FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,4"
+                                                           FontSize="32" HorizontalAlignment="Center" Margin="0,20,0,2"
                                                            Opacity="0.4"/>
                                                 <TextBlock Text="{Binding InfoText}"
                                                            FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.TextMuted}"

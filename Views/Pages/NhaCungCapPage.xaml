@@ -55,12 +55,12 @@
                           SelectionMode="Single" HeadersVisibility="Column"
                           GridLinesVisibility="Horizontal" FontSize="15"
                           BorderThickness="0" Padding="8" RowHeight="44"
-                          SelectionChanged="NCCGrid_SelectionChanged">
+                          SelectionChanged="NCCGrid_SelectionChanged" >
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Mã NCC" Binding="{Binding MaNcc}" Width="90"/>
                         <DataGridTextColumn Header="Tên nhà cung cấp" Binding="{Binding TenNcc}" Width="*"/>
-                        <DataGridTextColumn Header="Điện thoại" Binding="{Binding DienThoai}" Width="120"/>
-                        <DataGridTextColumn Header="Người LH" Binding="{Binding NguoiLienHe}" Width="120"/>
+                        <DataGridTextColumn Header="Điện thoại" Binding="{Binding DienThoai}" Width="*"/>
+                        <DataGridTextColumn Header="Người LH" Binding="{Binding NguoiLienHe}" Width="*"/>
                         <DataGridTemplateColumn Header="Hoạt động" Width="90">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
