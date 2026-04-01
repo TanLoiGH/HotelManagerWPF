@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -120,6 +120,9 @@ public partial class MainWindow : Window
 
     private void Nav_KhuyenMai(object sender, MouseButtonEventArgs e)
         => NavigateTo(new KhuyenMaiPage(), "Khuyến Mãi", sender as Border);
+
+    private void Nav_BaoCao(object sender, MouseButtonEventArgs e)
+        => NavigateTo(new BaoCaoPage(), "Báo Cáo", sender as Border);
 
     private void Nav_ChiPhi(object sender, MouseButtonEventArgs e)
         => NavigateTo(new ChiPhiPage(), "Chi Phí", sender as Border);

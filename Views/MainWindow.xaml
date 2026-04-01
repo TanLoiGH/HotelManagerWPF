@@ -309,6 +309,17 @@
                                     </StackPanel>
                                 </Border>
 
+                                    <!-- Báo Cáo -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_BaoCao"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📈" Margin="0,0,12,0"/>
+                                            <TextBlock Text="Báo Cáo"/>
+                                        </StackPanel>
+                                    </Border>
+
                                 <!-- Tiện Nghi -->
                                 <Border CornerRadius="12" Padding="14,12" Margin="0,2"
                                         Background="Transparent" Cursor="Hand"

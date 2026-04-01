@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using QuanLyKhachSan_PhamTanLoi.Dtos;
 using QuanLyKhachSan_PhamTanLoi.Models;
 
 namespace QuanLyKhachSan_PhamTanLoi.Data;
@@ -65,6 +66,13 @@ public partial class QuanLyKhachSanContext : DbContext
 
     public virtual DbSet<TrangThaiNhanVien> TrangThaiNhanViens { get; set; }
 
+    public DbSet<VwDoanhThuThang> VwDoanhThuThangs { get; set; }
+    public DbSet<VwCoCauChiPhi> VwCoCauChiPhis { get; set; }
+    public DbSet<VwTopDichVu> VwTopDichVus { get; set; }
+
+
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -84,6 +92,13 @@ public partial class QuanLyKhachSanContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<VwDoanhThuThang>().HasNoKey().ToView("VW_DOANH_THU_THANG");
+        modelBuilder.Entity<VwCoCauChiPhi>().HasNoKey().ToView("VW_CO_CAU_CHI_PHI");
+        modelBuilder.Entity<VwTopDichVu>().HasNoKey().ToView("VW_TOP_DICH_VU");
+
+
+
+
         modelBuilder.Entity<ChiPhi>(entity =>
         {
             entity.HasKey(e => e.MaChiPhi).HasName("PK_CP");

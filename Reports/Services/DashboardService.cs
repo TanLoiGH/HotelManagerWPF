@@ -3,7 +3,7 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
 
-namespace QuanLyKhachSan_PhamTanLoi.Services;
+namespace QuanLyKhachSan_PhamTanLoi.Reports.Services;
 
 public class DashboardService
 {

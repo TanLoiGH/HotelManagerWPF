@@ -3,14 +3,15 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using System.ComponentModel;
+using System.IO.Packaging;
 using System.Runtime.Intrinsics.Arm;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Data;
-using System.ComponentModel;
-using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -50,6 +51,7 @@ public partial class PhongPage : Page
 
         return 0;
     }
+
 
     // ── Load phòng ───────────────────────────────────────────────────────
     private async Task LoadPhongAsync()
