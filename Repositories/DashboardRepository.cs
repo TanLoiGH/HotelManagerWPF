@@ -23,7 +23,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Repositories
             return await _db.VwDoanhThuThangs
                         .OrderBy(x => x.Nam)
                         .ThenBy(x => x.Thang)
-                        .ToListAsync(); 
+                        .ToListAsync();
         }
 
         public async Task<List<VwCoCauChiPhi>> GetChiPhiAsync()
@@ -36,5 +36,10 @@ namespace QuanLyKhachSan_PhamTanLoi.Repositories
                 .OrderByDescending(x => x.TongSuDung)
                 .Take(5)
                 .ToListAsync();
+    
+
+
     }
-}
+
+
+    }
