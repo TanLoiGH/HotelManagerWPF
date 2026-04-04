@@ -41,6 +41,8 @@ public partial class ThanhToanDialog : Window
     private async Task LoadHoaDonInfoAsync()
     {
         using var db = new QuanLyKhachSanContext();
+        var hdSvc = new HoaDonService(db, new KhachHangService(db));
+        await hdSvc.EnsureHoaDonChiTietAsync(_maHoaDon);
 
         // HOA_DON + HOA_DON_CHI_TIET + DICH_VU_CHI_TIET
         var hd = await db.HoaDons

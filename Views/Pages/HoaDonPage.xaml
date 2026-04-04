@@ -95,6 +95,8 @@
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Setter Property="Cursor" Value="Hand"/>
+                        <!-- Double click -->
+                                <EventSetter Event="MouseDoubleClick" Handler="HoaDonRow_DoubleClick"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}"/>

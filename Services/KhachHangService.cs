@@ -45,7 +45,7 @@ public class KhachHangService
             TenKhachHang = tenKhachHang,
             DienThoai = dienThoai,
             Cccd = cccd,
-            Email = email,
+            Email = email, 
             DiaChi = diaChi,
             TongTichLuy = tong,
             MaLoaiKhach = maLoai,

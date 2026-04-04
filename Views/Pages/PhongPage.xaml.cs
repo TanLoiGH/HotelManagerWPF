@@ -410,13 +410,6 @@ public partial class PhongPage : Page
             BtnKhachNhanPhong.IsEnabled = false;
 
             using var db = new QuanLyKhachSanContext();
-
-            // 1. Phòng → Đang ở
-            var phong = await db.Phongs.FindAsync(_selectedPhong.MaPhong);
-            if (phong is null) throw new Exception("Không tìm thấy phòng trong DB.");
-            phong.MaTrangThaiPhong = "PTT02";
-
-            // 2. Lấy chi tiết đặt phòng
             var ct = await db.DatPhongChiTiets
                 .Include(c => c.MaDatPhongNavigation)
                 .Where(c => c.MaPhong == _selectedPhong.MaPhong &&
@@ -426,38 +419,18 @@ public partial class PhongPage : Page
 
             if (ct is null) throw new Exception("Không tìm thấy thông tin đặt phòng.");
 
-            var dp = ct.MaDatPhongNavigation;
-            dp.TrangThai = "Đang ở";                                             // ← fix
+            var dpSvc = new DatPhongService(db);
+            await dpSvc.CheckInAsync(ct.MaDatPhong, App.CurrentUser?.MaNhanVien ?? "NV001");
 
-            await db.SaveChangesAsync();
+            var hdSvc = new HoaDonService(db, new KhachHangService(db));
+            var hoaDon = await hdSvc.XuatHoaDonAsync(
+                ct.MaDatPhong,
+                App.CurrentUser?.MaNhanVien ?? "NV001");
 
-            // 3. Tự động tạo hóa đơn
             int soDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays);
             decimal tienPhong = soDem * _selectedPhong.GiaPhong;
             decimal tienDichVu = 0m;
             decimal tongThanhToan = (tienPhong + tienDichVu) * 1.10m;           // ← fix: (P+DV)*1.1
-
-            var lastMaHd = await db.HoaDons
-                .OrderByDescending(h => h.MaHoaDon)
-                .Select(h => h.MaHoaDon)
-                .FirstOrDefaultAsync();
-
-            var hoaDon = new HoaDon
-            {
-                MaHoaDon = MaHelper.Next("HD", lastMaHd),
-                MaDatPhong = dp.MaDatPhong,
-                MaNhanVien = App.CurrentUser?.MaNhanVien,
-                NgayLap = DateTime.Now,
-                TienPhong = tienPhong,
-                TienDichVu = tienDichVu,
-                Vat = 10m,                                             // ← fix: lưu % không phải tiền
-                MaKhuyenMai = null,
-                TongThanhToan = tongThanhToan,
-                TrangThai = "Chưa thanh toán",
-            };
-
-            db.HoaDons.Add(hoaDon);
-            await db.SaveChangesAsync();
 
             MessageBox.Show(
                 $"✅ Phòng {_selectedPhong.MaPhong} đã nhận khách!\n\n" +

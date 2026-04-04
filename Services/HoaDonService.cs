@@ -26,6 +26,7 @@ public class HoaDonService
 
         bool hdExist = await _db.HoaDons
             .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đã hủy");
+
         if (hdExist)
             throw new InvalidOperationException("Đặt phòng này đã có hóa đơn active.");
 
@@ -59,11 +60,13 @@ public class HoaDonService
             .Select(h => h.MaHoaDon)
             .FirstOrDefaultAsync();
 
-        decimal vatPercent = 10; // Có thể lấy từ AppSettings hoặc DB sau này
+        var newMaHd = MaHelper.Next("HD", lastMa);
+
+        decimal vatPercent = 10;
 
         var hd = new HoaDon
         {
-            MaHoaDon = MaHelper.Next("HD", lastMa),
+            MaHoaDon = newMaHd,
             MaDatPhong = maDatPhong,
             MaNhanVien = maNhanVien,
             NgayLap = DateTime.Now,
@@ -71,26 +74,72 @@ public class HoaDonService
             TienDichVu = 0,
             Vat = vatPercent,
             MaKhuyenMai = maKhuyenMai,
-            // Sửa logic: Giảm giá tính trên tiền phòng, cộng VAT, sau đó trừ tiền cọc
             TongThanhToan = ((tienPhong * (1 - kmPercent / 100)) * (1 + vatPercent / 100m)) - tienCoc,
             TrangThai = "Chưa thanh toán"
         };
+
         _db.HoaDons.Add(hd);
 
         foreach (var ct in chiTiets)
         {
-            _db.HoaDonChiTiets.Add(new HoaDonChiTiet
+            var detail = new HoaDonChiTiet
             {
                 MaHoaDon = hd.MaHoaDon,
                 MaDatPhong = maDatPhong,
                 MaPhong = ct.MaPhong,
                 SoDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays)
-            });
+            };
+
+            _db.HoaDonChiTiets.Add(detail);
         }
 
         await _db.SaveChangesAsync();
         await tx.CommitAsync();
+
         return hd;
+    }
+
+    public async Task<int> EnsureHoaDonChiTietAsync(string maHoaDon)
+    {
+        var hd = await _db.HoaDons
+            .AsNoTracking()
+            .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon)
+            ?? throw new KeyNotFoundException("Không tìm thấy hóa đơn");
+
+        if (string.IsNullOrWhiteSpace(hd.MaDatPhong))
+            throw new InvalidOperationException("Hóa đơn không có mã đặt phòng.");
+
+        var chiTietDatPhong = await _db.DatPhongChiTiets
+            .Where(c => c.MaDatPhong == hd.MaDatPhong)
+            .ToListAsync();
+
+        if (!chiTietDatPhong.Any())
+            throw new InvalidOperationException("Đặt phòng không có chi tiết phòng.");
+
+        var existingKeys = await _db.HoaDonChiTiets
+            .Where(c => c.MaHoaDon == maHoaDon)
+            .Select(c => c.MaDatPhong + "|" + c.MaPhong)
+            .ToListAsync();
+
+        var existingSet = existingKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var toAdd = chiTietDatPhong
+            .Where(ct => !existingSet.Contains(ct.MaDatPhong + "|" + ct.MaPhong))
+            .Select(ct => new HoaDonChiTiet
+            {
+                MaHoaDon = maHoaDon,
+                MaDatPhong = ct.MaDatPhong,
+                MaPhong = ct.MaPhong,
+                SoDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays)
+            })
+            .ToList();
+
+        if (toAdd.Count == 0)
+            return 0;
+
+        _db.HoaDonChiTiets.AddRange(toAdd);
+        await _db.SaveChangesAsync();
+        return toAdd.Count;
     }
 
     public async Task<bool> ThanhToanAsync(
@@ -105,6 +154,7 @@ public class HoaDonService
             throw new ArgumentException("Số tiền thanh toán phải lớn hơn 0", nameof(soTien));
 
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
         try
         {
             var hd = await _db.HoaDons
@@ -152,7 +202,8 @@ public class HoaDonService
                 foreach (var ct in hd.MaDatPhongNavigation?.DatPhongChiTiets ?? [])
                 {
                     var phong = await _db.Phongs.FindAsync(ct.MaPhong);
-                    if (phong != null) phong.MaTrangThaiPhong = "PTT03";
+                    if (phong != null)
+                        phong.MaTrangThaiPhong = "PTT03";
                 }
 
                 if (hd.MaDatPhongNavigation != null)
@@ -180,10 +231,6 @@ public class HoaDonService
             {
                 MaPTTT = p.MaPttt,
                 TenPhuongThuc = p.TenPhuongThuc
-            }).ToListAsync();
+            })
+            .ToListAsync();
 }
-
-
-
-
-

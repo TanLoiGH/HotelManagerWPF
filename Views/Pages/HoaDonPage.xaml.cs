@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Views.Dialogs;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -242,6 +243,26 @@ public partial class HoaDonPage : Page
         };
         if (dialog.ShowDialog() == true)
             await LoadAsync();
+    }
+
+
+    private void HoaDonRow_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (sender is not DataGridRow row) return;
+
+        var item = row.Item as HoaDonRowViewModel;
+        if (item == null) return;
+
+        OpenHoaDonDetail(item.MaHoaDon);
+    }
+    private void OpenHoaDonDetail(string maHoaDon)
+    {
+        var dialog = new HoaDonChiTietDialog(maHoaDon)
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        dialog.ShowDialog();
     }
 }
 
