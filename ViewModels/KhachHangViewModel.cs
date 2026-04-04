@@ -8,6 +8,9 @@ public class KhachHangViewModel
     public string Email { get; set; } = "";
     public string Cccd { get; set; } = "";
     public string DiaChi { get; set; } = "";
+    public string? Passport { get; set; }
+    public string? Visa { get; set; }
+    public string? QuocTich { get; set; }
     public string TenLoaiKhach { get; set; } = "";
     public decimal TongTichLuy { get; set; }
     public string TichLuyText => TongTichLuy.ToString("N0") + " ₫";

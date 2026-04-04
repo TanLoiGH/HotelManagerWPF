@@ -12,20 +12,32 @@ public class KhachHangService
     public KhachHangService(QuanLyKhachSanContext db) => _db = db;
 
     public async Task<KhachHang> TimHoacTaoAsync(
-        string tenKhachHang, string? dienThoai, string? cccd, string? email = null)
+        string tenKhachHang,
+        string? dienThoai,
+        string? cccd,
+        string? email = null,
+        string? diaChi = null,
+        string? passport = null,
+        string? visa = null,
+        string? quocTich = null)
     {
         KhachHang? existing = null;
+
         if (!string.IsNullOrWhiteSpace(cccd))
             existing = await _db.KhachHangs.FirstOrDefaultAsync(k => k.Cccd == cccd);
         else if (!string.IsNullOrWhiteSpace(dienThoai))
             existing = await _db.KhachHangs.FirstOrDefaultAsync(k => k.DienThoai == dienThoai);
 
-        if (existing != null) return existing;
+        if (existing != null)
+            return existing;
 
         var lastMa = await _db.KhachHangs
             .OrderByDescending(k => k.MaKhachHang)
             .Select(k => k.MaKhachHang)
             .FirstOrDefaultAsync();
+
+        var tong = 0m;
+        var maLoai = await TinhHangAsync(_db, tong);
 
         var kh = new KhachHang
         {
@@ -34,12 +46,42 @@ public class KhachHangService
             DienThoai = dienThoai,
             Cccd = cccd,
             Email = email,
-            MaLoaiKhach = "LK001",
-            TongTichLuy = 0
+            DiaChi = diaChi,
+            TongTichLuy = tong,
+            MaLoaiKhach = maLoai,
+            Passport = passport,
+            Visa = visa,
+            QuocTich = quocTich
         };
+
         _db.KhachHangs.Add(kh);
         await _db.SaveChangesAsync();
+
         return kh;
+    }
+
+    private async Task<string?> TinhHangAsync(QuanLyKhachSanContext db, decimal tongTichLuy)
+    {
+        var loai = await db.LoaiKhaches
+            .Where(l => l.NguongTichLuy <= tongTichLuy)
+            .OrderByDescending(l => l.NguongTichLuy)
+            .FirstOrDefaultAsync();
+
+        return loai?.MaLoaiKhach;
+    }
+    internal async Task NangHangAsync(string maKhachHang, decimal soTienMoi)
+    {
+        var kh = await _db.KhachHangs.FindAsync(maKhachHang);
+        if (kh == null) return;
+
+        kh.TongTichLuy = (kh.TongTichLuy ?? 0) + soTienMoi;
+
+        var maLoaiMoi = await TinhHangAsync(_db, kh.TongTichLuy ?? 0);
+
+        if (maLoaiMoi != null && maLoaiMoi != kh.MaLoaiKhach)
+            kh.MaLoaiKhach = maLoaiMoi;
+
+        await _db.SaveChangesAsync();
     }
 
     public async Task<List<KhachHangViewModel>> GetListAsync(string? keyword = null)
@@ -68,24 +110,7 @@ public class KhachHangService
         }).ToListAsync();
     }
 
-    internal async Task NangHangAsync(string maKhachHang, decimal soTienMoi)
-    {
-        var kh = await _db.KhachHangs.FindAsync(maKhachHang);
-        if (kh == null) return;
 
-        kh.TongTichLuy = (kh.TongTichLuy ?? 0) + soTienMoi;
-
-        var loaiMoi = await _db.LoaiKhaches
-            .Where(l => l.NguongTichLuy <= kh.TongTichLuy)
-            .OrderByDescending(l => l.NguongTichLuy)
-            .FirstOrDefaultAsync();
-
-        if (loaiMoi != null && loaiMoi.MaLoaiKhach != kh.MaLoaiKhach)
-            kh.MaLoaiKhach = loaiMoi.MaLoaiKhach;
-
-        // Lưu cập nhật hạng/tích lũy
-        await _db.SaveChangesAsync();
-    }
 }
 
 

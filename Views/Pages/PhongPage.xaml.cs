@@ -266,7 +266,7 @@ public partial class PhongPage : Page
     private void ResetForm()
     {
         _selectedKhach = null;
-        TxtTimKhach.Text = "";
+        TxtTenKH.Text = "";
         TxtDienThoai.Text = "";
         TxtCCCD.Text = "";
         TxtKhachInfo.Visibility = Visibility.Collapsed;
@@ -275,9 +275,9 @@ public partial class PhongPage : Page
     }
 
     // ── Tìm khách hàng ───────────────────────────────────────────────────
-    private async void TxtTimKhach_TextChanged(object sender, TextChangedEventArgs e)
+    private async void TxtTenKH_TextChanged(object sender, TextChangedEventArgs e)
     {
-        var kw = TxtTimKhach.Text.Trim();
+        var kw = TxtTenKH.Text.Trim();
         if (kw.Length < 2) { ListKhach.Visibility = Visibility.Collapsed; return; }
 
         using var db = new QuanLyKhachSanContext();
@@ -297,7 +297,7 @@ public partial class PhongPage : Page
     {
         if (ListKhach.SelectedItem is not KhachHang kh) return;
         _selectedKhach = kh;
-        TxtTimKhach.Text = kh.TenKhachHang;
+        TxtTenKH.Text = kh.TenKhachHang;
         ListKhach.Visibility = Visibility.Collapsed;
         TxtKhachInfo.Text = $"Hạng: {kh.MaLoaiKhachNavigation?.TenLoaiKhach}  " +
                                    $"| Tích lũy: {(kh.TongTichLuy ?? 0):N0} ₫";
@@ -334,7 +334,7 @@ public partial class PhongPage : Page
     {
         if (_selectedPhong == null) return;
 
-        if (_selectedKhach == null && string.IsNullOrWhiteSpace(TxtTimKhach.Text))
+        if (_selectedKhach == null && string.IsNullOrWhiteSpace(TxtTenKH.Text))
         {
             MessageBox.Show("Vui lòng chọn hoặc nhập thông tin khách hàng.",
                 "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -363,9 +363,13 @@ public partial class PhongPage : Page
             if (_selectedKhach == null)
             {
                 _selectedKhach = await khSvc.TimHoacTaoAsync(
-                    TxtTimKhach.Text.Trim(),
+                    TxtTenKH.Text.Trim(),
                     TxtDienThoai.Text.Trim(),
-                    TxtCCCD.Text.Trim());
+                    TxtCCCD.Text.Trim(),
+                    TxtDiaChi.Text.Trim(),
+                    TxtPassport.Text.Trim(),
+                    TxtVisa.Text.Trim(),
+                    TxtQuocTich.Text.Trim());
             }
 
             await dpSvc.TaoDatPhongAsync(

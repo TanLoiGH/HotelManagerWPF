@@ -21,6 +21,12 @@ public partial class KhachHang
 
     public decimal? TongTichLuy { get; set; }
 
+    public string? Passport { get; set; }
+
+    public string? Visa { get; set; }  
+
+    public string? QuocTich { get; set; }
+
     public virtual ICollection<DatPhong> DatPhongs { get; set; } = new List<DatPhong>();
 
     public virtual LoaiKhach? MaLoaiKhachNavigation { get; set; }

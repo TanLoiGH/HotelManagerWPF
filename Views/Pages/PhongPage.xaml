@@ -389,7 +389,7 @@
 
                             </StackPanel>
 
-                            <!-- ══ FORM ĐẶT PHÒNG ══ -->
+<!-- ══ FORM ĐẶT PHÒNG ══ -->
                             <StackPanel x:Name="PanelDatPhong">
 
                                 <TextBlock Text="📅  Đặt phòng" FontSize="16" FontWeight="Bold"
@@ -400,9 +400,9 @@
                                            Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                 <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                                         Height="36" Margin="0,0,0,4">
-                                    <TextBox x:Name="TxtTimKhach" BorderThickness="0" Padding="10,0"
+                                    <TextBox x:Name="TxtTenKH" BorderThickness="0" Padding="10,0"
                                              VerticalAlignment="Center" FontSize="15"
-                                             TextChanged="TxtTimKhach_TextChanged"/>
+                                             TextChanged="TxtTenKH_TextChanged"/>
                                 </Border>
                                 <ListBox x:Name="ListKhach" MaxHeight="100" Visibility="Collapsed"
                                          SelectionChanged="ListKhach_SelectionChanged"
@@ -424,6 +424,34 @@
                                             <TextBox x:Name="TxtCCCD" BorderThickness="0" Padding="10,0"
                                                      VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
+
+                                        <TextBlock Text="Địa chỉ" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
+                                            <TextBox x:Name="TxtDiaChi" BorderThickness="0" Padding="10,0"
+                                   VerticalAlignment="Center" FontSize="15"/>
+                                        </Border>
+
+                                        <TextBlock Text="Số Passport" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
+                                            <TextBox x:Name="TxtPassport" BorderThickness="0" Padding="10,0"
+                                   VerticalAlignment="Center" FontSize="15"/>
+                                        </Border>
+
+                                        <TextBlock Text="Số Visa" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
+                                            <TextBox x:Name="TxtVisa" BorderThickness="0" Padding="10,0"
+                                   VerticalAlignment="Center" FontSize="15"/>
+                                        </Border>
+
+                                        <TextBlock Text="Quốc tịch" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"  />
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
+                                            <TextBox x:Name="TxtQuocTich" BorderThickness="0" Padding="10,0"
+                                   VerticalAlignment="Center" FontSize="15" />
+                                        </Border>
+
+
+
+
                                     </StackPanel>
                                 </Expander>
 
