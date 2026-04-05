@@ -10,10 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-        <None Remove="Themes\hotel.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
         <Page Remove="Themes\Light.xaml" />
   </ItemGroup>
 

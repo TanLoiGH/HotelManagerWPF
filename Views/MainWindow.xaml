@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="Hotelify - Quản Lý Khách Sạn"
+        Title="Banana - Quản Lý Khách Sạn"
         Height="960" Width="1680"
         WindowStartupLocation="CenterScreen"
         WindowStyle="SingleBorderWindow"
@@ -82,7 +82,7 @@
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Hotelify"
+                                    <TextBlock Text="Banana"
                                                FontSize="22" FontWeight="Bold"
                                                Foreground="{DynamicResource Brush.SidebarText}"/>
                                     <TextBlock Text="Hotel Management"
