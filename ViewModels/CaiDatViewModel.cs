@@ -1,384 +1,460 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
 using System.Windows;
-using System.Windows.Input;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
 
-namespace QuanLyKhachSan_PhamTanLoi.ViewModels
+namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
+
+/// <summary>
+/// ViewModel cho trang Cài đặt: thông tin tài khoản + đổi mật khẩu.
+/// </summary>
+public class CaiDatViewModel : BaseViewModel
 {
-    /// <summary>
-    /// ViewModel cho chức năng Cài đặt (thông tin cá nhân và đổi mật khẩu)
-    /// </summary>
-    public class CaiDatViewModel : INotifyPropertyChanged
+    // Cài đặt hệ thống (lưu vào appsettings.json)
+    private string _hotelName = "";
+    private string _hotelAddress = "";
+    private string _hotelPhone = "";
+    private string _hotelEmail = "";
+    private string _defaultCheckIn = "14:00";
+    private string _defaultCheckOut = "12:00";
+    private int _vatPercent = 8;
+
+    // Thông tin tài khoản/nhân viên
+    private string _maNhanVien = "";
+    private string _tenDangNhap = "";
+    private string _quyen = "";
+    private string _chucVu = "";
+
+    private string _hoTen = "";
+    private string _soDienThoai = "";
+    private string _email = "";
+    private string _diaChi = "";
+
+    // Đổi mật khẩu
+    private string _matKhauCu = "";
+    private string _matKhauMoi = "";
+    private string _xacNhanMatKhau = "";
+
+    public CaiDatViewModel()
     {
-        private readonly QuanLyKhachSanContext _context; // DbContext để truy vấn dữ liệu
+        SaveSystemCommand = new RelayCommand(_ => ExecuteSaveSystem());
+        ReloadSystemCommand = new RelayCommand(_ => LoadSystemSettings());
 
-        // Thông tin cá nhân
-        private string _maNhanVien;
-        private string _hoTen;
-        private string _soDienThoai;
-        private string _email;
-        private string _diaChi;
+        UpdateInfoCommand = new RelayCommand(_ => ExecuteUpdateInfo(), _ => CanUpdate);
+        ChangePasswordCommand = new RelayCommand(_ => ExecuteChangePassword(), _ => CanChangePassword);
+        CancelCommand = new RelayCommand(_ => ExecuteCancel());
 
-        // Đổi mật khẩu
-        private string _matKhauCu;
-        private string _matKhauMoi;
-        private string _xacNhanMatKhau;
+        LoadSystemSettings();
+        LoadCurrentUserInfo();
+    }
 
-        public CaiDatViewModel()
+    public string HotelName
+    {
+        get => _hotelName;
+        set => SetProperty(ref _hotelName, value);
+    }
+
+    public string HotelAddress
+    {
+        get => _hotelAddress;
+        set => SetProperty(ref _hotelAddress, value);
+    }
+
+    public string HotelPhone
+    {
+        get => _hotelPhone;
+        set => SetProperty(ref _hotelPhone, value);
+    }
+
+    public string HotelEmail
+    {
+        get => _hotelEmail;
+        set => SetProperty(ref _hotelEmail, value);
+    }
+
+    public string DefaultCheckIn
+    {
+        get => _defaultCheckIn;
+        set => SetProperty(ref _defaultCheckIn, value);
+    }
+
+    public string DefaultCheckOut
+    {
+        get => _defaultCheckOut;
+        set => SetProperty(ref _defaultCheckOut, value);
+    }
+
+    public int VatPercent
+    {
+        get => _vatPercent;
+        set => SetProperty(ref _vatPercent, value);
+    }
+
+    public string MaNhanVien
+    {
+        get => _maNhanVien;
+        private set => SetProperty(ref _maNhanVien, value);
+    }
+
+    public string TenDangNhap
+    {
+        get => _tenDangNhap;
+        private set => SetProperty(ref _tenDangNhap, value);
+    }
+
+    public string Quyen
+    {
+        get => _quyen;
+        private set => SetProperty(ref _quyen, value);
+    }
+
+    public string ChucVu
+    {
+        get => _chucVu;
+        private set => SetProperty(ref _chucVu, value);
+    }
+
+    public string HoTen
+    {
+        get => _hoTen;
+        set
         {
-            _context = new QuanLyKhachSanContext(); // Khởi tạo context
+            if (SetProperty(ref _hoTen, value))
+                UpdateInfoCommand.RaiseCanExecuteChanged();
+        }
+    }
 
-            // Load thông tin user hiện tại từ session
-            LoadCurrentUserInfo();
+    public string SoDienThoai
+    {
+        get => _soDienThoai;
+        set
+        {
+            if (SetProperty(ref _soDienThoai, value))
+                UpdateInfoCommand.RaiseCanExecuteChanged();
+        }
+    }
 
-            // Khởi tạo các command (RelayCommand là custom ICommand)
-            UpdateInfoCommand = new RelayCommand(ExecuteUpdateInfo, CanExecuteUpdateInfo);
-            ChangePasswordCommand = new RelayCommand(ExecuteChangePassword, CanExecuteChangePassword);
-            CancelCommand = new RelayCommand(ExecuteCancel);
+    public string Email
+    {
+        get => _email;
+        set
+        {
+            if (SetProperty(ref _email, value))
+                UpdateInfoCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string DiaChi
+    {
+        get => _diaChi;
+        set
+        {
+            if (SetProperty(ref _diaChi, value))
+                UpdateInfoCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string MatKhauCu
+    {
+        get => _matKhauCu;
+        set
+        {
+            if (SetProperty(ref _matKhauCu, value))
+                ChangePasswordCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string MatKhauMoi
+    {
+        get => _matKhauMoi;
+        set
+        {
+            if (SetProperty(ref _matKhauMoi, value))
+                ChangePasswordCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string XacNhanMatKhau
+    {
+        get => _xacNhanMatKhau;
+        set
+        {
+            if (SetProperty(ref _xacNhanMatKhau, value))
+                ChangePasswordCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public bool CanUpdate => !string.IsNullOrWhiteSpace(HoTen)
+                             && !string.IsNullOrWhiteSpace(SoDienThoai);
+
+    public bool CanChangePassword => !string.IsNullOrWhiteSpace(MatKhauCu)
+                                     && !string.IsNullOrWhiteSpace(MatKhauMoi)
+                                     && !string.IsNullOrWhiteSpace(XacNhanMatKhau)
+                                     && MatKhauMoi.Length >= 6;
+
+    public RelayCommand UpdateInfoCommand { get; }
+    public RelayCommand ChangePasswordCommand { get; }
+    public RelayCommand CancelCommand { get; }
+    public RelayCommand SaveSystemCommand { get; }
+    public RelayCommand ReloadSystemCommand { get; }
+
+    private void LoadSystemSettings()
+    {
+        try
+        {
+            var s = SystemSettingsService.Load();
+            HotelName = s.HotelName;
+            HotelAddress = s.HotelAddress;
+            HotelPhone = s.HotelPhone;
+            HotelEmail = s.HotelEmail;
+            DefaultCheckIn = s.DefaultCheckIn;
+            DefaultCheckOut = s.DefaultCheckOut;
+            VatPercent = s.VatPercent;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Không thể tải cài đặt hệ thống: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void ExecuteSaveSystem()
+    {
+        if (string.IsNullOrWhiteSpace(HotelName))
+        {
+            MessageBox.Show("Vui lòng nhập Tên khách sạn.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
         }
 
-        #region Properties - Thông tin cá nhân
-
-        // Mã nhân viên (chỉ đọc)
-        public string MaNhanVien
+        if (VatPercent < 0 || VatPercent > 30)
         {
-            get => _maNhanVien;
-            set
-            {
-                _maNhanVien = value;
-                OnPropertyChanged(nameof(MaNhanVien));
-            }
+            MessageBox.Show("VAT(%) không hợp lệ (0–30).", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
         }
 
-        // Họ tên nhân viên (có thể sửa)
-        public string HoTen
+        try
         {
-            get => _hoTen;
-            set
+            SystemSettingsService.Save(new SystemSettings
             {
-                _hoTen = value;
-                OnPropertyChanged(nameof(HoTen));
-                OnPropertyChanged(nameof(CanUpdate)); // Cập nhật trạng thái command
-            }
+                HotelName = HotelName.Trim(),
+                HotelAddress = (HotelAddress ?? "").Trim(),
+                HotelPhone = (HotelPhone ?? "").Trim(),
+                HotelEmail = (HotelEmail ?? "").Trim(),
+                DefaultCheckIn = (DefaultCheckIn ?? "14:00").Trim(),
+                DefaultCheckOut = (DefaultCheckOut ?? "12:00").Trim(),
+                VatPercent = VatPercent,
+            });
+
+            MessageBox.Show("Đã lưu cài đặt hệ thống.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi khi lưu cài đặt hệ thống: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void LoadCurrentUserInfo()
+    {
+        string? maNv = App.CurrentUser?.MaNhanVien ?? AppSession.MaNhanVien;
+        if (string.IsNullOrWhiteSpace(maNv))
+        {
+            MessageBox.Show("Bạn chưa đăng nhập hoặc session đã hết.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
         }
 
-        // Số điện thoại (có thể sửa)
-        public string SoDienThoai
+        try
         {
-            get => _soDienThoai;
-            set
+            using var db = new QuanLyKhachSanContext();
+
+            var nv = db.NhanViens.FirstOrDefault(x => x.MaNhanVien == maNv);
+            if (nv == null)
             {
-                _soDienThoai = value;
-                OnPropertyChanged(nameof(SoDienThoai));
-                OnPropertyChanged(nameof(CanUpdate));
-            }
-        }
-
-        // Email (có thể sửa)
-        public string Email
-        {
-            get => _email;
-            set
-            {
-                _email = value;
-                OnPropertyChanged(nameof(Email));
-                OnPropertyChanged(nameof(CanUpdate));
-            }
-        }
-
-        // Địa chỉ (có thể sửa)
-        public string DiaChi
-        {
-            get => _diaChi;
-            set
-            {
-                _diaChi = value;
-                OnPropertyChanged(nameof(DiaChi));
-                OnPropertyChanged(nameof(CanUpdate));
-            }
-        }
-
-        #endregion
-
-        #region Properties - Đổi mật khẩu
-
-        public string MatKhauCu
-        {
-            get => _matKhauCu;
-            set
-            {
-                _matKhauCu = value;
-                OnPropertyChanged(nameof(MatKhauCu));
-                OnPropertyChanged(nameof(CanChangePassword));
-            }
-        }
-
-        public string MatKhauMoi
-        {
-            get => _matKhauMoi;
-            set
-            {
-                _matKhauMoi = value;
-                OnPropertyChanged(nameof(MatKhauMoi));
-                OnPropertyChanged(nameof(CanChangePassword));
-            }
-        }
-
-        public string XacNhanMatKhau
-        {
-            get => _xacNhanMatKhau;
-            set
-            {
-                _xacNhanMatKhau = value;
-                OnPropertyChanged(nameof(XacNhanMatKhau));
-                OnPropertyChanged(nameof(CanChangePassword));
-            }
-        }
-
-        #endregion
-
-        #region Validation Properties
-
-        // Cho phép cập nhật thông tin khi họ tên và số điện thoại không rỗng
-        public bool CanUpdate => !string.IsNullOrWhiteSpace(HoTen)
-                                 && !string.IsNullOrWhiteSpace(SoDienThoai);
-
-        // Cho phép đổi mật khẩu khi các trường đều có giá trị và mật khẩu mới ≥ 6 ký tự
-        public bool CanChangePassword => !string.IsNullOrWhiteSpace(MatKhauCu)
-                                         && !string.IsNullOrWhiteSpace(MatKhauMoi)
-                                         && !string.IsNullOrWhiteSpace(XacNhanMatKhau)
-                                         && MatKhauMoi.Length >= 6;
-
-        #endregion
-
-        #region Commands
-
-        public ICommand UpdateInfoCommand { get; }      // Lệnh cập nhật thông tin cá nhân
-        public ICommand ChangePasswordCommand { get; }  // Lệnh đổi mật khẩu
-        public ICommand CancelCommand { get; }          // Lệnh hủy (reset form)
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Tải thông tin nhân viên hiện tại từ database dựa vào UserSession
-        /// </summary>
-        private void LoadCurrentUserInfo()
-        {
-            if (UserSession.CurrentUser == null)
-            {
-                MessageBox.Show("Không tìm thấy thông tin người dùng đang đăng nhập!",
-                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Không tìm thấy thông tin nhân viên.", "Lỗi",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            // Lấy thông tin mới nhất từ DB (không tracking để tránh conflict)
-            var user = _context.NhanViens
-                .AsNoTracking()
-                .FirstOrDefault(nv => nv.MaNhanVien == UserSession.CurrentUser.MaNhanVien);
+            // Account (TaiKhoan) theo user đang đăng nhập. Nếu TenDangNhap chưa có, fallback theo account active.
+            string? tenDn = AppSession.TenDangNhap;
+            var tkQuery = db.TaiKhoans.Where(t => t.MaNhanVien == maNv && t.IsActive == true);
+            if (!string.IsNullOrWhiteSpace(tenDn))
+                tkQuery = tkQuery.Where(t => t.TenDangNhap == tenDn);
 
-            if (user != null)
-            {
-                MaNhanVien = user.MaNhanVien;
-                HoTen = user.TenNhanVien;      // Lưu ý: property trong model là TenNhanVien
-                SoDienThoai = user.DienThoai;   // Property trong model là DienThoai
-                Email = user.Email;
-                DiaChi = user.DiaChi;
-            }
+            var tk = tkQuery
+                .Select(t => new
+                {
+                    t.TenDangNhap,
+                    t.MaQuyen,
+                    TenQuyen = t.MaQuyenNavigation != null ? t.MaQuyenNavigation.TenQuyen : null
+                })
+                .FirstOrDefault();
+
+            MaNhanVien = nv.MaNhanVien;
+            HoTen = nv.TenNhanVien ?? "";
+            SoDienThoai = nv.DienThoai ?? "";
+            Email = nv.Email ?? "";
+            DiaChi = nv.DiaChi ?? "";
+            ChucVu = nv.ChucVu ?? "";
+
+            TenDangNhap = tk?.TenDangNhap ?? (AppSession.TenDangNhap ?? "");
+            Quyen = tk?.TenQuyen ?? tk?.MaQuyen ?? (AppSession.MaQuyen ?? "");
+
+            UpdateInfoCommand.RaiseCanExecuteChanged();
+            ChangePasswordCommand.RaiseCanExecuteChanged();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi khi tải thông tin: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void ExecuteUpdateInfo()
+    {
+        if (!CanUpdate)
+        {
+            MessageBox.Show("Vui lòng nhập đầy đủ Họ tên và Số điện thoại.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
         }
 
-        /// <summary>
-        /// Kiểm tra xem có thể thực hiện cập nhật thông tin không
-        /// </summary>
-        private bool CanExecuteUpdateInfo(object parameter) => CanUpdate;
-
-        /// <summary>
-        /// Xử lý cập nhật thông tin cá nhân
-        /// </summary>
-        private void ExecuteUpdateInfo(object parameter)
+        try
         {
-            try
+            using var db = new QuanLyKhachSanContext();
+            var nv = db.NhanViens.FirstOrDefault(x => x.MaNhanVien == MaNhanVien);
+            if (nv == null)
             {
-                // Lấy lại đối tượng nhân viên từ DB (có tracking để sửa)
-                var user = _context.NhanViens
-                    .FirstOrDefault(nv => nv.MaNhanVien == MaNhanVien);
-
-                if (user == null)
-                {
-                    MessageBox.Show("Không tìm thấy nhân viên!", "Lỗi",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // Validate dữ liệu đầu vào
-                if (string.IsNullOrWhiteSpace(HoTen))
-                {
-                    MessageBox.Show("Vui lòng nhập họ tên!", "Thông báo",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(SoDienThoai))
-                {
-                    MessageBox.Show("Vui lòng nhập số điện thoại!", "Thông báo",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // Kiểm tra số điện thoại trùng (ngoại trừ chính mình)
-                var existingPhone = _context.NhanViens
-                    .Any(nv => nv.DienThoai == SoDienThoai && nv.MaNhanVien != MaNhanVien);
-
-                if (existingPhone)
-                {
-                    MessageBox.Show("Số điện thoại đã được sử dụng bởi nhân viên khác!",
-                        "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // Kiểm tra email trùng nếu có nhập
-                if (!string.IsNullOrWhiteSpace(Email))
-                {
-                    var existingEmail = _context.NhanViens
-                        .Any(nv => nv.Email == Email && nv.MaNhanVien != MaNhanVien);
-
-                    if (existingEmail)
-                    {
-                        MessageBox.Show("Email đã được sử dụng bởi nhân viên khác!",
-                            "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                }
-
-                // Gán giá trị mới cho đối tượng
-                user.TenNhanVien = HoTen;
-                user.DienThoai = SoDienThoai;
-                user.Email = Email;
-                user.DiaChi = DiaChi;
-
-                // Lưu thay đổi vào database
-                _context.SaveChanges();
-
-                // Cập nhật lại thông tin trong session để các form khác nhận biết
-                UserSession.CurrentUser = user;
-
-                MessageBox.Show("Cập nhật thông tin thành công!", "Thông báo",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi cập nhật thông tin: {ex.Message}", "Lỗi",
+                MessageBox.Show("Không tìm thấy nhân viên.", "Lỗi",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            // Validate trùng SĐT/email (ngoại trừ chính mình)
+            if (db.NhanViens.Any(x => x.MaNhanVien != MaNhanVien && x.DienThoai == SoDienThoai))
+            {
+                MessageBox.Show("Số điện thoại đã được sử dụng bởi nhân viên khác.", "Thông báo",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Email) && db.NhanViens.Any(x => x.MaNhanVien != MaNhanVien && x.Email == Email))
+            {
+                MessageBox.Show("Email đã được sử dụng bởi nhân viên khác.", "Thông báo",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            nv.TenNhanVien = HoTen;
+            nv.DienThoai = SoDienThoai;
+            nv.Email = string.IsNullOrWhiteSpace(Email) ? null : Email;
+            nv.DiaChi = string.IsNullOrWhiteSpace(DiaChi) ? null : DiaChi;
+
+            db.SaveChanges();
+
+            // Sync session/global user
+            AppSession.TenNhanVien = HoTen;
+            if (App.CurrentUser != null && App.CurrentUser.MaNhanVien == MaNhanVien)
+                App.CurrentUser = App.CurrentUser with { TenNhanVien = HoTen };
+
+            MessageBox.Show("Cập nhật thông tin thành công.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi khi cập nhật thông tin: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void ExecuteChangePassword()
+    {
+        if (!CanChangePassword)
+        {
+            MessageBox.Show("Vui lòng nhập đủ mật khẩu cũ/mới/xác nhận.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
         }
 
-        /// <summary>
-        /// Kiểm tra có thể đổi mật khẩu không
-        /// </summary>
-        private bool CanExecuteChangePassword(object parameter) => CanChangePassword;
-
-        /// <summary>
-        /// Xử lý đổi mật khẩu
-        /// </summary>
-        private void ExecuteChangePassword(object parameter)
+        if (MatKhauMoi.Length < 6)
         {
-            try
+            MessageBox.Show("Mật khẩu mới phải có ít nhất 6 ký tự.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (MatKhauMoi != XacNhanMatKhau)
+        {
+            MessageBox.Show("Mật khẩu mới và xác nhận không khớp.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            using var db = new QuanLyKhachSanContext();
+
+            // Ưu tiên đúng tài khoản đang đăng nhập (TenDangNhap), fallback active account.
+            string? tenDn = string.IsNullOrWhiteSpace(TenDangNhap) ? AppSession.TenDangNhap : TenDangNhap;
+            var tkQuery = db.TaiKhoans.Where(t => t.MaNhanVien == MaNhanVien && t.IsActive == true);
+            if (!string.IsNullOrWhiteSpace(tenDn))
+                tkQuery = tkQuery.Where(t => t.TenDangNhap == tenDn);
+
+            var account = tkQuery.FirstOrDefault() ?? db.TaiKhoans.FirstOrDefault(t => t.MaNhanVien == MaNhanVien);
+            if (account == null)
             {
-                // Kiểm tra độ dài mật khẩu mới
-                if (MatKhauMoi.Length < 6)
-                {
-                    MessageBox.Show("Mật khẩu mới phải có ít nhất 6 ký tự!", "Thông báo",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // Kiểm tra xác nhận mật khẩu
-                if (MatKhauMoi != XacNhanMatKhau)
-                {
-                    MessageBox.Show("Mật khẩu mới và xác nhận không khớp!", "Thông báo",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // Lấy thông tin nhân viên (không tracking để tránh lỗi khi lấy tài khoản sau)
-                var user = _context.TaiKhoans
-                    .FirstOrDefault(nv => nv.MaNhanVien == UserSession.CurrentUser.MaNhanVien);
-
-                if (user == null)
-                {
-                    MessageBox.Show("Không tìm thấy nhân viên!", "Lỗi",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // Lấy tài khoản tương ứng (có tracking để sửa)
-                var account = _context.TaiKhoans
-                    .FirstOrDefault(tk => tk.MaNhanVien == MaNhanVien);
-
-                if (account == null)
-                {
-                    MessageBox.Show("Không tìm thấy tài khoản!", "Lỗi",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // Kiểm tra mật khẩu cũ
-                if (account.MatKhau != MatKhauCu)
-                {
-                    MessageBox.Show("Mật khẩu cũ không đúng!", "Thông báo",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // Cập nhật mật khẩu mới
-                account.MatKhau = MatKhauMoi;
-                _context.SaveChanges();
-
-                // Xóa trắng các trường mật khẩu trên form
-                MatKhauCu = string.Empty;
-                MatKhauMoi = string.Empty;
-                XacNhanMatKhau = string.Empty;
-
-                MessageBox.Show("Đổi mật khẩu thành công!", "Thông báo",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi đổi mật khẩu: {ex.Message}", "Lỗi",
+                MessageBox.Show("Không tìm thấy tài khoản.", "Lỗi",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-        }
 
-        /// <summary>
-        /// Hủy thao tác: tải lại thông tin cá nhân và xóa các trường mật khẩu
-        /// </summary>
-        private void ExecuteCancel(object parameter)
+            var stored = account.MatKhau ?? "";
+            bool ok;
+            if (!string.IsNullOrEmpty(stored) && stored.StartsWith("HASH2:"))
+            {
+                ok = PasswordHasher.Verify(MatKhauCu, stored);
+            }
+            else
+            {
+                // Hỗ trợ legacy plaintext một lần để nâng cấp sang HASH2
+                ok = !string.IsNullOrEmpty(stored) && stored == MatKhauCu;
+            }
+
+            if (!ok)
+            {
+                MessageBox.Show("Mật khẩu cũ không đúng.", "Thông báo",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            account.MatKhau = PasswordHasher.Hash(MatKhauMoi);
+            db.SaveChanges();
+
+            MatKhauCu = "";
+            MatKhauMoi = "";
+            XacNhanMatKhau = "";
+
+            MessageBox.Show("Đổi mật khẩu thành công.", "Thông báo",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
         {
-            LoadCurrentUserInfo(); // Lấy lại thông tin từ DB
-
-            // Xóa trắng các trường mật khẩu
-            MatKhauCu = string.Empty;
-            MatKhauMoi = string.Empty;
-            XacNhanMatKhau = string.Empty;
+            MessageBox.Show($"Lỗi khi đổi mật khẩu: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
 
-        #endregion
-
-        #region INotifyPropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
+    private void ExecuteCancel()
+    {
+        MatKhauCu = "";
+        MatKhauMoi = "";
+        XacNhanMatKhau = "";
+        LoadSystemSettings();
+        LoadCurrentUserInfo();
     }
 }

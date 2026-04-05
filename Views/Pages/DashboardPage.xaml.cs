@@ -254,7 +254,7 @@ public partial class DashboardPage : Page
         var bookings = await db.DatPhongs
             .Include(d => d.MaKhachHangNavigation)
             .OrderByDescending(d => d.NgayDat)
-            .Take(8)
+            .Take(6)
             .Select(d => new DashboardBookingItem
             {
                 MaDatPhong = d.MaDatPhong,

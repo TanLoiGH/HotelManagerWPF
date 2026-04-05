@@ -426,23 +426,34 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <Border x:Name="Bd"
-                            CornerRadius="{StaticResource Radius.M}"
-                            Background="{TemplateBinding Background}">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" Color="{DynamicResource Color.BrandPrimary}" />
-                        </Border.Effect>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
+                    <!-- NOTE: Không đặt Effect lên border chứa text (ClearType sẽ bị tắt -> chữ mờ). -->
+                    <Grid x:Name="Root" RenderTransformOrigin="0.5,0.5">
+                        <Border x:Name="Shadow"
+                                CornerRadius="{StaticResource Radius.M}"
+                                Background="{TemplateBinding Background}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" Color="{DynamicResource Color.BrandPrimary}" />
+                            </Border.Effect>
+                        </Border>
+                        <Border x:Name="Bd"
+                                CornerRadius="{StaticResource Radius.M}"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Background"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
+                            <Setter TargetName="Shadow" Property="Background"
                                     Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Background"
                                     Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
-                            <Setter TargetName="Bd" Property="RenderTransform">
+                            <Setter TargetName="Shadow" Property="Background"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
+                            <Setter TargetName="Root" Property="RenderTransform">
                                 <Setter.Value>
                                     <TranslateTransform Y="1" />
                                 </Setter.Value>
@@ -450,6 +461,7 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.55" />
+                            <Setter TargetName="Shadow" Property="Opacity" Value="0.55" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

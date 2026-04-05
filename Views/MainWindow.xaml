@@ -12,7 +12,7 @@
         ResizeMode="CanResizeWithGrip"
         Icon="/Themes/hotel.ico">
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="30"
+        <shell:WindowChrome CaptionHeight="15"
                             CornerRadius="0"
                             GlassFrameThickness="0"
                             ResizeBorderThickness="6"

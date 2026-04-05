@@ -156,7 +156,7 @@ public partial class MainWindow : Window
         => NavigateTo(new DanhMucTienNghiPage(), "Danh mục Tiện Nghi", sender as Border);
 
     private void Nav_CaiDat(object sender, MouseButtonEventArgs e)
-    => NavigateTo(new CaiDatPage(), "Danh mục Tiện Nghi", sender as Border);
+    => NavigateTo(new CaiDatPage(), "Cài đặt", sender as Border);
 
     // ── Hover effects ────────────────────────────────────────────────────────
     private void NavItem_MouseEnter(object sender, MouseEventArgs e)

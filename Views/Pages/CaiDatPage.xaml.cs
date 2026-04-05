@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views.Pages
 {
@@ -21,6 +22,8 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Pages
         public CaiDatPage()
         {
             InitializeComponent();
+            DataContext = new CaiDatViewModel();
         }
+
     }
 }
