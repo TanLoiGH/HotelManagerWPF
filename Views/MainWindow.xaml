@@ -73,7 +73,7 @@
                             <!-- Settings Button -->
                         </Grid.RowDefinitions>
 
-                        <!-- ── LOGO ── -->
+                        <!-- ── LOGO ── ad --> 
                         <Border Grid.Row="0" Padding="24,28,24,20">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Border Width="40" Height="40" CornerRadius="12"
