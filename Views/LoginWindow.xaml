@@ -7,15 +7,15 @@
         Width="900" Height="580"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        WindowStyle="None"
+        WindowStyle="SingleBorderWindow"
         AllowsTransparency="False"
         Background="{DynamicResource Brush.Background}"
-        
+        Icon="/Themes/hotel.ico"
         KeyDown="Window_KeyDown">
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="0"
-                            CornerRadius="20"
+        <shell:WindowChrome CaptionHeight="20"
+                            CornerRadius="0"
                             GlassFrameThickness="0"
                             ResizeBorderThickness="0"
                             UseAeroCaptionButtons="False" />

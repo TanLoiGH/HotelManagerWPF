@@ -60,6 +60,8 @@ public partial class QuanLyKhachSanContext : DbContext
 
     public virtual DbSet<TienNghi> TienNghis { get; set; }
 
+    public virtual DbSet<TienNghiDanhMuc> TienNghiDanhMucs { get; set; }
+
     public virtual DbSet<TienNghiPhong> TienNghiPhongs { get; set; }
 
     public virtual DbSet<TienNghiTrangThai> TienNghiTrangThais { get; set; }
@@ -675,7 +677,23 @@ public partial class QuanLyKhachSanContext : DbContext
             entity.HasOne(d => d.MaNccNavigation).WithMany(p => p.TienNghis)
                 .HasForeignKey(d => d.MaNcc)
                 .HasConstraintName("FK_TIENNGHI_NCC");
+
+            entity.HasOne(d => d.MaDanhMucNavigation).WithMany(p => p.TienNghis)
+                .HasForeignKey(d => d.MaDanhMuc)
+                .HasConstraintName("FK_TIEN_NGHI_TIEN_NGHI_DANH_MUC");
         });
+
+
+        modelBuilder.Entity<TienNghiDanhMuc>(entity =>
+        {
+            entity.HasKey(e => e.MaDanhMuc).HasName("PK_TIEN_NGHI_DANH_MUC");
+            entity.ToTable("TIEN_NGHI_DANH_MUC");
+            entity.Property(e => e.MaDanhMuc)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.TenDanhMuc).HasMaxLength(50);
+        });
+
 
         modelBuilder.Entity<TienNghiPhong>(entity =>
         {
@@ -691,8 +709,7 @@ public partial class QuanLyKhachSanContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.MaTrangThai)
                 .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasDefaultValue("TNTT01");
+                .IsUnicode(false);
 
             entity.HasOne(d => d.MaPhongNavigation).WithMany(p => p.TienNghiPhongs)
                 .HasForeignKey(d => d.MaPhong)

@@ -64,13 +64,8 @@
                             BorderBrush="{DynamicResource Brush.RoomReserved}"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="BtnQuanTriPhong" Content="⚙  Quản trị"
-                            Height="34" Padding="14,0" Margin="0,0,10,0"
-                            FontSize="14" FontWeight="SemiBold" Cursor="Hand"
-                            Click="BtnQuanTriPhong_Click"
-                            Style="{DynamicResource MacFluent.ButtonAction.Add}"/>
 
                     <Border Height="34" Width="200" Padding="10,0"
                             Style="{DynamicResource MacFluent.InputFrame}">
@@ -161,6 +156,7 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
 
+                            <!--Phòng Card-->
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <ContentControl 
@@ -221,18 +217,7 @@
                                                             Orientation="Horizontal"
                                                             Margin="0,4,0,0">
 
-                                                    <TextBlock Text="{Binding CapacityText1}"
-                                                               FontSize="11"
-                                                               FontStyle="Italic"
-                                                               Margin="0,0,6,0"
-                                                               Foreground="{DynamicResource Brush.TextSecondary}"/>
-
-                                                    <TextBlock Text="|"
-                                                               FontSize="11"
-                                                               Margin="15,0,15,0"
-                                                               Foreground="{DynamicResource Brush.TextSecondary}"/>
-
-                                                    <TextBlock Text="{Binding CapacityText2}"
+                                                    <TextBlock Text="{Binding CaptionText}"
                                                                FontSize="13" 
                                                                FontStyle="Italic"  FontWeight="Bold"
                                                                Foreground="{DynamicResource Brush.TextSecondary}"/>

@@ -1,10 +1,9 @@
-<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.QuanTriPhongDialog"
+<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.QuanTriPhongPage"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Quản trị phòng" Width="1480" Height="840"
-        WindowStartupLocation="CenterOwner"
-        ResizeMode="CanResizeWithGrip"
-        WindowStyle="ToolWindow">
+       xmlns:local="clr-namespace:QuanLyKhachSan_PhamTanLoi.Views.Pages"
+        Title="Quản trị phòng"
+         Background="Transparent">
 
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
@@ -201,4 +200,4 @@
             </ScrollViewer>
         </Border>
     </Grid>
-</Window>
+</Page>

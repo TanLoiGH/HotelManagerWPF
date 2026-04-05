@@ -10,6 +10,7 @@ public partial class Phong
     public string MaLoaiPhong { get; set; } = null!;
 
     public string? MaTrangThaiPhong { get; set; }
+    public bool? IsActive { get; set; }
 
     public virtual ICollection<ChiPhi> ChiPhis { get; set; } = new List<ChiPhi>();
 

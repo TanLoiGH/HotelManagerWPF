@@ -58,8 +58,6 @@ public partial class PhongPage : Page
     {
         try
         {
-            BtnQuanTriPhong.Visibility = IsAdminRole() ? Visibility.Visible : Visibility.Collapsed;
-
             using var db = new QuanLyKhachSanContext();
 
             // Get rooms with basic info
@@ -103,19 +101,7 @@ public partial class PhongPage : Page
         }
     }
 
-    private async void BtnQuanTriPhong_Click(object sender, RoutedEventArgs e)
-    {
-        if (!IsAdminRole())
-        {
-            MessageBox.Show("Bạn không có quyền quản trị phòng.", "Không đủ quyền",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
 
-        var dlg = new QuanTriPhongDialog { Owner = Window.GetWindow(this) };
-        dlg.ShowDialog();
-        await LoadPhongAsync();
-    }
 
     // ── Load thông tin đặt trước (PTT05) ────────────────────────────────────
     private async Task LoadDatPhongInfoAsync(string maPhong)

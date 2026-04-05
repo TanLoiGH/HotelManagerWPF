@@ -22,6 +22,7 @@ public partial class NhanVien
     public DateOnly? NgayVaoLam { get; set; }
 
     public string? MaTrangThai { get; set; }
+    public bool? IsActive { get; set; }
 
     public virtual ICollection<ChiPhi> ChiPhis { get; set; } = new List<ChiPhi>();
 

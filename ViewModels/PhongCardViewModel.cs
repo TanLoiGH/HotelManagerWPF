@@ -68,8 +68,7 @@ public class PhongCardViewModel
 
     public string? GuestName { get; set; }
     public string InfoText => !string.IsNullOrEmpty(GuestName) ? GuestName : "Chưa có thông tin";
-    public string CapacityText1 => $"Phòng {SoNguoiToiDa} người";
-    public string CapacityText2 => $"{TenLoaiPhong}";
+    public string CaptionText => $"{TenLoaiPhong}";
 
 
 }

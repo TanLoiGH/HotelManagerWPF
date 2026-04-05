@@ -6,14 +6,14 @@
         Title="Hotelify - Quản Lý Khách Sạn"
         Height="960" Width="1680"
         WindowStartupLocation="CenterScreen"
-        WindowStyle="None"
+        WindowStyle="SingleBorderWindow"
         AllowsTransparency="False"
         Background="{DynamicResource Brush.Background}"
-        ResizeMode="CanResizeWithGrip">
-
+        ResizeMode="CanResizeWithGrip"
+        Icon="/Themes/hotel.ico">
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="0"
-                            CornerRadius="20"
+        <shell:WindowChrome CaptionHeight="30"
+                            CornerRadius="0"
                             GlassFrameThickness="0"
                             ResizeBorderThickness="6"
                             UseAeroCaptionButtons="False" />
@@ -189,6 +189,17 @@
                                                FontSize="11" FontWeight="Bold"
                                                Foreground="{DynamicResource Brush.SidebarTextMuted}" 
                                                Margin="12,20,0,8" Opacity="0.6"/>
+
+                                    <!-- Dịch vụ -->
+                                    <Border CornerRadius="12" Padding="14,12" Margin="0,2"
+                                            Background="Transparent" Cursor="Hand"
+                                            MouseLeftButtonDown="Nav_QuanTriPhong"
+                                            MouseEnter="NavItem_MouseEnter" MouseLeave="NavItem_MouseLeave">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⭐" Margin="0,0,12,0"/>
+                                            <TextBlock Text="Phòng"/>
+                                        </StackPanel>
+                                    </Border>
 
                                     <!-- Dịch vụ -->
                                     <Border CornerRadius="12" Padding="14,12" Margin="0,2"

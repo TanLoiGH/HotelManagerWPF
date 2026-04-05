@@ -12,7 +12,7 @@ public partial class LoaiPhong
     public int? SoNguoiToiDa { get; set; }
 
     public decimal GiaPhong { get; set; }
-
+    public bool? IsActive { get; set; }
     public virtual ICollection<Phong> Phongs { get; set; } = new List<Phong>();
 }
 

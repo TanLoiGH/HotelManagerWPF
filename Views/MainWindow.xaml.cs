@@ -103,6 +103,9 @@ public partial class MainWindow : Window
     private void Nav_Phong(object sender, MouseButtonEventArgs e)
         => NavigateTo(new PhongPage(), "Quản lý Phòng", sender as Border);
 
+    private void Nav_QuanTriPhong(object sender, MouseButtonEventArgs e)
+    => NavigateTo(new QuanTriPhongPage(), "Quản lý Phòng", sender as Border);
+
     private void Nav_KhachHang(object sender, MouseButtonEventArgs e)
         => NavigateTo(new KhachHangPage(), "Khách Hàng", sender as Border);
 
@@ -154,6 +157,7 @@ public partial class MainWindow : Window
 
     private void Nav_CaiDat(object sender, MouseButtonEventArgs e)
     => NavigateTo(new CaiDatPage(), "Danh mục Tiện Nghi", sender as Border);
+
     // ── Hover effects ────────────────────────────────────────────────────────
     private void NavItem_MouseEnter(object sender, MouseEventArgs e)
     {

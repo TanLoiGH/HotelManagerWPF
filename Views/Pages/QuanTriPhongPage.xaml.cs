@@ -27,7 +27,7 @@ public class TienNghiPhongRow
     public string MaTrangThai { get; set; } = "TNTT01";
 }
 
-public partial class QuanTriPhongDialog : Window
+public partial class QuanTriPhongPage : Page
 {
     private List<QuanTriPhongRow> _all = [];
     private QuanTriPhongRow? _selected;
@@ -36,7 +36,7 @@ public partial class QuanTriPhongDialog : Window
     private readonly ObservableCollection<TienNghiPhongRow> _tienNghiItems = new();
     private List<TienNghiTrangThai> _tienNghiTrangThais = [];
 
-    public QuanTriPhongDialog()
+    public QuanTriPhongPage()
     {
         InitializeComponent();
         Loaded += async (_, _) => await LoadAsync();
@@ -176,7 +176,7 @@ public partial class QuanTriPhongDialog : Window
     {
         if (_selected == null || _isNew) return;
 
-        var dlg = new ChonTienNghiPhongDialog(_selected.MaPhong) { Owner = this };
+        var dlg = new ChonTienNghiPhongDialog(_selected.MaPhong) { Owner = Window.GetWindow(this) };
         if (dlg.ShowDialog() != true) return;
 
         var selectedIds = dlg.SelectedMaTienNghi;

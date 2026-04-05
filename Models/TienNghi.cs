@@ -8,6 +8,7 @@ public partial class TienNghi
     public string MaTienNghi { get; set; } = null!;
 
     public string? MaNcc { get; set; }
+    public string? MaDanhMuc { get; set; }
 
     public string TenTienNghi { get; set; } = null!;
 
@@ -20,6 +21,7 @@ public partial class TienNghi
     public bool? IsActive { get; set; }
 
     public virtual NhaCungCap? MaNccNavigation { get; set; }
+    public virtual TienNghiDanhMuc? MaDanhMucNavigation { get; set; }
 
     public virtual ICollection<TienNghiPhong> TienNghiPhongs { get; set; } = new List<TienNghiPhong>();
 }

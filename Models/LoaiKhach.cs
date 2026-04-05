@@ -10,7 +10,7 @@ public partial class LoaiKhach
     public string? TenLoaiKhach { get; set; }
 
     public decimal? NguongTichLuy { get; set; }
-
+    public bool? IsActive { get; set; }
     public virtual ICollection<KhachHang> KhachHangs { get; set; } = new List<KhachHang>();
 
     public virtual ICollection<KhuyenMai> KhuyenMais { get; set; } = new List<KhuyenMai>();
