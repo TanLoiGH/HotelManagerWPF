@@ -25,7 +25,7 @@ public partial class HoaDonPage : Page
         _viewModel = new HoaDonPageViewModel(hoaDonSvc);
         DataContext = _viewModel;
 
-        Loaded += async (_, _) => await _viewModel.LoadDataAsync();
+        Loaded += async (_, _) => await _viewModel.TaiDuLieuAsync();
     }
 
     private void BtnTestPrint_Click(object sender, RoutedEventArgs e)
@@ -36,14 +36,14 @@ public partial class HoaDonPage : Page
     private async void HoaDonRow_Click(object sender, MouseButtonEventArgs e)
     {
         if (sender is not DataGridRow row) return;
-        if (row.Item is not HoaDonRowViewModel item) return;
+        if (row.Item is not HoaDonDongViewModel item) return;
 
-        var dialog = new HoaDonChiTietDialog(item.MaHoaDon, taiLaiTrangHoaDonAsync: _viewModel.LoadDataAsync)
+        var dialog = new HoaDonChiTietDialog(item.MaHoaDon, taiLaiTrangHoaDonAsync: () => _viewModel.TaiDuLieuAsync(buocTaiMoi: true))
         {
             Owner = Window.GetWindow(this)
         };
 
         if (dialog.ShowDialog() == true)
-            await _viewModel.LoadDataAsync();
+            await _viewModel.TaiDuLieuAsync(buocTaiMoi: true);
     }
 }

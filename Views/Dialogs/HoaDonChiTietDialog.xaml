@@ -47,7 +47,7 @@
                         Command="{Binding ThemDichVuCommand}"/>
                 <Button Content="Đóng" Height="38" Padding="16,0"
                         Style="{DynamicResource MacFluent.ButtonSecondary}"
-                        Command="{Binding CloseCommand}"/>
+                        Command="{Binding DongCommand}"/>
             </StackPanel>
         </Grid>
 
@@ -142,16 +142,16 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Row="0" Text="Tiền phòng" Foreground="{DynamicResource Brush.TextLabel}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TienPhongText}" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TienPhongHienThi}" FontWeight="SemiBold"/>
 
                         <TextBlock Grid.Row="1" Text="Tiền dịch vụ" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TienDichVuText}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TienDichVuHienThi}" FontWeight="SemiBold" Margin="0,6,0,0"/>
 
                         <TextBlock Grid.Row="2" Text="VAT" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding VatPercentText}" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding VatPhanTramHienThi}" Margin="0,6,0,0"/>
 
                         <TextBlock Grid.Row="3" Text="TỔNG THANH TOÁN" FontWeight="Bold" Margin="0,10,0,0"/>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TongThanhToanText}"
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TongThanhToanHienThi}"
                                    FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}" Margin="0,10,0,0"/>
                     </Grid>
                 </Border>
@@ -177,10 +177,10 @@
                                Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,10"/>
 
                     <StackPanel Grid.Row="1" Margin="0,0,0,12">
-                        <TextBlock Text="{Binding ConLaiHienThiText}" FontSize="14"
+                        <TextBlock Text="{Binding ConLaiHienThi}" FontSize="14"
                                    Foreground="{DynamicResource Brush.Error}" HorizontalAlignment="Right"/>
 
-                        <StackPanel Visibility="{Binding HasLichSu, Converter={StaticResource BoolToVis}}" Margin="0,10,0,10">
+                        <StackPanel Visibility="{Binding CoLichSu, Converter={StaticResource BoolToVis}}" Margin="0,10,0,10">
                             <TextBlock Text="Lịch sử giao dịch" FontSize="13" FontWeight="SemiBold"
                                        Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,6"/>
                             <ListBox ItemsSource="{Binding LichSuThanhToan}" MaxHeight="110"
@@ -200,13 +200,13 @@
 
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <Button Content="Tra som hom nay (tinh lai)" Height="34" Margin="0,0,0,10"
+                            <Button Content="Tra som hom nay (tinh lai)" Height="40" Margin="0,0,0,10"
                                     Command="{Binding CapNhatTraSomHomNayCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MacFluent.ButtonSecondary}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource MacFluent.ButtonSecondary}" >
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CanCapNhatTraSom}" Value="False">
+                                            <DataTrigger Binding="{Binding CoTheCapNhatTraSom}" Value="False">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -220,7 +220,7 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsEditable}" Value="False">
+                                            <DataTrigger Binding="{Binding CoTheChinhSua}" Value="False">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -233,7 +233,7 @@
                                     <Style TargetType="StackPanel">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsEditable}" Value="False">
+                                            <DataTrigger Binding="{Binding CoTheChinhSua}" Value="False">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -249,14 +249,14 @@
 
                             <TextBlock Text="Phương thức thanh toán" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                             <ComboBox Height="34" FontSize="15" Margin="0,0,0,10"
-                                      ItemsSource="{Binding PhuongThucThanhToans}"
+                                      ItemsSource="{Binding DanhSachPhuongThucThanhToan}"
                                       DisplayMemberPath="TenPhuongThuc"
-                                      SelectedItem="{Binding SelectedPTTT}"/>
+                                      SelectedItem="{Binding PhuongThucThanhToanDuocChon}"/>
 
                             <TextBlock Text="Loại giao dịch" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                             <ComboBox Height="34" FontSize="15" Margin="0,0,0,10"
-                                      ItemsSource="{Binding LoaiGiaoDichOptions}"
-                                      SelectedItem="{Binding SelectedLoaiGiaoDich}"/>
+                                      ItemsSource="{Binding DanhSachLoaiGiaoDich}"
+                                      SelectedItem="{Binding LoaiGiaoDichDuocChon}"/>
 
                             <TextBlock Text="Ghi chú" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                             <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Margin="0,0,0,16">
@@ -276,7 +276,7 @@
                             <Style TargetType="Button" BasedOn="{StaticResource MacFluent.ButtonPrimary}">
                                     <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsEditable}" Value="False">
+                                        <DataTrigger Binding="{Binding CoTheChinhSua}" Value="False">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -287,7 +287,7 @@
                         <Button Content="Trả phòng" Height="40" Margin="0,10,0,0"
                                 FontSize="15" FontWeight="SemiBold"
                                 Command="{Binding TraPhongCommand}"
-                                Visibility="{Binding CanTraPhong, Converter={StaticResource BoolToVis}}"
+                                Visibility="{Binding CoTheTraPhong, Converter={StaticResource BoolToVis}}"
                                 Style="{StaticResource MacFluent.ButtonPrimary}"/>
                     </StackPanel>
                 </Grid>

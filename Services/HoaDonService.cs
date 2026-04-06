@@ -18,7 +18,7 @@ public class HoaDonService
         _khachHangSvc = khachHangSvc;
     }
 
-    public async Task<List<HoaDon>> GetHoaDonsAsync()
+    public async Task<List<HoaDon>> LayHoaDonsAsync()
     {
         return await _db.HoaDons
             .AsNoTracking()
@@ -35,7 +35,7 @@ public class HoaDonService
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
         bool hdExist = await _db.HoaDons
-            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đà hủy");
+            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đã hủy");
 
         if (hdExist)
             throw new InvalidOperationException("Đặt phòng này đã có hóa đơn active.");
@@ -50,20 +50,17 @@ public class HoaDonService
         var dp = await _db.DatPhongs.FindAsync(maDatPhong);
         decimal tienCoc = dp?.TienCoc ?? 0;
 
-        decimal tienPhong = chiTiets
-            .Sum(c => (decimal)(c.NgayTra - c.NgayNhan).TotalDays * c.DonGia);
-
-        decimal kmPercent = 0;
-        if (!string.IsNullOrWhiteSpace(maKhuyenMai))
+        decimal tienPhong = 0;
+        foreach (var ct in chiTiets)
         {
-            var km = await _db.KhuyenMais.FindAsync(maKhuyenMai);
-            if (km is { IsActive: true } && km.NgayBatDau <= DateTime.Now && DateTime.Now <= km.NgayKetThuc)
-            {
-                kmPercent = km.LoaiKhuyenMai == "Phần trăm"
-                    ? km.GiaTriKm ?? 0
-                    : tienPhong > 0 ? (km.GiaTriKm ?? 0) / tienPhong * 100 : 0;
-            }
+            int soDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra);
+            tienPhong += ct.DonGia * soDem;
         }
+
+        var khuyenMaiHopLe = await LayKhuyenMaiHopLeAsync(maKhuyenMai);
+        decimal giamGia = 0;
+        if (khuyenMaiHopLe != null)
+            giamGia = TinhToanHoaDonService.TinhGiamGia(tienPhong, 0, khuyenMaiHopLe.LoaiKhuyenMai ?? "", khuyenMaiHopLe.GiaTriKm ?? 0);
 
         var lastMa = await _db.HoaDons
             .OrderByDescending(h => h.MaHoaDon)
@@ -84,7 +81,7 @@ public class HoaDonService
             TienDichVu = 0,
             Vat = vatPercent,
             MaKhuyenMai = maKhuyenMai,
-            TongThanhToan = ((tienPhong * (1 - kmPercent / 100)) * (1 + vatPercent / 100m)) - tienCoc,
+            TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, 0, vatPercent, tienCoc, giamGia),
             TrangThai = "Chưa thanh toán"
         };
 
@@ -97,7 +94,7 @@ public class HoaDonService
                 MaHoaDon = hd.MaHoaDon,
                 MaDatPhong = maDatPhong,
                 MaPhong = ct.MaPhong,
-                SoDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays)
+                SoDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra)
             };
 
             _db.HoaDonChiTiets.Add(detail);
@@ -109,7 +106,7 @@ public class HoaDonService
         return hd;
     }
 
-    public async Task<int> EnsureHoaDonChiTietAsync(string maHoaDon)
+    public async Task<int> DamBaoHoaDonChiTietAsync(string maHoaDon)
     {
         var hd = await _db.HoaDons
             .AsNoTracking()
@@ -140,7 +137,7 @@ public class HoaDonService
                 MaHoaDon = maHoaDon,
                 MaDatPhong = ct.MaDatPhong,
                 MaPhong = ct.MaPhong,
-                SoDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays)
+                SoDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra)
             })
             .ToList();
 
@@ -172,8 +169,11 @@ public class HoaDonService
         string loaiGiaoDich = "Thanh toán cuối",
         string? noiDung = null)
     {
-        if (soTien <= 0)
+        if (loaiGiaoDich != "Hoàn tiền" && soTien <= 0)
             return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, "Tu choi: so tien khong hop le.");
+
+        if (loaiGiaoDich == "Hoàn tiền" && soTien > 0)
+            soTien = -soTien;
 
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
@@ -391,26 +391,20 @@ public class HoaDonService
 
         DateTime checkout = thoiDiem;
 
-        foreach (var ct in chiTiets)
-        {
-            if (checkout != ct.NgayTra)
-                ct.NgayTra = checkout;
-        }
+        decimal tienPhong = TinhToanHoaDonService.TinhTienPhongTheoNgayTra(
+            chiTiets,
+            checkout,
+            capNhatSoDem: (ct, soDem) =>
+            {
+                var hdct = hd.HoaDonChiTiets.FirstOrDefault(x =>
+                    x.MaHoaDon == hd.MaHoaDon &&
+                    x.MaDatPhong == ct.MaDatPhong &&
+                    x.MaPhong == ct.MaPhong);
 
-        decimal tienPhong = 0;
-        foreach (var ct in chiTiets)
-        {
-            int soDem = Math.Max(1, (checkout.Date - ct.NgayNhan.Date).Days);
-            tienPhong += ct.DonGia * soDem;
-
-            var hdct = hd.HoaDonChiTiets.FirstOrDefault(x =>
-                x.MaHoaDon == hd.MaHoaDon &&
-                x.MaDatPhong == ct.MaDatPhong &&
-                x.MaPhong == ct.MaPhong);
-
-            if (hdct != null)
-                hdct.SoDem = soDem;
-        }
+                if (hdct != null)
+                    hdct.SoDem = soDem;
+            },
+            capNhatNgayTra: true);
 
         hd.TienPhong = tienPhong;
 
@@ -418,24 +412,17 @@ public class HoaDonService
         decimal vatPercent = hd.Vat ?? 10;
         decimal tienCoc = dp.TienCoc ?? 0;
 
-        decimal kmPercent = 0;
-        var km = hd.MaKhuyenMaiNavigation;
-        if (km == null && !string.IsNullOrWhiteSpace(hd.MaKhuyenMai))
-            km = await _db.KhuyenMais.FindAsync(hd.MaKhuyenMai);
-
+        var km = hd.MaKhuyenMaiNavigation ?? (!string.IsNullOrWhiteSpace(hd.MaKhuyenMai) ? await _db.KhuyenMais.FindAsync(hd.MaKhuyenMai) : null);
+        decimal giamGia = 0;
         if (km is { IsActive: true } && km.NgayBatDau <= DateTime.Now && DateTime.Now <= km.NgayKetThuc)
-        {
-            kmPercent = km.LoaiKhuyenMai == "Phần trăm"
-                ? km.GiaTriKm ?? 0
-                : tienPhong > 0 ? (km.GiaTriKm ?? 0) / tienPhong * 100 : 0;
-        }
+            giamGia = TinhToanHoaDonService.TinhGiamGia(tienPhong, tienDv, km.LoaiKhuyenMai ?? "", km.GiaTriKm ?? 0);
 
-        hd.TongThanhToan = (((tienPhong * (1 - kmPercent / 100m)) + tienDv) * (1 + vatPercent / 100m)) - tienCoc;
+        hd.TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, tienDv, vatPercent, tienCoc, giamGia);
 
         await _db.SaveChangesAsync();
     }
 
-    public async Task<List<PhuongThucThanhToanDto>> GetPTTTAsync()
+    public async Task<List<PhuongThucThanhToanDto>> LayDanhSachPhuongThucThanhToanAsync()
     {
         return await _db.PhuongThucThanhToans
             .Select(p => new PhuongThucThanhToanDto { MaPTTT = p.MaPttt, TenPhuongThuc = p.TenPhuongThuc })
@@ -484,6 +471,15 @@ public class HoaDonService
                 .ThenInclude(d => d!.MaKhachHangNavigation)
             .Include(h => h.MaNhanVienNavigation)
             .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
+    }
+
+    private async Task<KhuyenMai?> LayKhuyenMaiHopLeAsync(string? maKhuyenMai)
+    {
+        if (string.IsNullOrWhiteSpace(maKhuyenMai)) return null;
+        var km = await _db.KhuyenMais.FindAsync(maKhuyenMai);
+        if (km is { IsActive: true } && km.NgayBatDau <= DateTime.Now && DateTime.Now <= km.NgayKetThuc)
+            return km;
+        return null;
     }
 }
 

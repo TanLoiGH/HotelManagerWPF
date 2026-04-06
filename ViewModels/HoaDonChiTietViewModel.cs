@@ -1,5 +1,6 @@
 using QuanLyKhachSan_PhamTanLoi.Dtos;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -12,18 +13,21 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 {
     private static readonly CultureInfo VanHoaVietNam = new("vi-VN");
     private static readonly CultureInfo VanHoaMy = new("en-US");
+    private static readonly TimeSpan ThoiGianHetHanPttt = TimeSpan.FromMinutes(5);
+    private static DateTime _thoiDiemTaiPttt = DateTime.MinValue;
+    private static List<PhuongThucThanhToanDto>? _cachePhuongThucThanhToan;
 
     private readonly string _maHoaDon;
     private readonly HoaDonService _hoaDon;
     private readonly DichVuService _dichVuSvc;
-    private readonly Func<Window?> _getOwner;
-    private readonly Action<bool?> _close;
+    private readonly Func<Window?> _layChuSoHuu;
+    private readonly Action<bool?> _dong;
     private readonly IHopThoaiService _hopThoai;
     private readonly IInHoaDonService _inHoaDon;
     private readonly IChonDichVuService _chonDichVu;
     private readonly Func<Task>? _taiLaiTrangHoaDonAsync;
 
-    private bool _isBusy;
+    private bool _dangXuLy;
     private string _khachHang = "";
     private string _nhanVien = "";
     private DateTime? _ngayLap;
@@ -39,8 +43,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private PhongItemVm? _selectedPhong;
 
     private string _soTienNhap = "";
-    private PhuongThucThanhToanDto? _selectedPttt;
-    private string _selectedLoaiGiaoDich = "Thanh toán cuối";
+    private PhuongThucThanhToanDto? _phuongThucThanhToanDuocChon;
+    private string _loaiGiaoDichDuocChon = "Thanh toán cuối";
     private string _noiDung = "";
     private decimal _conLai;
 
@@ -48,8 +52,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         string maHoaDon,
         HoaDonService hoaDonSvc,
         DichVuService dichVuSvc,
-        Func<Window?> getOwner,
-        Action<bool?> close,
+        Func<Window?> layChuSoHuu,
+        Action<bool?> dong,
         IHopThoaiService hopThoai,
         IInHoaDonService inHoaDon,
         IChonDichVuService chonDichVu,
@@ -58,40 +62,40 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         _maHoaDon = maHoaDon;
         _hoaDon = hoaDonSvc;
         _dichVuSvc = dichVuSvc;
-        _getOwner = getOwner;
-        _close = close;
+        _layChuSoHuu = layChuSoHuu;
+        _dong = dong;
         _hopThoai = hopThoai;
         _inHoaDon = inHoaDon;
         _chonDichVu = chonDichVu;
         _taiLaiTrangHoaDonAsync = taiLaiTrangHoaDonAsync;
 
-        ReloadCommand = new AsyncRelayCommand(async _ => await ReloadAsync(), _ => !IsBusy);
-        TamInCommand = new AsyncRelayCommand(async _ => await TamInAsync(), _ => !IsBusy && IsEditable);
-        InHoaDonCommand = new AsyncRelayCommand(async _ => await InHoaDonAsync(), _ => !IsBusy && !IsEditable);
-        ThemDichVuCommand = new AsyncRelayCommand(async _ => await ThemDichVuAsync(), _ => !IsBusy && IsEditable);
-        ThanhToanCommand = new AsyncRelayCommand(async _ => await ThanhToanAsync(), _ => !IsBusy && IsEditable);
-        TraPhongCommand = new AsyncRelayCommand(async _ => await TraPhongAsync(), _ => !IsBusy && CanTraPhong);
-        CapNhatTraSomHomNayCommand = new AsyncRelayCommand(async _ => await CapNhatTraSomHomNayAsync(), _ => !IsBusy && CanCapNhatTraSom);
-        CloseCommand = new RelayCommand(_ => _close(false));
+        TaiLaiCommand = new AsyncRelayCommand(async _ => await TaiLaiAsync(), _ => !DangXuLy);
+        TamInCommand = new AsyncRelayCommand(async _ => await TamInAsync(), _ => !DangXuLy && CoTheChinhSua);
+        InHoaDonCommand = new AsyncRelayCommand(async _ => await InHoaDonAsync(), _ => !DangXuLy && !CoTheChinhSua);
+        ThemDichVuCommand = new AsyncRelayCommand(async _ => await ThemDichVuAsync(), _ => !DangXuLy && CoTheChinhSua);
+        ThanhToanCommand = new AsyncRelayCommand(async _ => await ThanhToanAsync(), _ => !DangXuLy && CoTheChinhSua);
+        TraPhongCommand = new AsyncRelayCommand(async _ => await TraPhongAsync(), _ => !DangXuLy && CoTheTraPhong);
+        CapNhatTraSomHomNayCommand = new AsyncRelayCommand(async _ => await CapNhatTraSomHomNayAsync(), _ => !DangXuLy && CoTheCapNhatTraSom);
+        DongCommand = new RelayCommand(_ => _dong(false));
     }
 
-    public ICommand ReloadCommand { get; }
+    public ICommand TaiLaiCommand { get; }
     public ICommand TamInCommand { get; }
     public ICommand InHoaDonCommand { get; }
     public ICommand ThemDichVuCommand { get; }
     public ICommand ThanhToanCommand { get; }
     public ICommand TraPhongCommand { get; }
     public ICommand CapNhatTraSomHomNayCommand { get; }
-    public ICommand CloseCommand { get; }
+    public ICommand DongCommand { get; }
 
     public string MaHoaDon => _maHoaDon;
 
-    public bool IsBusy
+    public bool DangXuLy
     {
-        get => _isBusy;
+        get => _dangXuLy;
         private set
         {
-            if (!SetProperty(ref _isBusy, value)) return;
+            if (!SetProperty(ref _dangXuLy, value)) return;
             RaiseAllCanExecuteChanged();
         }
     }
@@ -105,13 +109,14 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         private set
         {
             if (!SetProperty(ref _trangThai, value)) return;
-            OnPropertyChanged(nameof(IsEditable));
-            OnPropertyChanged(nameof(CanCapNhatTraSom));
+            OnPropertyChanged(nameof(CoTheChinhSua));
+            OnPropertyChanged(nameof(CoTheTraPhong));
+            OnPropertyChanged(nameof(CoTheCapNhatTraSom));
             RaiseAllCanExecuteChanged();
         }
     }
 
-    public bool IsEditable => TrangThai == "Chưa thanh toán";
+    public bool CoTheChinhSua => TrangThai == "Chưa thanh toán";
 
     public string MaDatPhong { get => _maDatPhong; private set => SetProperty(ref _maDatPhong, value); }
     public string TrangThaiDatPhong
@@ -120,14 +125,14 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         private set
         {
             if (!SetProperty(ref _trangThaiDatPhong, value)) return;
-            OnPropertyChanged(nameof(CanTraPhong));
-            OnPropertyChanged(nameof(CanCapNhatTraSom));
+            OnPropertyChanged(nameof(CoTheTraPhong));
+            OnPropertyChanged(nameof(CoTheCapNhatTraSom));
             RaiseAllCanExecuteChanged();
         }
     }
 
-    public bool CanTraPhong => TrangThai == "Đã thanh toán" && TrangThaiDatPhong != "Đã trả phòng" && !string.IsNullOrWhiteSpace(MaDatPhong);
-    public bool CanCapNhatTraSom => IsEditable && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != "Đã trả phòng";
+    public bool CoTheTraPhong => TrangThai == "Đã thanh toán" && TrangThaiDatPhong != "Đã trả phòng" && !string.IsNullOrWhiteSpace(MaDatPhong);
+    public bool CoTheCapNhatTraSom => CoTheChinhSua && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != "Đã trả phòng";
 
     public decimal TienPhong { get => _tienPhong; private set { if (SetProperty(ref _tienPhong, value)) OnPropertyChanged(nameof(VatAmount)); } }
     public decimal TienDichVu { get => _tienDichVu; private set { if (SetProperty(ref _tienDichVu, value)) OnPropertyChanged(nameof(VatAmount)); } }
@@ -137,11 +142,11 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     public decimal VatAmount => (TienPhong + TienDichVu) * (VatPercent / 100m);
 
-    public string TienPhongText => $"{TienPhong:N0} ₫";
-    public string TienDichVuText => $"{TienDichVu:N0} ₫";
-    public string VatPercentText => $"{VatPercent:N0}%";
-    public string VatAmountText => $"{VatAmount:N0} ₫";
-    public string TongThanhToanText => $"{TongThanhToan:N0} ₫";
+    public string TienPhongHienThi => $"{TienPhong:N0} ₫";
+    public string TienDichVuHienThi => $"{TienDichVu:N0} ₫";
+    public string VatPhanTramHienThi => $"{VatPercent:N0}%";
+    public string TienVatHienThi => $"{VatAmount:N0} ₫";
+    public string TongThanhToanHienThi => $"{TongThanhToan:N0} ₫";
 
     public ObservableCollection<PhongItemVm> Phongs { get; } = new();
     public ObservableCollection<DichVuItemVm> DichVus { get; } = new();
@@ -152,24 +157,25 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         set => SetProperty(ref _selectedPhong, value);
     }
 
-    public ObservableCollection<PhuongThucThanhToanDto> PhuongThucThanhToans { get; } = new();
-    public ObservableCollection<string> LoaiGiaoDichOptions { get; } =
+    public ObservableCollection<PhuongThucThanhToanDto> DanhSachPhuongThucThanhToan { get; } = new();
+    public ObservableCollection<string> DanhSachLoaiGiaoDich { get; } =
     [
         "Thanh toán cuối",
+        "Thanh toán trước",
         "Đặt cọc",
         "Hoàn tiền"
     ];
 
-    public PhuongThucThanhToanDto? SelectedPTTT
+    public PhuongThucThanhToanDto? PhuongThucThanhToanDuocChon
     {
-        get => _selectedPttt;
-        set => SetProperty(ref _selectedPttt, value);
+        get => _phuongThucThanhToanDuocChon;
+        set => SetProperty(ref _phuongThucThanhToanDuocChon, value);
     }
 
-    public string SelectedLoaiGiaoDich
+    public string LoaiGiaoDichDuocChon
     {
-        get => _selectedLoaiGiaoDich;
-        set => SetProperty(ref _selectedLoaiGiaoDich, value);
+        get => _loaiGiaoDichDuocChon;
+        set => SetProperty(ref _loaiGiaoDichDuocChon, value);
     }
 
     public string SoTienNhap
@@ -186,7 +192,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     public ObservableCollection<ThanhToanItemVm> LichSuThanhToan { get; } = new();
 
-    public bool HasLichSu => LichSuThanhToan.Count > 0;
+    public bool CoLichSu => LichSuThanhToan.Count > 0;
 
     public decimal ConLai
     {
@@ -194,34 +200,32 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         private set
         {
             if (!SetProperty(ref _conLai, value)) return;
-            OnPropertyChanged(nameof(ConLaiText));
-            OnPropertyChanged(nameof(ConLaiHienThiText));
+            OnPropertyChanged(nameof(ConLaiHienThi));
         }
     }
 
-    public string ConLaiText => $"Còn lại: {ConLai:N0} ₫";
-    public string ConLaiHienThiText => ConLai >= 0 ? $"Còn lại: {ConLai:N0} ₫" : $"Dư: {Math.Abs(ConLai):N0} ₫";
+    public string ConLaiHienThi => ConLai >= 0 ? $"Còn lại: {ConLai:N0} ₫" : $"Dư: {Math.Abs(ConLai):N0} ₫";
 
-    public async Task ReloadAsync()
+    public async Task TaiLaiAsync()
     {
-        if (IsBusy) return;
-        IsBusy = true;
+        if (DangXuLy) return;
+        DangXuLy = true;
 
         try
         {
-            await TaiLaiDuLieuCoreAsync();
+            await TaiLaiDuLieuNoiBoAsync();
         }
         finally
         {
-            IsBusy = false;
+            DangXuLy = false;
         }
     }
 
-    private async Task TaiLaiDuLieuCoreAsync()
+    private async Task TaiLaiDuLieuNoiBoAsync()
     {
         try
         {
-            await _hoaDon.EnsureHoaDonChiTietAsync(_maHoaDon);
+            await _hoaDon.DamBaoHoaDonChiTietAsync(_maHoaDon);
             var hd = await _hoaDon.LayHoaDonChiTietAsync(_maHoaDon);
 
             if (hd == null) return;
@@ -264,21 +268,21 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                      }))
                 DichVus.Add(d);
 
-            OnPropertyChanged(nameof(TienPhongText));
-            OnPropertyChanged(nameof(TienDichVuText));
-            OnPropertyChanged(nameof(VatPercentText));
-            OnPropertyChanged(nameof(TongThanhToanText));
+            OnPropertyChanged(nameof(TienPhongHienThi));
+            OnPropertyChanged(nameof(TienDichVuHienThi));
+            OnPropertyChanged(nameof(VatPhanTramHienThi));
+            OnPropertyChanged(nameof(TongThanhToanHienThi));
 
             await Task.WhenAll(
-                    ReloadPaymentAsync(),
-                    ReloadPtttAsync()
+                    TaiLaiLichSuThanhToanAsync(),
+                    TaiLaiPhuongThucThanhToanAsync()
                 );
 
-            if (!IsEditable)
+            if (!CoTheChinhSua)
             {
                 SoTienNhap = "";
                 NoiDung = "";
-                SelectedLoaiGiaoDich = "Thanh toán cuối";
+                LoaiGiaoDichDuocChon = "Thanh toán cuối";
             }
         }
         catch (Exception ex)
@@ -287,19 +291,40 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    private async Task ReloadPtttAsync()
+    private async Task TaiLaiPhuongThucThanhToanAsync()
     {
+        if (_cachePhuongThucThanhToan != null &&
+            (DateTime.Now - _thoiDiemTaiPttt) <= ThoiGianHetHanPttt)
+        {
+            GanDanhSachPhuongThucThanhToan(_cachePhuongThucThanhToan);
+            return;
+        }
+
         using var db = new Data.QuanLyKhachSanContext();
         var svc = new HoaDonService(db, new KhachHangService(db));
-        var list = await svc.GetPTTTAsync();
-        PhuongThucThanhToans.Clear();
-        foreach (var p in list)
-            PhuongThucThanhToans.Add(p);
+        var list = await svc.LayDanhSachPhuongThucThanhToanAsync();
+        _cachePhuongThucThanhToan = list;
+        _thoiDiemTaiPttt = DateTime.Now;
 
-        SelectedPTTT ??= PhuongThucThanhToans.FirstOrDefault();
+        GanDanhSachPhuongThucThanhToan(list);
     }
 
-    private async Task ReloadPaymentAsync()
+    private void GanDanhSachPhuongThucThanhToan(IEnumerable<PhuongThucThanhToanDto> danhSach)
+    {
+        var maDangChon = PhuongThucThanhToanDuocChon?.MaPTTT;
+
+        DanhSachPhuongThucThanhToan.Clear();
+        foreach (var p in danhSach)
+            DanhSachPhuongThucThanhToan.Add(p);
+
+        if (!string.IsNullOrWhiteSpace(maDangChon))
+            PhuongThucThanhToanDuocChon = DanhSachPhuongThucThanhToan.FirstOrDefault(x => x.MaPTTT == maDangChon)
+                                          ?? DanhSachPhuongThucThanhToan.FirstOrDefault();
+        else
+            PhuongThucThanhToanDuocChon ??= DanhSachPhuongThucThanhToan.FirstOrDefault();
+    }
+
+    private async Task TaiLaiLichSuThanhToanAsync()
     {
         using var db = new Data.QuanLyKhachSanContext();
         var svc = new HoaDonService(db, new KhachHangService(db));
@@ -315,12 +340,12 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         foreach (var t in items)
             LichSuThanhToan.Add(t);
 
-        OnPropertyChanged(nameof(HasLichSu));
+        OnPropertyChanged(nameof(CoLichSu));
 
         decimal tongDaThu = items.Sum(t => t.SoTien);
         ConLai = TongThanhToan - tongDaThu;
 
-        if (IsEditable && string.IsNullOrWhiteSpace(SoTienNhap))
+        if (CoTheChinhSua && string.IsNullOrWhiteSpace(SoTienNhap))
             SoTienNhap = ConLai > 0 ? $"{ConLai:N0}" : "";
     }
 
@@ -328,11 +353,11 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     {
         if (TrangThai != "Chưa thanh toán")
         {
-            _hopThoai.CanhBao("Hoa don da thanh toan, khong the them dich vu.");
+            _hopThoai.CanhBao("Hoá đơn đã thanh toán, không thể thêm dịch vụ.");
             return;
         }
 
-        var owner = _getOwner();
+        var owner = _layChuSoHuu();
 
         try
         {
@@ -357,7 +382,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             }
 
             await _dichVuSvc.UpsertDichVuAsync(_maHoaDon, MaDatPhong, phong, maDichVu, soLuong);
-            await ReloadAsync();
+            await TaiLaiAsync();
             if (_taiLaiTrangHoaDonAsync != null)
                 await _taiLaiTrangHoaDonAsync();
         }
@@ -369,7 +394,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     private async Task ThanhToanAsync()
     {
-        if (SelectedPTTT?.MaPTTT is not string maPttt || string.IsNullOrWhiteSpace(maPttt))
+        if (PhuongThucThanhToanDuocChon?.MaPTTT is not string maPttt || string.IsNullOrWhiteSpace(maPttt))
         {
             _hopThoai.CanhBao("Vui long chon phuong thuc thanh toan.");
             return;
@@ -391,17 +416,17 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         if (!_hopThoai.XacNhan($"Xac nhan thanh toan so tien {soTien:N0} d cho hoa don {_maHoaDon}?", "Xac nhan thanh toan"))
             return;
 
-        IsBusy = true;
+        DangXuLy = true;
         try
         {
             // Logic mới:
             // - "Thanh toán cuối": bắt buộc in hóa đơn trước, in xong mới ghi nhận thanh toán.
             // - Các loại giao dịch khác (đặt cọc/hoàn tiền): vẫn ghi nhận như bình thường.
-            if (SelectedLoaiGiaoDich == "Thanh toán cuối")
+            if (LoaiGiaoDichDuocChon == "Thanh toán cuối")
             {
                 if (ConLai > 0 && soTien < ConLai)
                 {
-                    _hopThoai.CanhBao("So tien thanh toan chua du de chot hoa don.");
+                    _hopThoai.CanhBao($"So tien thanh toan chua du de chot hoa don.  {soTien:N0}đ");
                     return;
                 }
 
@@ -414,7 +439,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                     var khName0 = hdPrint0.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
                     var staffName0 = hdPrint0.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
 
-                    bool printed0 = _inHoaDon.XemTruocVaInHoaDon(hdPrint0, khName0, staffName0, owner: _getOwner());
+                    bool printed0 = _inHoaDon.XemTruocVaInHoaDon(hdPrint0, khName0, staffName0, owner: _layChuSoHuu());
                     if (!printed0) return;
 
                     await _hoaDon.DongBoTrangThaiThanhToanAsync(_maHoaDon);
@@ -422,7 +447,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                     _hopThoai.ThongBao("Thanh toan hoan tat! Co the tra phong khi khach roi di.");
                     if (_taiLaiTrangHoaDonAsync != null)
                         await _taiLaiTrangHoaDonAsync();
-                    await TaiLaiDuLieuCoreAsync();
+                    await TaiLaiDuLieuNoiBoAsync();
                     return;
                 }
 
@@ -432,13 +457,13 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 var khName = hdPrint.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
                 var staffName = hdPrint.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
 
-                bool printed = _inHoaDon.XemTruocVaInHoaDon(hdPrint, khName, staffName, owner: _getOwner());
+                bool printed = _inHoaDon.XemTruocVaInHoaDon(hdPrint, khName, staffName, owner: _layChuSoHuu());
                 if (!printed)
                     return;
             }
 
             var thongTin = await _hoaDon.ThanhToanVaTraKetQuaAsync(
-                _maHoaDon, soTien, maPttt, maNhanVien, SelectedLoaiGiaoDich, NoiDung);
+                _maHoaDon, soTien, maPttt, maNhanVien, LoaiGiaoDichDuocChon, NoiDung);
 
             SoTienNhap = "";
 
@@ -447,17 +472,16 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 _hopThoai.ThongBao("Thanh toan hoan tat! Co the tra phong khi khach roi di.");
                 if (_taiLaiTrangHoaDonAsync != null)
                     await _taiLaiTrangHoaDonAsync();
-                await TaiLaiDuLieuCoreAsync();
-                _close(true);
+                await TaiLaiDuLieuNoiBoAsync();
                 return;
             }
 
             if (thongTin.KetQua == KetQuaThanhToan.GhiNhanChuaDu)
-                _hopThoai.ThongBao($"Da ghi nhan thanh toan {soTien:N0} d. Khach chua thanh toan du.");
+                _hopThoai.ThongBao($"Da ghi nhan thanh toan {soTien:N0} đ. Khach chua thanh toan du.");
             else
                 _hopThoai.CanhBao(thongTin.ThongDiep);
 
-            await TaiLaiDuLieuCoreAsync();
+            await TaiLaiDuLieuNoiBoAsync();
             if (_taiLaiTrangHoaDonAsync != null)
                 await _taiLaiTrangHoaDonAsync();
         }
@@ -467,28 +491,32 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            DangXuLy = false;
         }
     }
 
     private async Task TraPhongAsync()
     {
-        if (!CanTraPhong)
+        if (!CoTheTraPhong)
             return;
 
         if (!_hopThoai.XacNhan($"Xac nhan tra phong cho hoa don {_maHoaDon}?", "Xac nhan tra phong"))
             return;
 
-        IsBusy = true;
+        DangXuLy = true;
         try
         {
             var maNhanVien = App.CurrentUser?.MaNhanVien ?? "NV001";
             await _hoaDon.TraPhongAsync(_maHoaDon, maNhanVien);
             _hopThoai.ThongBao("Tra phong thanh cong! Phong da chuyen sang trang thai can don dep.");
-            await TaiLaiDuLieuCoreAsync();
+            await TaiLaiDuLieuNoiBoAsync();
 
             if (_taiLaiTrangHoaDonAsync != null)
                 await _taiLaiTrangHoaDonAsync();
+
+            //đóng sau khi trả phòng để tránh trường hợp nhân viên quên đóng và tiếp tục thao tác trên hóa đơn đã trả
+            _dong(true);
+
         }
         catch (Exception ex)
         {
@@ -496,18 +524,18 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            DangXuLy = false;
         }
     }
 
     private async Task CapNhatTraSomHomNayAsync()
     {
-        if (!CanCapNhatTraSom) return;
+        if (!CoTheCapNhatTraSom) return;
 
         if (!_hopThoai.XacNhan("Cap nhat ngay tra phong = hom nay va tinh lai tien phong?", "Cap nhat tra som"))
             return;
 
-        IsBusy = true;
+        DangXuLy = true;
         try
         {
             var thongTin = await _hoaDon.CapNhatTienPhongKhiTraSomAsync(_maHoaDon, DateTime.Now);
@@ -521,12 +549,12 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             if (thongTin.ConLai <= 0)
                 _hopThoai.ThongBao("Da tinh lai tong tien. Hoa don hien tai da du/dang du tien.");
             else
-                _hopThoai.ThongBao($"Da tinh lai tong tien. Con lai: {thongTin.ConLai:N0} d.");
+                _hopThoai.ThongBao($"Da tinh lai tong tien. Con lai: {thongTin.ConLai:N0} đ.");
 
             if (_taiLaiTrangHoaDonAsync != null)
                 await _taiLaiTrangHoaDonAsync();
 
-            await TaiLaiDuLieuCoreAsync();
+            await TaiLaiDuLieuNoiBoAsync();
         }
         catch (Exception ex)
         {
@@ -534,14 +562,14 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            DangXuLy = false;
         }
     }
 
     private async Task InHoaDonAsync()
     {
-        if (IsBusy) return;
-        IsBusy = true;
+        if (DangXuLy) return;
+        DangXuLy = true;
         try
         {
             var hd = await _hoaDon.LayHoaDonDeInAsync(_maHoaDon);
@@ -551,9 +579,9 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             var khName = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
             var staffName = hd.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
 
-            bool daIn = _inHoaDon.XemTruocVaInHoaDon(hd, khName, staffName, owner: _getOwner());
+            bool daIn = _inHoaDon.XemTruocVaInHoaDon(hd, khName, staffName, owner: _layChuSoHuu());
             if (daIn)
-                await TaiLaiDuLieuCoreAsync();
+                await TaiLaiDuLieuNoiBoAsync();
         }
         catch (Exception ex)
         {
@@ -561,14 +589,14 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            DangXuLy = false;
         }
     }
 
     private async Task TamInAsync()
     {
-        if (IsBusy) return;
-        IsBusy = true;
+        if (DangXuLy) return;
+        DangXuLy = true;
         try
         {
             var hd = await _hoaDon.LayHoaDonDeInAsync(_maHoaDon);
@@ -578,9 +606,9 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             var khName = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
             var staffName = hd.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
 
-            bool daIn = _inHoaDon.XemTruocVaInTamTinh(hd, khName, staffName, owner: _getOwner());
+            bool daIn = _inHoaDon.XemTruocVaInTamTinh(hd, khName, staffName, owner: _layChuSoHuu());
             if (daIn)
-                await TaiLaiDuLieuCoreAsync();
+                await TaiLaiDuLieuNoiBoAsync();
         }
         catch (Exception ex)
         {
@@ -588,20 +616,20 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            DangXuLy = false;
         }
     }
 
     private void RaiseAllCanExecuteChanged()
     {
-        (ReloadCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (TaiLaiCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (TamInCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (InHoaDonCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (ThemDichVuCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (ThanhToanCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (TraPhongCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (CapNhatTraSomHomNayCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
-        (CloseCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        (DongCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
 
     private static bool ThuParseSoTien(string? text, out decimal soTien)

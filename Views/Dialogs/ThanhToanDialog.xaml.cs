@@ -39,7 +39,7 @@ public partial class ThanhToanDialog : Window
 
     private async Task LoadHoaDonInfoAsync()
     {
-        await _hdSvc.EnsureHoaDonChiTietAsync(_maHoaDon);
+        await _hdSvc.DamBaoHoaDonChiTietAsync(_maHoaDon);
         var hd = await _hdSvc.LayHoaDonThanhToanAsync(_maHoaDon);
 
         if (hd == null) return;

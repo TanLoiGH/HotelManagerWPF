@@ -26,8 +26,8 @@ public partial class HoaDonChiTietDialog : Window
             maHoaDon,
             hoaDonSvc: hdSvc,
             dichVuSvc: dvSvc,
-            getOwner: () => this,
-            close: dialogResult =>
+            layChuSoHuu: () => this,
+            dong: dialogResult =>
             {
                 DialogResult = dialogResult;
                 Close();
@@ -43,7 +43,7 @@ public partial class HoaDonChiTietDialog : Window
     protected override async void OnContentRendered(EventArgs e)
     {
         base.OnContentRendered(e);
-        await _vm.ReloadAsync();
+        await _vm.TaiLaiAsync();
     }
 
     protected override void OnClosed(EventArgs e)

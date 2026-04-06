@@ -14,7 +14,7 @@ public class DatPhongService
     private async Task TaoHoaDonNeuChuaCoAsync(string maDatPhong, string maNhanVien)
     {
         bool hdExist = await _db.HoaDons
-            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đà hủy");
+            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đã hủy");
 
         if (hdExist) return;
 
@@ -28,8 +28,12 @@ public class DatPhongService
         var dp = await _db.DatPhongs.FindAsync(maDatPhong);
         decimal tienCoc = dp?.TienCoc ?? 0;
 
-        decimal tienPhong = chiTiets
-            .Sum(c => (decimal)(c.NgayTra - c.NgayNhan).TotalDays * c.DonGia);
+        decimal tienPhong = 0;
+        foreach (var ct in chiTiets)
+        {
+            int soDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra);
+            tienPhong += ct.DonGia * soDem;
+        }
 
         var lastMa = await _db.HoaDons
             .OrderByDescending(h => h.MaHoaDon)
@@ -49,7 +53,7 @@ public class DatPhongService
             TienDichVu = 0,
             Vat = vatPercent,
             MaKhuyenMai = null,
-            TongThanhToan = (tienPhong * (1 + vatPercent / 100m)) - tienCoc,
+            TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, 0, vatPercent, tienCoc, 0),
             TrangThai = "Chưa thanh toán"
         };
 
@@ -62,7 +66,7 @@ public class DatPhongService
                 MaHoaDon = hd.MaHoaDon,
                 MaDatPhong = maDatPhong,
                 MaPhong = ct.MaPhong,
-                SoDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays)
+                SoDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra)
             });
         }
 
@@ -283,6 +287,5 @@ public class DatPhongService
         };
     }
 }
-
 
 

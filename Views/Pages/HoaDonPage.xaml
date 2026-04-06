@@ -28,10 +28,10 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button x:Name="BtnTatCa" Content="Tất cả" Command="{Binding FilterCommand}" CommandParameter="" Style="{DynamicResource MacFluent.FilterButton.Active}" Margin="0,0,8,0"/>
-                <Button Content="Chưa TT" Command="{Binding FilterCommand}" CommandParameter="Chưa thanh toán" Style="{DynamicResource MacFluent.FilterButton}" Margin="0,0,8,0"/>
-                <Button Content="Đã TT" Command="{Binding FilterCommand}" CommandParameter="Đã thanh toán" Style="{DynamicResource MacFluent.FilterButton}" Margin="0,0,8,0"/>
-                <Button Content="Đã hủy" Command="{Binding FilterCommand}" CommandParameter="Đã hủy" Style="{DynamicResource MacFluent.FilterButton}"/>
+                <Button x:Name="BtnTatCa" Content="Tất cả" Command="{Binding LocTrangThaiCommand}" CommandParameter="" Style="{DynamicResource MacFluent.FilterButton.Active}" Margin="0,0,8,0"/>
+                <Button Content="Chưa TT" Command="{Binding LocTrangThaiCommand}" CommandParameter="Chưa thanh toán" Style="{DynamicResource MacFluent.FilterButton}" Margin="0,0,8,0"/>
+                <Button Content="Đã TT" Command="{Binding LocTrangThaiCommand}" CommandParameter="Đã thanh toán" Style="{DynamicResource MacFluent.FilterButton}" Margin="0,0,8,0"/>
+                <Button Content="Đã hủy" Command="{Binding LocTrangThaiCommand}" CommandParameter="Đã hủy" Style="{DynamicResource MacFluent.FilterButton}"/>
             </StackPanel>
         </Grid>
 
@@ -51,7 +51,7 @@
                     <TextBlock Text="🔍" VerticalAlignment="Center" Margin="5,0,10,0" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
                     <TextBox x:Name="TxtSearch" Grid.Column="1" Background="Transparent" BorderThickness="0" 
                              VerticalAlignment="Center" FontSize="15" Tag="Tìm mã hóa đơn, tên khách..."
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                             Text="{Binding TuKhoaTimKiem, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
             </Border>
 
@@ -67,7 +67,7 @@
                         BorderThickness="0"
                         Style="{DynamicResource MacFluent.ShadowCard}"
                         helpers:ThemeProperties.CornerRadius="16">
-            <DataGrid x:Name="HoaDonGrid" ItemsSource="{Binding FilteredHoaDon}"
+            <DataGrid x:Name="HoaDonGrid" ItemsSource="{Binding HoaDonDaLoc}"
                       AutoGenerateColumns="False" IsReadOnly="True"
                       SelectionMode="Single" HeadersVisibility="Column"
                       GridLinesVisibility="Horizontal" FontSize="15"
@@ -76,10 +76,10 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Mã HD" Binding="{Binding MaHoaDon}" Width="90"/>
                     <DataGridTextColumn Header="Khách hàng" Binding="{Binding TenKhachHang}" Width="*"/>
-                    <DataGridTextColumn Header="Ngày lập" Binding="{Binding NgayLapText}" Width="110"/>
-                    <DataGridTextColumn Header="Tiền phòng" Binding="{Binding TienPhongText}" Width="120"/>
-                    <DataGridTextColumn Header="Tiền DV" Binding="{Binding TienDichVuText}" Width="100"/>
-                    <DataGridTextColumn Header="Tổng TT" Binding="{Binding TongThanhToanText}" Width="120"/>
+                    <DataGridTextColumn Header="Ngày lập" Binding="{Binding NgayLapHienThi}" Width="110"/>
+                    <DataGridTextColumn Header="Tiền phòng" Binding="{Binding TienPhongHienThi}" Width="120"/>
+                    <DataGridTextColumn Header="Tiền DV" Binding="{Binding TienDichVuHienThi}" Width="100"/>
+                    <DataGridTextColumn Header="Tổng TT" Binding="{Binding TongThanhToanHienThi}" Width="120"/>
                     <DataGridTemplateColumn Header="Trạng thái" Width="130">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
