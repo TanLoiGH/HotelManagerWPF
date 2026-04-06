@@ -98,6 +98,15 @@ public class DatPhongService
         decimal tienCoc = 0,
         int soNguoi = 1)
     {
+        foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
+        {
+            if (ngayNhan.Date < DateTime.Today)
+                throw new InvalidOperationException($"Ngay nhan cua phong {maPhong} khong duoc o qua khu.");
+
+            if (ngayTra.Date < ngayNhan.Date)
+                throw new InvalidOperationException($"Ngay tra cua phong {maPhong} phai sau hoac bang ngay nhan.");
+        }
+
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
         int tongSucChua = 0;
@@ -287,5 +296,4 @@ public class DatPhongService
         };
     }
 }
-
 

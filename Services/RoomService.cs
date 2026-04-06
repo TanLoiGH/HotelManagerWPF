@@ -184,6 +184,19 @@ public class RoomService
     {
         var p = await _db.Phongs.FindAsync(maPhong);
         if (p == null) return;
+
+        bool coDangO = await _db.DatPhongChiTiets
+            .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == "Đang ở");
+
+        bool coChoNhan = await _db.DatPhongChiTiets
+            .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == "Chờ nhận phòng");
+
+        if (coDangO && maTrangThai != "PTT02")
+            throw new InvalidOperationException("Phong dang o, khong the chuyen sang trang thai khac.");
+
+        if (!coDangO && coChoNhan && maTrangThai != "PTT05")
+            throw new InvalidOperationException("Phong dang duoc dat, chi co the de trang thai 'Da dat'.");
+
         p.MaLoaiPhong = maLoaiPhong;
         p.MaTrangThaiPhong = maTrangThai;
         await _db.SaveChangesAsync();

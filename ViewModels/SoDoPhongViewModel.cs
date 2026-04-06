@@ -392,6 +392,18 @@ public class SoDoPhongViewModel : BaseViewModel
                 return;
             }
 
+            if (NgayNhan.Date < DateTime.Today)
+            {
+                MessageBox.Show("Ngày nhận không được ở quá khứ.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (NgayTra.Date < NgayNhan.Date)
+            {
+                MessageBox.Show("Ngày trả phải sau hoặc bằng ngày nhận.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             KhachHang khachMucTieu;
             if (SelectedKhach != null)
             {
