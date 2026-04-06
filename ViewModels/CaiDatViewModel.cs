@@ -12,6 +12,7 @@ public class CaiDatViewModel : BaseViewModel
 {
     private readonly EmployeeService _employeeSvc;
     private readonly AuthService _authSvc;
+    private readonly HoaDonService _hoaDonSvc;
 
     // Cài đặt hệ thống (lưu vào appsettings.json)
     private string _hotelName = "";
@@ -38,10 +39,11 @@ public class CaiDatViewModel : BaseViewModel
     private string _matKhauMoi = "";
     private string _xacNhanMatKhau = "";
 
-    public CaiDatViewModel(EmployeeService employeeSvc, AuthService authSvc)
+    public CaiDatViewModel(EmployeeService employeeSvc, AuthService authSvc, HoaDonService hoaDonSvc)
     {
         _employeeSvc = employeeSvc;
         _authSvc = authSvc;
+        _hoaDonSvc = hoaDonSvc;
 
         SaveSystemCommand = new RelayCommand(_ => ExecuteSaveSystem());
         ReloadSystemCommand = new RelayCommand(_ => LoadSystemSettings());
@@ -224,7 +226,7 @@ public class CaiDatViewModel : BaseViewModel
         }
     }
 
-    private void ExecuteSaveSystem()
+    private async void ExecuteSaveSystem()
     {
         if (string.IsNullOrWhiteSpace(HotelName))
         {
@@ -242,6 +244,8 @@ public class CaiDatViewModel : BaseViewModel
 
         try
         {
+            int oldVat = SystemSettingsService.Load().VatPercent;
+
             SystemSettingsService.Save(new SystemSettings
             {
                 HotelName = HotelName.Trim(),
@@ -253,7 +257,26 @@ public class CaiDatViewModel : BaseViewModel
                 VatPercent = VatPercent,
             });
 
-            MessageBox.Show("Đã lưu cài đặt hệ thống.", "Thông báo",
+            int updatedCount = 0;
+            if (oldVat != VatPercent)
+            {
+                try
+                {
+                    updatedCount = await _hoaDonSvc.CapNhatVatChoHoaDonDangMoAsync(VatPercent);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Đã lưu cài đặt nhưng không thể cập nhật VAT cho hóa đơn đang mở: {ex.Message}", "Lỗi",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            string message = "Đã lưu cài đặt hệ thống.";
+            if (oldVat != VatPercent)
+                message += $" Đã áp dụng VAT mới cho {updatedCount} hóa đơn đang mở.";
+
+            MessageBox.Show(message, "Thông báo",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)

@@ -87,7 +87,7 @@
 
                     <StackPanel Grid.Column="1">
                         <TextBlock Text="Trạng thái" Foreground="{DynamicResource Brush.TextLabel}"/>
-                        <TextBlock Text="{Binding TrangThai}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TrangThai}" FontWeight="Bold" Foreground="#FF47C31C"/>
 
                         <TextBlock Text="Khuyến mãi" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,10,0,0"/>
                         <TextBlock Text="{Binding KhuyenMai}"/>
@@ -100,7 +100,7 @@
                         <DataGrid ItemsSource="{Binding Phongs}"
                                   SelectedItem="{Binding SelectedPhong}"
                                   AutoGenerateColumns="False"
-                                  IsReadOnly="True">
+                                  IsReadOnly="True" FontSize="18">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Phòng" Binding="{Binding MaPhong}" Width="90"/>
                                 <DataGridTextColumn Header="Ngày nhận" Binding="{Binding NgayNhan,StringFormat=dd/MM}" Width="110"/>
@@ -114,7 +114,7 @@
                     <TabItem Header="Dịch vụ">
                         <DataGrid ItemsSource="{Binding DichVus}"
                                   AutoGenerateColumns="False"
-                                  IsReadOnly="True">
+                                  IsReadOnly="True" FontSize="18">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Dịch vụ" Binding="{Binding TenDichVu}" Width="*"/>
                                 <DataGridTextColumn Header="SL" Binding="{Binding SoLuong}" Width="70"/>
@@ -198,22 +198,9 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
                         <StackPanel>
-                            <Button Content="Tra som hom nay (tinh lai)" Height="40" Margin="0,0,0,10"
-                                    Command="{Binding CapNhatTraSomHomNayCommand}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MacFluent.ButtonSecondary}" >
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CoTheCapNhatTraSom}" Value="False">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-
+                            
                             <TextBlock Text="Hóa đơn đã chốt, chỉ được xem." Margin="0,0,0,10"
                                        Foreground="{DynamicResource Brush.TextPlaceholder}">
                                 <TextBlock.Style>
@@ -248,7 +235,7 @@
                             </Border>
 
                             <TextBlock Text="Phương thức thanh toán" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                            <ComboBox Height="34" FontSize="15" Margin="0,0,0,10"
+                            <ComboBox Height="34" FontSize="15" Margin="0,0,0,10" 
                                       ItemsSource="{Binding DanhSachPhuongThucThanhToan}"
                                       DisplayMemberPath="TenPhuongThuc"
                                       SelectedItem="{Binding PhuongThucThanhToanDuocChon}"/>
@@ -269,7 +256,22 @@
                     </ScrollViewer>
 
                     <StackPanel Grid.Row="3" Orientation="Vertical">
-                        <Button Content="Xác nhận thanh toán" Height="40"
+
+                        <TextBlock  Text="Cập nhật trả sớm hôm nay" FontSize="14" Foreground="{DynamicResource Brush.TextDisabled}" Margin="0,0,0,4"/>
+                        <Button Content="Thanh toán ngay" Height="40" Margin="0,0,0,10" Command="{Binding CapNhatTraSomHomNayCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MacFluent.ButtonSecondary}" >
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CoTheCapNhatTraSom}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Content="Xác nhận" Height="40" Margin="0,25,0,00"
                                 FontSize="15" FontWeight="SemiBold"
                                 Command="{Binding ThanhToanCommand}">
                             <Button.Style>
@@ -289,6 +291,7 @@
                                 Command="{Binding TraPhongCommand}"
                                 Visibility="{Binding CoTheTraPhong, Converter={StaticResource BoolToVis}}"
                                 Style="{StaticResource MacFluent.ButtonPrimary}"/>
+                        
                     </StackPanel>
                 </Grid>
             </Border>

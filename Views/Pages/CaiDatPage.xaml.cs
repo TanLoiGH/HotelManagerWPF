@@ -16,7 +16,10 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Pages
         {
             InitializeComponent();
             _db = new QuanLyKhachSanContext();
-            DataContext = new CaiDatViewModel(new EmployeeService(_db), new AuthService(_db));
+            DataContext = new CaiDatViewModel(
+                new EmployeeService(_db),
+                new AuthService(_db),
+                new HoaDonService(_db, new KhachHangService(_db)));
             Unloaded += (_, _) => _db.Dispose();
         }
 

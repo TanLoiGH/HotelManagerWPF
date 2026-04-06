@@ -85,7 +85,7 @@
                         BorderThickness="0"
                         Style="{DynamicResource MacFluent.ShadowCard}"
                         helpers:ThemeProperties.CornerRadius="16">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
                     <TextBlock x:Name="TxtFormTitle" Text="Chi tiết nhân viên"
                                FontSize="18" FontWeight="Bold"

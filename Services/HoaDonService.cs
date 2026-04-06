@@ -69,7 +69,7 @@ public class HoaDonService
 
         var newMaHd = MaHelper.Next("HD", lastMa);
 
-        decimal vatPercent = 10;
+        decimal vatPercent = SystemSettingsService.Load().VatPercent;
 
         var hd = new HoaDon
         {
@@ -420,6 +420,41 @@ public class HoaDonService
         hd.TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, tienDv, vatPercent, tienCoc, giamGia);
 
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<int> CapNhatVatChoHoaDonDangMoAsync(decimal vatPercent)
+    {
+        var hoaDons = await _db.HoaDons
+            .Include(h => h.MaDatPhongNavigation)
+            .Where(h => h.TrangThai == "Chưa thanh toán")
+            .ToListAsync();
+
+        if (hoaDons.Count == 0)
+            return 0;
+
+        foreach (var hd in hoaDons)
+        {
+            decimal tienPhong = hd.TienPhong ?? 0;
+            decimal tienDv = hd.TienDichVu ?? 0;
+            decimal tienCoc = hd.MaDatPhongNavigation?.TienCoc ?? 0;
+
+            decimal tongThanhToan = hd.TongThanhToan ?? 0;
+            decimal oldVat = hd.Vat ?? 0;
+
+            decimal tongTruocVat = oldVat > 0
+                ? (tongThanhToan + tienCoc) / (1 + oldVat / 100m)
+                : tongThanhToan + tienCoc;
+
+            decimal giamGia = (tienPhong + tienDv) - tongTruocVat;
+            if (giamGia < 0) giamGia = 0;
+            if (giamGia > (tienPhong + tienDv)) giamGia = tienPhong + tienDv;
+
+            hd.Vat = vatPercent;
+            hd.TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, tienDv, vatPercent, tienCoc, giamGia);
+        }
+
+        await _db.SaveChangesAsync();
+        return hoaDons.Count;
     }
 
     public async Task<List<PhuongThucThanhToanDto>> LayDanhSachPhuongThucThanhToanAsync()

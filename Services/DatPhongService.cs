@@ -41,7 +41,7 @@ public class DatPhongService
             .FirstOrDefaultAsync();
 
         var newMaHd = MaHelper.Next("HD", lastMa);
-        decimal vatPercent = 10;
+        decimal vatPercent = SystemSettingsService.Load().VatPercent;
 
         var hd = new HoaDon
         {
@@ -296,4 +296,3 @@ public class DatPhongService
         };
     }
 }
-

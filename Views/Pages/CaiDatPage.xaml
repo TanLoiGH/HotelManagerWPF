@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
       mc:Ignorable="d"
-      d:DesignHeight="950" d:DesignWidth="1200"
+      d:DesignHeight="1950" d:DesignWidth="1200"
       Title="CaiDatPage"
       Background="WhiteSmoke">
 
