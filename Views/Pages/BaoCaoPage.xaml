@@ -5,7 +5,9 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
       Background="Transparent">
-
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -15,148 +17,77 @@
         <Border Style="{DynamicResource MacFluent.InputFrame}" Padding="12" Margin="0,0,0,12">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Vertical" Margin="0,0,12,0">
-                    <TextBlock Text="Nguồn dữ liệu"
-                               Foreground="{DynamicResource Brush.TextMuted}"
-                               FontWeight="SemiBold"
-                               Margin="2,0,0,4"/>
-                    <ComboBox x:Name="CboSource"
-                              Height="34"
-                              SelectionChanged="CboSource_SelectionChanged">
+                    <TextBlock Text="Nguồn dữ liệu" Foreground="{DynamicResource Brush.TextMuted}" FontWeight="SemiBold" Margin="2,0,0,4"/>
+                    <ComboBox x:Name="CboSource" Height="34" SelectedIndex="{Binding SelectedSourceIndex}">
                         <ComboBoxItem Content="View"/>
                         <ComboBoxItem Content="Stored Procedure"/>
-
                     </ComboBox>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,0,12,0">
-                    <TextBlock Text="Tên (schema.name)"
-                               Foreground="{DynamicResource Brush.TextMuted}"
-                               FontWeight="SemiBold"
-                               Margin="2,0,0,4"/>
-                    <ComboBox x:Name="CboProcName"
-                          Grid.Row="1"
-                          Grid.Column="1"
-                          Margin="10,0,10,10">
-
-                        <!-- ItemTemplate để hiển thị DisplayName -->
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding DisplayName}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <TextBlock Text="Tên báo cáo" Foreground="{DynamicResource Brush.TextMuted}" FontWeight="SemiBold" Margin="2,0,0,4"/>
+                    <ComboBox x:Name="CboProcName" Height="34" ItemsSource="{Binding AvailableReports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="DisplayName"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Vertical" Margin="0,0,12,0">
-                    <TextBlock Text="Từ ngày (TuNgay)"
-                               Foreground="{DynamicResource Brush.TextMuted}"
-                               FontWeight="SemiBold"
-                               Margin="2,0,0,4"/>
-                    <DatePicker x:Name="DpFrom" Height="34"/>
+                    <TextBlock Text="Từ ngày (TuNgay)" Foreground="{DynamicResource Brush.TextMuted}" FontWeight="SemiBold" Margin="2,0,0,4"/>
+                    <DatePicker x:Name="DpFrom" Height="34" SelectedDate="{Binding TuNgay}" IsEnabled="{Binding IsDateFilterEnabled}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="3" Orientation="Vertical" Margin="0,0,12,0">
-                    <TextBlock Text="Đến ngày (DenNgay)"
-                               Foreground="{DynamicResource Brush.TextMuted}"
-                               FontWeight="SemiBold"
-                               Margin="2,0,0,4"/>
-                    <DatePicker x:Name="DpTo" Height="34"/>
+                    <TextBlock Text="Đến ngày (DenNgay)" Foreground="{DynamicResource Brush.TextMuted}" FontWeight="SemiBold" Margin="2,0,0,4"/>
+                    <DatePicker x:Name="DpTo" Height="34" SelectedDate="{Binding DenNgay}" IsEnabled="{Binding IsDateFilterEnabled}"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="4"
-                            VerticalAlignment="Bottom"
-                            Orientation="Horizontal">
-                    <Button x:Name="BtnRunProc"
-                            Content="Chạy"
-                            Width="100"
-                            Height="34"
-                            Margin="0,0,8,0"
-                            Click="BtnRunProc_Click"
-                            Background="{DynamicResource Brush.BrandPrimary}"
-                            Foreground="White"/>
-
-                    <Button x:Name="BtnExportExcel"
-                            Content="Xuất Excel"
-                            Width="120"
-                            Height="34"
-                            Click="BtnExportExcel_Click"
+                <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Orientation="Horizontal">
+                    <Button x:Name="BtnRunProc" Content="Chạy" Width="100" Height="34" Margin="0,0,8,0"
+                            Command="{Binding RunReportCommand}"
+                            Background="{DynamicResource Brush.BrandPrimary}" Foreground="White"/>
+                    <Button x:Name="BtnExportProc" Content="Xuất Excel" Width="120" Height="34"
+                            Command="{Binding ExportCsvCommand}"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                 </StackPanel>
             </Grid>
         </Border>
 
         <TabControl x:Name="BaoCaoTabs" Grid.Row="1">
-            <TabItem x:Name="TabKetQua" Header="Kết quả">
-
+            <TabItem x:Name="TabKetQua" Header="Kết quả báo cáo">
                 <Grid Margin="8">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <!-- Lưới dữ liệu -->
+                    <DataGrid x:Name="GridProc" 
+                              ItemsSource="{Binding ReportData}"
+                              Visibility="{Binding HasData, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              AutoGenerateColumns="True" IsReadOnly="True"
+                              HeadersVisibility="Column" CanUserAddRows="False"
+                              Background="{DynamicResource Brush.Surface}" 
+                              BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
 
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Margin="0,0,0,8">
-                        <Button Content="Xuất Excel"
-                                Width="120"
-                                Height="32"
-                                Click="BtnExportExcel_Click"
-                                Style="{DynamicResource MacFluent.FilterButton}"/>
+                    <!-- Panel Trạng thái -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="⌛" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBlock Text="Đang tải dữ liệu..." FontSize="16" Foreground="{DynamicResource Brush.TextMuted}"/>
                     </StackPanel>
 
-                    <StackPanel x:Name="PanelLoading"
-                                Visibility="Collapsed"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <TextBlock FontSize="16"
-                                   FontWeight="Bold"
-                                   Text="Đang tải dữ liệu báo cáo..."/>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Visibility="{Binding NoData, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="📭" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBlock Text="Không có dữ liệu cho khoảng thời gian này." FontSize="16" Foreground="{DynamicResource Brush.TextMuted}"/>
                     </StackPanel>
 
-                    <StackPanel x:Name="PanelNoData"
-                                Visibility="Collapsed"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <TextBlock FontSize="16"
-                                   FontWeight="Bold"
-                                   Text="Không có dữ liệu"/>
-                        <TextBlock Text="Hãy thử thay đổi thời gian hoặc điều kiện lọc."
-                                   Opacity="0.7"/>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="⚠️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="16" Foreground="{DynamicResource Brush.Error}" TextWrapping="Wrap" TextAlignment="Center"/>
                     </StackPanel>
-
-                    <StackPanel x:Name="PanelError"
-                                Visibility="Collapsed"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-
-                        <TextBlock Text="⚠ Có lỗi xảy ra"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Margin="0 0 0 6"/>
-
-                        <TextBlock x:Name="TxtError"
-                                   TextWrapping="Wrap"
-                                   Width="400"
-                                   Foreground="Red"/>
-                    </StackPanel>
-
-                    <DataGrid x:Name="GridProc"
-                              Grid.Row="1"
-                              AutoGenerateColumns="True"
-                              IsReadOnly="True"
-                              HeadersVisibility="Column"
-                              CanUserAddRows="False"
-                              Background="{DynamicResource Brush.Surface}"
-                              BorderBrush="{DynamicResource Brush.Border}"
-                              BorderThickness="1"/>
                 </Grid>
             </TabItem>
         </TabControl>

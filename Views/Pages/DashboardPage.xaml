@@ -20,23 +20,23 @@
                     <TextBlock Text="Kỳ báo cáo:" FontSize="15" Foreground="{DynamicResource Brush.TextLabel}"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <DatePicker x:Name="DpTuNgay" Height="32" FontSize="15" Width="140"
-                                SelectedDateChanged="DateFilter_Changed"/>
+                                SelectedDate="{Binding TuNgay}"/>
                     <TextBlock Text=" → " FontSize="15" Foreground="{DynamicResource Brush.TextPlaceholder}"
                                VerticalAlignment="Center" Margin="8,0"/>
                     <DatePicker x:Name="DpDenNgay" Height="32" FontSize="15" Width="140"
-                                SelectedDateChanged="DateFilter_Changed"/>
+                                SelectedDate="{Binding DenNgay}"/>
                     <Button Content="Tháng này" Height="32" Padding="12,0" Margin="12,0,0,0"
                             Style="{DynamicResource MacFluent.ButtonBase}"
                             Background="{DynamicResource Brush.SurfaceSoft}" BorderThickness="0" FontSize="14"
-                            Click="BtnThangNay_Click"/>
+                            Command="{Binding FilterThangNayCommand}"/>
                     <Button Content="Quý này" Height="32" Padding="12,0" Margin="8,0,0,0"
                             Style="{DynamicResource MacFluent.ButtonBase}"
                             Background="{DynamicResource Brush.SurfaceSoft}" BorderThickness="0" FontSize="14"
-                            Click="BtnQuyNay_Click"/>
+                            Command="{Binding FilterQuyNayCommand}"/>
                     <Button Content="Năm này" Height="32" Padding="12,0" Margin="8,0,0,0"
                             Style="{DynamicResource MacFluent.ButtonBase}"
                             Background="{DynamicResource Brush.SurfaceSoft}" BorderThickness="0" FontSize="14"
-                            Click="BtnNamNay_Click"/>
+                            Command="{Binding FilterNamNayCommand}"/>
                 </StackPanel>
             </ContentControl>
 
@@ -68,7 +68,7 @@
                     </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="💰 Doanh Thu" FontSize="13" Foreground="White" Opacity="0.85"/>
-                        <TextBlock x:Name="TxtDoanhThu" Text="—" FontSize="26"
+                        <TextBlock x:Name="TxtDoanhThu" Text="{Binding DoanhThuText}" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
                 </ContentControl>
@@ -87,7 +87,7 @@
                     </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="💸 Chi Phí" FontSize="13" Foreground="White" Opacity="0.85"/>
-                        <TextBlock x:Name="TxtChiPhi" Text="—" FontSize="26"
+                        <TextBlock x:Name="TxtChiPhi" Text="{Binding ChiPhiText}" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
                 </ContentControl>
@@ -106,8 +106,8 @@
                     </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="📈 Lợi Nhuận" FontSize="13" Foreground="White" Opacity="0.85"/>
-                        <TextBlock x:Name="TxtLoiNhuan" Text="—" FontSize="26"
-                                   FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
+                        <TextBlock x:Name="TxtLoiNhuan" Text="{Binding LoiNhuanText}" FontSize="26"
+                                   FontWeight="Bold" Foreground="{Binding LoiNhuanForeground}" Margin="0,6,0,0"/>
                     </StackPanel>
                 </ContentControl>
 
@@ -125,7 +125,7 @@
                     </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="🏠 Tổng Phòng" FontSize="13" Foreground="White" Opacity="0.85"/>
-                        <TextBlock x:Name="TxtTongPhong" Text="—" FontSize="26"
+                        <TextBlock x:Name="TxtTongPhong" Text="{Binding TongPhongText}" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
                 </ContentControl>
@@ -144,7 +144,7 @@
                     </ContentControl.Background>
                     <StackPanel>
                         <TextBlock Text="📊 Công Suất" FontSize="13" Foreground="White" Opacity="0.85"/>
-                        <TextBlock x:Name="TxtCongSuat" Text="—" FontSize="26"
+                        <TextBlock x:Name="TxtCongSuat" Text="{Binding CongSuatText}" FontSize="26"
                                    FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                     </StackPanel>
                 </ContentControl>
@@ -176,7 +176,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="24"/>
                             </Grid.RowDefinitions>
-                            <ItemsControl x:Name="BarChart" Grid.Row="0">
+                            <ItemsControl x:Name="BarChart" Grid.Row="0" ItemsSource="{Binding MonthlyRevenue}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <UniformGrid Rows="1"/>
@@ -222,7 +222,7 @@
                     <StackPanel>
                         <TextBlock Text="Trạng Thái Phòng" FontSize="17"
                                    FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,16"/>
-                        <ItemsControl x:Name="PhongStatusList">
+                        <ItemsControl x:Name="PhongStatusList" ItemsSource="{Binding RoomStatusStats}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,0,0,10">
@@ -257,7 +257,7 @@
                         <Separator Margin="0,12"/>
                         <TextBlock Text="Top Dịch Vụ" FontSize="16" FontWeight="Bold"
                                    Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,10"/>
-                        <ItemsControl x:Name="TopDichVuList">
+                        <ItemsControl x:Name="TopDichVuList" ItemsSource="{Binding TopServices}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,0,0,8">
@@ -299,7 +299,7 @@
                     <StackPanel>
                         <TextBlock Text="Chi Phí Theo Loại" FontSize="17"
                                    FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,16"/>
-                        <ItemsControl x:Name="ChiPhiList">
+                        <ItemsControl x:Name="ChiPhiList" ItemsSource="{Binding ExpenseStats}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,0,0,10">
@@ -342,7 +342,7 @@
                     <StackPanel>
                         <TextBlock Text="Đặt Phòng Gần Đây" FontSize="17"
                                    FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,16"/>
-                        <ItemsControl x:Name="RecentBookings">
+                        <ItemsControl x:Name="RecentBookings" ItemsSource="{Binding RecentBookings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Margin="0,0,0,8" Padding="12,10" CornerRadius="10"

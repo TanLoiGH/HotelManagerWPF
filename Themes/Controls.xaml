@@ -469,6 +469,16 @@
         </Setter>
     </Style>
 
+    <Style x:Key="MacFluent.ButtonSecondary" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSecondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.SurfaceSoft}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.Surface}" />
+        <Setter Property="helpers:ThemeProperties.HoverBorderBrush" Value="{DynamicResource Brush.BorderStrong}" />
+        <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.BorderStrong}" />
+    </Style>
+
     <!-- Action buttons (semantic tokens) -->
     <Style x:Key="MacFluent.ButtonAction.Add" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
         <Setter Property="Background" Value="{DynamicResource Brush.Action.Add}" />

@@ -1,9 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
@@ -23,26 +22,14 @@ public partial class KhachHangPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
+        var khachHangSvc = new KhachHangService(db);
 
-        var loaiKhach = await db.LoaiKhaches.ToListAsync();
+        var loaiKhach = await khachHangSvc.LayLoaiKhachAsync();
         CboLoaiKhach.ItemsSource = loaiKhach;
         CboLoaiKhach.DisplayMemberPath = "TenLoaiKhach";
         CboLoaiKhach.SelectedValuePath = "MaLoaiKhach";
 
-        _all = await db.KhachHangs
-            .Include(k => k.MaLoaiKhachNavigation)
-            .OrderByDescending(k => k.TongTichLuy)
-            .Select(k => new KhachHangViewModel
-            {
-                MaKhachHang = k.MaKhachHang,
-                TenKhachHang = k.TenKhachHang,
-                DienThoai = k.DienThoai ?? "",
-                Cccd = k.Cccd ?? "",
-                TenLoaiKhach = k.MaLoaiKhachNavigation != null
-                               ? k.MaLoaiKhachNavigation.TenLoaiKhach ?? "" : "",
-                TongTichLuy = k.TongTichLuy ?? 0,
-            })
-            .ToListAsync();
+        _all = await khachHangSvc.GetListAsync();
 
         KhachGrid.ItemsSource = _all;
         TxtTongKhach.Text = $"{_all.Count} khách hàng";
@@ -97,7 +84,8 @@ public partial class KhachHangPage : Page
     private async Task LoadExtraAsync(string maKH)
     {
         using var db = new QuanLyKhachSanContext();
-        var kh = await db.KhachHangs.FindAsync(maKH);
+        var khachHangSvc = new KhachHangService(db);
+        var kh = await khachHangSvc.LayTheoMaAsync(maKH);
         if (kh == null) return;
         TxtEmail.Text = kh.Email ?? "";
         TxtDiaChi.Text = kh.DiaChi ?? "";
@@ -118,41 +106,30 @@ public partial class KhachHangPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var khachHangSvc = new KhachHangService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.KhachHangs
-                    .OrderByDescending(k => k.MaKhachHang)
-                    .Select(k => k.MaKhachHang)
-                    .FirstOrDefaultAsync();
-
-                db.KhachHangs.Add(new KhachHang
-                {
-                    MaKhachHang = MaHelper.Next("KH", lastMa),
-                    TenKhachHang = ten,
-                    DienThoai = TxtDienThoai.Text.Trim(),
-                    Cccd = TxtCCCD.Text.Trim(),
-                    Email = TxtEmail.Text.Trim(),
-                    DiaChi = TxtDiaChi.Text.Trim(),
-                    MaLoaiKhach = CboLoaiKhach.SelectedValue as string ?? "LK001",
-                    TongTichLuy = 0,
-                });
+                await khachHangSvc.TaoMoiAsync(
+                    ten,
+                    TxtDienThoai.Text.Trim(),
+                    TxtCCCD.Text.Trim(),
+                    TxtEmail.Text.Trim(),
+                    TxtDiaChi.Text.Trim(),
+                    CboLoaiKhach.SelectedValue as string ?? "LK001");
             }
             else if (_selected != null)
             {
-                var kh = await db.KhachHangs.FindAsync(_selected.MaKhachHang);
-                if (kh != null)
-                {
-                    kh.TenKhachHang = ten;
-                    kh.DienThoai = TxtDienThoai.Text.Trim();
-                    kh.Cccd = TxtCCCD.Text.Trim();
-                    kh.Email = TxtEmail.Text.Trim();
-                    kh.DiaChi = TxtDiaChi.Text.Trim();
-                    kh.MaLoaiKhach = CboLoaiKhach.SelectedValue as string;
-                }
+                await khachHangSvc.CapNhatAsync(
+                    _selected.MaKhachHang,
+                    ten,
+                    TxtDienThoai.Text.Trim(),
+                    TxtCCCD.Text.Trim(),
+                    TxtEmail.Text.Trim(),
+                    TxtDiaChi.Text.Trim(),
+                    CboLoaiKhach.SelectedValue as string);
             }
 
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -173,18 +150,15 @@ public partial class KhachHangPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var kh = await db.KhachHangs.FindAsync(_selected.MaKhachHang);
-            if (kh != null)
+            var khachHangSvc = new KhachHangService(db);
+            bool coDatPhong = await khachHangSvc.CoLichSuDatPhongAsync(_selected.MaKhachHang);
+            if (coDatPhong)
             {
-                bool coDatPhong = await db.DatPhongs.AnyAsync(d => d.MaKhachHang == kh.MaKhachHang);
-                if (coDatPhong)
-                {
-                    ConfirmHelper.ShowWarning("Không thể xóa — khách hàng đã có lịch sử đặt phòng.");
-                    return;
-                }
-                db.KhachHangs.Remove(kh);
-                await db.SaveChangesAsync();
+                ConfirmHelper.ShowWarning("Không thể xóa — khách hàng đã có lịch sử đặt phòng.");
+                return;
             }
+
+            await khachHangSvc.XoaAsync(_selected.MaKhachHang);
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;

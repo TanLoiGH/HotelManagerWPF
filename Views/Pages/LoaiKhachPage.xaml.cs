@@ -1,9 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -31,16 +30,15 @@ public partial class LoaiKhachPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        _all = await db.LoaiKhaches
-            .Select(lk => new LoaiKhachRow
-            {
-                MaLoaiKhach = lk.MaLoaiKhach,
-                TenLoaiKhach = lk.TenLoaiKhach ?? "",
-                NguongTichLuy = lk.NguongTichLuy ?? 0,
-                SoKhachHang = lk.KhachHangs.Count(),
-            })
-            .OrderBy(lk => lk.NguongTichLuy)
-            .ToListAsync();
+        var loaiKhachSvc = new LoaiKhachService(db);
+        var items = await loaiKhachSvc.LayDanhSachAsync();
+        _all = items.Select(lk => new LoaiKhachRow
+        {
+            MaLoaiKhach = lk.MaLoaiKhach,
+            TenLoaiKhach = lk.TenLoaiKhach,
+            NguongTichLuy = lk.NguongTichLuy,
+            SoKhachHang = lk.SoKhach,
+        }).ToList();
 
         LkGrid.ItemsSource = _all;
         TxtTong.Text = $"{_all.Count} hạng khách";
@@ -85,11 +83,8 @@ public partial class LoaiKhachPage : Page
 
         // Load khuyến mãi liên kết
         using var db = new QuanLyKhachSanContext();
-        var kms = await db.KhuyenMais
-            .Where(k => k.MaLoaiKhach == row.MaLoaiKhach
-                     && k.IsActive == true
-                     && k.NgayKetThuc >= DateTime.Now)
-            .ToListAsync();
+        var kmSvc = new KhuyenMaiService(db);
+        var kms = await kmSvc.LayKhuyenMaiConHieuLucTheoLoaiKhachAsync(row.MaLoaiKhach);
 
         KmList.ItemsSource = kms;
         TxtNoKm.Visibility = kms.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
@@ -113,32 +108,16 @@ public partial class LoaiKhachPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var loaiKhachSvc = new LoaiKhachService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.LoaiKhaches
-                    .OrderByDescending(lk => lk.MaLoaiKhach)
-                    .Select(lk => lk.MaLoaiKhach)
-                    .FirstOrDefaultAsync();
-
-                db.LoaiKhaches.Add(new LoaiKhach
-                {
-                    MaLoaiKhach = MaHelper.Next("LK", lastMa),
-                    TenLoaiKhach = ten,
-                    NguongTichLuy = nguong,
-                });
+                await loaiKhachSvc.TaoMoiAsync(ten, nguong);
             }
             else if (_selected != null)
             {
-                var lk = await db.LoaiKhaches.FindAsync(_selected.MaLoaiKhach);
-                if (lk != null)
-                {
-                    lk.TenLoaiKhach = ten;
-                    lk.NguongTichLuy = nguong;
-                }
+                await loaiKhachSvc.CapNhatAsync(_selected.MaLoaiKhach, ten, nguong);
             }
-
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -159,9 +138,8 @@ public partial class LoaiKhachPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var lk = await db.LoaiKhaches.FindAsync(_selected.MaLoaiKhach);
-            if (lk != null) db.LoaiKhaches.Remove(lk);
-            await db.SaveChangesAsync();
+            var loaiKhachSvc = new LoaiKhachService(db);
+            await loaiKhachSvc.XoaAsync(_selected.MaLoaiKhach);
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;

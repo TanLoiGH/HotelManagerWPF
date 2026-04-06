@@ -23,7 +23,7 @@ public partial class KhachHang
 
     public string? Passport { get; set; }
 
-    public string? Visa { get; set; }  
+    public string? Visa { get; set; }
 
     public string? QuocTich { get; set; }
 

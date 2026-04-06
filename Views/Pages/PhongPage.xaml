@@ -31,34 +31,34 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="BtnAll" Content="Tất cả" Tag="all"
-                            Click="Filter_Click" Margin="0,0,8,0"
+                            Command="{Binding FilterCommand}" CommandParameter="all" Margin="0,0,8,0"
                             Style="{DynamicResource MacFluent.FilterButton.Active}"/>
                     <Button Content="🟢 Trống" Tag="PTT01"
-                            Click="Filter_Click" Margin="0,0,8,0"
+                            Command="{Binding FilterCommand}" CommandParameter="PTT01" Margin="0,0,8,0"
                             Background="{DynamicResource Brush.RoomAvailableSoft}"
                             Foreground="{DynamicResource Brush.RoomAvailable}"
                             BorderBrush="{DynamicResource Brush.RoomAvailable}"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                     <Button Content="🔴 Đang ở" Tag="PTT02"
-                            Click="Filter_Click" Margin="0,0,8,0"
+                            Command="{Binding FilterCommand}" CommandParameter="PTT02" Margin="0,0,8,0"
                             Background="{DynamicResource Brush.RoomOccupiedSoft}"
                             Foreground="{DynamicResource Brush.RoomOccupied}"
                             BorderBrush="{DynamicResource Brush.RoomOccupied}"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                     <Button Content="🟡 Dọn dẹp" Tag="PTT03"
-                            Click="Filter_Click" Margin="0,0,8,0"
+                            Command="{Binding FilterCommand}" CommandParameter="PTT03" Margin="0,0,8,0"
                             Background="{DynamicResource Brush.RoomCleaningSoft}"
                             Foreground="{DynamicResource Brush.RoomCleaning}"
                             BorderBrush="{DynamicResource Brush.RoomCleaning}"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                     <Button Content="⚪ Bảo trì" Tag="PTT04"
-                            Click="Filter_Click" Margin="0,0,8,0"
+                            Command="{Binding FilterCommand}" CommandParameter="PTT04" Margin="0,0,8,0"
                             Background="{DynamicResource Brush.RoomMaintenanceSoft}"
                             Foreground="{DynamicResource Brush.RoomMaintenance}"
                             BorderBrush="{DynamicResource Brush.RoomMaintenance}"
                             Style="{DynamicResource MacFluent.FilterButton}"/>
                     <Button Content="🟣 Đã đặt" Tag="PTT05"
-                            Click="Filter_Click"
+                            Command="{Binding FilterCommand}" CommandParameter="PTT05"
                             Background="{DynamicResource Brush.RoomReservedSoft}"
                             Foreground="{DynamicResource Brush.RoomReserved}"
                             BorderBrush="{DynamicResource Brush.RoomReserved}"
@@ -73,7 +73,7 @@
                             <TextBlock Text="🔍" FontSize="15" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <TextBox x:Name="TxtSearch" BorderThickness="0"
                                      Background="Transparent" VerticalAlignment="Center"
-                                     FontSize="15" TextChanged="TxtSearch_TextChanged" Width="150"/>
+                                     FontSize="15" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -101,6 +101,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock x:Name="TxtRoomCount" Grid.Row="0"
+                               Text="{Binding RoomCountText}"
                                FontSize="15" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,12"/>
                     
                     <!-- List Room (grouped by floor) -->
@@ -108,7 +109,7 @@
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False">
-                        <ItemsControl x:Name="PhongList">
+                        <ItemsControl x:Name="PhongList" ItemsSource="{Binding FilteredRooms}">
                             
                             <!-- Group Style: Header cho mỗi tầng -->
                             <ItemsControl.GroupStyle>
@@ -257,28 +258,30 @@
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
                     <StackPanel Margin="20">
 
-                        <!-- Empty state -->
-                        <StackPanel x:Name="PanelEmpty" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <!-- PanelDetail (Empty state - Hiển thị khi chưa chọn phòng) -->
+                        <StackPanel x:Name="PanelDetail" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Visibility="{Binding IsRoomSelected, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
                             <TextBlock Text="🏠" FontSize="50" HorizontalAlignment="Center" Margin="0,40,0,12"/>
                             <TextBlock Text="Chọn một phòng để xem chi tiết và đặt phòng"
                                        FontSize="15" Foreground="{DynamicResource Brush.TextMuted}" HorizontalAlignment="Center"
                                        TextAlignment="Center" TextWrapping="Wrap"/>
                         </StackPanel>
 
-                        <!-- PanelDetail + Form -->
-                        <StackPanel x:Name="PanelDetail" Visibility="Collapsed">
+                        <!-- PanelBooking (Form & Details - Hiển thị khi đã chọn phòng) -->
+                        <StackPanel x:Name="PanelBooking" Visibility="{Binding IsRoomSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                             <!-- DetailHeader -->
-                            <Border x:Name="DetailHeader" CornerRadius="12" Padding="16" Margin="0,0,0,16">
+                            <Border x:Name="DetailHeader" CornerRadius="12" Padding="16" Margin="0,0,0,16"
+                                    Background="{Binding SelectedRoom.BadgeForeground}">
                                 <Grid>
                                     <StackPanel>
-                                        <TextBlock x:Name="DetailMaPhong" FontSize="30"
+                                        <TextBlock Text="{Binding SelectedRoom.MaPhong}" FontSize="30"
                                                    FontWeight="Bold" Foreground="White"/>
-                                        <TextBlock x:Name="DetailLoaiPhong" FontSize="15" Foreground="White" Opacity="0.9"/>
+                                        <TextBlock Text="{Binding SelectedRoom.TenLoaiPhong}" FontSize="15" Foreground="White" Opacity="0.9"/>
                                     </StackPanel>
                                     <Border HorizontalAlignment="Right" VerticalAlignment="Top"
                                             CornerRadius="8" Padding="8,4" Background="{DynamicResource Brush.OverlayWhite20}">
-                                        <TextBlock x:Name="DetailTrangThai" FontSize="13"
+                                        <TextBlock Text="{Binding SelectedRoom.TenTrangThai}" FontSize="13"
                                                    Foreground="White" FontWeight="SemiBold"/>
                                     </Border>
                                 </Grid>
@@ -287,20 +290,19 @@
                             <!-- Thông tin phòng -->
                             <Grid Margin="0,0,0,8">
                                 <TextBlock Text="Sức chứa" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                <TextBlock x:Name="InfoSoNguoi" HorizontalAlignment="Right"
+                                <TextBlock Text="{Binding SelectedRoom.SoNguoiToiDa, StringFormat='{}{0} người'}" HorizontalAlignment="Right"
                                            FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextHeading}"/>
                             </Grid>
                             <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
                             <Grid Margin="0,0,0,12">
                                 <TextBlock Text="Giá/đêm" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                <TextBlock x:Name="InfoGia" HorizontalAlignment="Right"
+                                <TextBlock Text="{Binding SelectedRoom.GiaPhongText}" HorizontalAlignment="Right"
                                            FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
                             </Grid>
 
                             <!-- Tiện nghi -->
-                            <TextBlock Text="Tiện nghi" FontSize="15" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,6"/>
-                            <ItemsControl x:Name="TienNghiList" Margin="0,0,0,4">
+                            <TextBlock Text="Tiện nghi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextHeading}" Margin="0,8,0,8"/>
+                            <ItemsControl ItemsSource="{Binding RoomAmenities}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="8" Padding="8,4" Margin="0,0,0,4"
@@ -313,14 +315,15 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock x:Name="TxtNoTienNghi" Text="Chưa có tiện nghi"
+                            <TextBlock Text="Chưa có tiện nghi"
+                                       Visibility="{Binding RoomAmenities.Count, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=0}"
                                        FontSize="14" Foreground="{DynamicResource Brush.TextDisabled}" Margin="0,0,0,12"/>
 
                             <!-- Divider -->
                             <Separator Background="{DynamicResource Brush.Border}" Margin="0,4,0,16"/>
 
                             <!-- ══ PANEL ĐÃ ĐẶT TRƯỚC (PTT05) ══ -->
-                            <StackPanel x:Name="PanelDaDatTruoc" Visibility="Collapsed" Margin="0,0,0,12">
+                            <StackPanel x:Name="PanelDaDatTruoc" Visibility="{Binding IsRoomReserved, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,12">
 
                                 <TextBlock Text="📋  Thông tin đặt trước"
                FontSize="16" FontWeight="Bold"
@@ -330,7 +333,7 @@
                                 <Grid Margin="0,0,0,8">
                                     <TextBlock Text="Khách hàng"
                    FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock x:Name="LblTenKhachDat"
+                                    <TextBlock Text="{Binding ReservedGuestName}"
                    HorizontalAlignment="Right"
                    FontSize="15" FontWeight="SemiBold"
                    Foreground="{DynamicResource Brush.Heading}"/>
@@ -341,14 +344,14 @@
                                 <Grid Margin="0,0,0,8">
                                     <TextBlock Text="Ngày nhận"
                    FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock x:Name="LblNgayNhanDat"
+                                    <TextBlock Text="{Binding ReservedNgayNhan}"
                    HorizontalAlignment="Right"
                    FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
                                 </Grid>
                                 <Grid Margin="0,0,0,8">
                                     <TextBlock Text="Ngày trả"
                    FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock x:Name="LblNgayTraDat"
+                                    <TextBlock Text="{Binding ReservedNgayTra}"
                    HorizontalAlignment="Right"
                    FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
                                 </Grid>
@@ -358,15 +361,14 @@
                                 <Grid Margin="0,0,0,16">
                                     <TextBlock Text="Tiền đặt cọc"
                    FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock x:Name="LblTienCoc"
+                                    <TextBlock Text="{Binding ReservedTienCoc}"
                    HorizontalAlignment="Right"
                    FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
                                 </Grid>
 
                                 <!-- Nút xác nhận nhận phòng -->
-                                <Button x:Name="BtnKhachNhanPhong" Height="44"
+                                <Button Command="{Binding CheckInCommand}" Height="44"
             FontSize="16" FontWeight="SemiBold" Cursor="Hand"
-            Click="BtnKhachNhanPhong_Click"
             Style="{DynamicResource MacFluent.ButtonPrimary}">
                                     <TextBlock Text="✅  Khách đã nhận phòng"
                    FontSize="16" FontWeight="SemiBold" Foreground="White"/>
@@ -375,7 +377,7 @@
                             </StackPanel>
 
 <!-- ══ FORM ĐẶT PHÒNG ══ -->
-                            <StackPanel x:Name="PanelDatPhong">
+                            <StackPanel x:Name="PanelDatPhong" Visibility="{Binding IsRoomAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                                 <TextBlock Text="📅  Đặt phòng" FontSize="16" FontWeight="Bold"
                                            Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
@@ -385,58 +387,62 @@
                                            Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                 <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                                         Height="36" Margin="0,0,0,4">
-                                    <TextBox x:Name="TxtTenKH" BorderThickness="0" Padding="10,0"
+                                    <TextBox BorderThickness="0" Padding="10,0"
                                              VerticalAlignment="Center" FontSize="15"
-                                             TextChanged="TxtTenKH_TextChanged"/>
+                                             Text="{Binding KhachHangSearchText, UpdateSourceTrigger=PropertyChanged}"/>
                                 </Border>
-                                <ListBox x:Name="ListKhach" MaxHeight="100" Visibility="Collapsed"
-                                         SelectionChanged="ListKhach_SelectionChanged"
+                                <ListBox ItemsSource="{Binding KhachHangResults}" MaxHeight="100" 
+                                         Visibility="{Binding KhachHangResults.Count, Converter={StaticResource StringToVisibilityConverter}}"
+                                         SelectedItem="{Binding SelectedKhach}"
                                          DisplayMemberPath="TenKhachHang"
                                          BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" Margin="0,0,0,4"/>
-                                <TextBlock x:Name="TxtKhachInfo" FontSize="13" Foreground="{DynamicResource Brush.BrandPrimary}"
-                                           Visibility="Collapsed" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                                
+                                <TextBlock Text="{Binding SelectedKhach.TenKhachHang}" FontSize="13" Foreground="{DynamicResource Brush.BrandPrimary}"
+                                           Visibility="{Binding SelectedKhach, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,8" TextWrapping="Wrap"/>
 
                                 <!-- Khách mới -->
                                 <Expander Header="➕ Khách mới" Margin="0,0,0,10">
                                     <StackPanel Margin="0,8,0,0">
                                         <TextBlock Text="Số điện thoại" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                         <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="34" Margin="0,0,0,8">
-                                            <TextBox x:Name="TxtDienThoai" BorderThickness="0" Padding="10,0"
+                                            <TextBox Text="{Binding NewKhachSdt, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
                                                      VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
-                                        <TextBlock Text="CCCD" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="34">
-                                            <TextBox x:Name="TxtCCCD" BorderThickness="0" Padding="10,0"
+                                        <TextBlock Text="CCCD" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"
+                                                   Visibility="{Binding IsKhachTrongNuoc, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="34"
+                                                Visibility="{Binding IsKhachTrongNuoc, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBox Text="{Binding NewKhachCccd, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
                                                      VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
 
                                         <TextBlock Text="Địa chỉ" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                         <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
-                                            <TextBox x:Name="TxtDiaChi" BorderThickness="0" Padding="10,0"
+                                            <TextBox Text="{Binding NewKhachDiaChi, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
                                    VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
 
-                                        <TextBlock Text="Số Passport" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
-                                            <TextBox x:Name="TxtPassport" BorderThickness="0" Padding="10,0"
-                                   VerticalAlignment="Center" FontSize="15"/>
+                                        <TextBlock Text="Số Passport" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"
+                                                   Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34"
+                                                Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBox Text="{Binding NewKhachPassport, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
+                                                     VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
 
-                                        <TextBlock Text="Số Visa" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
-                                            <TextBox x:Name="TxtVisa" BorderThickness="0" Padding="10,0"
-                                   VerticalAlignment="Center" FontSize="15"/>
+                                        <TextBlock Text="Số Visa" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"
+                                                   Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34"
+                                                Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBox Text="{Binding NewKhachVisa, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
+                                                     VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
 
                                         <TextBlock Text="Quốc tịch" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"  />
                                         <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
-                                            <TextBox x:Name="TxtQuocTich" BorderThickness="0" Padding="10,0"
+                                            <TextBox Text="{Binding NewKhachQuocTich, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
                                    VerticalAlignment="Center" FontSize="15" />
                                         </Border>
-
-
-
-
                                     </StackPanel>
                                 </Expander>
 
@@ -450,14 +456,12 @@
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Ngày nhận" FontSize="14" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                                        <DatePicker x:Name="DpNgayNhan" Height="34" FontSize="14"
-                                                    SelectedDateChanged="DatePicker_Changed"/>
+                                        <DatePicker SelectedDate="{Binding NgayNhan}" Height="34" FontSize="14"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Ngày trả" FontSize="14" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                                        <DatePicker x:Name="DpNgayTra" Height="34" FontSize="14"
-                                                    SelectedDateChanged="DatePicker_Changed"/>
+                                        <DatePicker SelectedDate="{Binding NgayTra}" Height="34" FontSize="14"/>
                                     </StackPanel>
                                 </Grid>
 
@@ -471,14 +475,13 @@
 
                                 <!-- Tính giá -->
                                 <Border CornerRadius="8" Padding="12,8" Background="{DynamicResource Brush.SurfaceSoft}" Margin="0,0,0,14">
-                                    <TextBlock x:Name="TxtTinhGia" FontSize="14" Foreground="{DynamicResource Brush.Heading}"
+                                    <TextBlock Text="{Binding TotalPriceText, StringFormat='{}Tổng tiền tạm tính: {0}'}" FontSize="14" Foreground="{DynamicResource Brush.Heading}"
                                                TextWrapping="Wrap"/>
                                 </Border>
 
                                 <!-- Nút xác nhận -->
-                                <Button x:Name="BtnDatPhong" Height="44"
+                                <Button Command="{Binding DatPhongCommand}" Height="44"
                                         FontSize="16" FontWeight="SemiBold" Cursor="Hand"
-                                        Click="BtnDatPhong_Click"
                                         Style="{DynamicResource MacFluent.ButtonPrimary}">
                                     <TextBlock Text="📅  Xác nhận đặt phòng"
                                                FontSize="16" FontWeight="SemiBold" Foreground="White"/>
@@ -487,9 +490,9 @@
                             </StackPanel>
 
                             <!-- Thông báo phòng không trống -->
-                            <Border x:Name="PanelKhongTrong" Visibility="Collapsed"
+                            <Border x:Name="PanelKhongTrong" Visibility="{Binding IsRoomOccupied, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     CornerRadius="10" Padding="14,10" Background="{DynamicResource Brush.WarningSurface}">
-                                <TextBlock x:Name="TxtKhongTrong" FontSize="15" Foreground="{DynamicResource Brush.WarningText}"
+                                <TextBlock Text="{Binding SelectedRoom.TenTrangThai, StringFormat='Trạng thái: {0}'}" FontSize="15" Foreground="{DynamicResource Brush.WarningText}"
                                            TextWrapping="Wrap" TextAlignment="Center"/>
                             </Border>
 

@@ -9,18 +9,29 @@ namespace QuanLyKhachSan_PhamTanLoi.Helpers;
 
 public static class PrintHelper
 {
+    public static bool PreviewAndPrint(FlowDocument doc, string jobName, Window? owner = null)
+    {
+        var preview = new PrintPreviewDialog(doc, jobName);
+        preview.Owner = owner ?? Application.Current.MainWindow;
+        return preview.ShowDialog() == true;
+    }
+
+    public static FlowDocument BuildPOSInvoiceDocument(HoaDon hd, string khName, string staffName)
+        => CreatePOSDocument(hd, khName, staffName, "HÓA ĐƠN THANH TOÁN");
+
+    public static FlowDocument BuildTamTinhDocument(HoaDon hd, string khName, string staffName)
+        => CreatePOSDocument(hd, khName, staffName, "PHIẾU TẠM TÍNH");
+
     /// <summary>
     /// Thực hiện in hóa đơn POS (mặc định mở Preview trước)
     /// </summary>
     public static void PrintPOSInvoice(HoaDon hd, string khName, string staffName, bool showPreview = true)
     {
-        FlowDocument doc = CreatePOSDocument(hd, khName, staffName);
+        FlowDocument doc = BuildPOSInvoiceDocument(hd, khName, staffName);
 
         if (showPreview)
         {
-            var preview = new PrintPreviewDialog(doc, $"HD_{hd.MaHoaDon}");
-            preview.Owner = Application.Current.MainWindow;
-            preview.ShowDialog();
+            PreviewAndPrint(doc, $"HD_{hd.MaHoaDon}");
         }
         else
         {
@@ -28,6 +39,27 @@ public static class PrintHelper
             if (pd.ShowDialog() == true)
             {
                 pd.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, $"InHoaDon_{hd.MaHoaDon}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Tạm in (phiếu tạm tính) cho hóa đơn chưa thanh toán.
+    /// </summary>
+    public static void PrintTamTinh(HoaDon hd, string khName, string staffName, Window? owner = null, bool showPreview = true)
+    {
+        FlowDocument doc = BuildTamTinhDocument(hd, khName, staffName);
+
+        if (showPreview)
+        {
+            PreviewAndPrint(doc, $"TAM_TINH_{hd.MaHoaDon}", owner);
+        }
+        else
+        {
+            PrintDialog pd = new PrintDialog();
+            if (pd.ShowDialog() == true)
+            {
+                pd.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, $"TamTinh_{hd.MaHoaDon}");
             }
         }
     }
@@ -57,7 +89,7 @@ public static class PrintHelper
         preview.ShowDialog();
     }
 
-    private static FlowDocument CreatePOSDocument(HoaDon hd, string khName, string staffName)
+    private static FlowDocument CreatePOSDocument(HoaDon hd, string khName, string staffName, string title)
     {
         // Tạo tài liệu in khổ 80mm (xấp xỉ 300 units)
         FlowDocument doc = new FlowDocument
@@ -81,7 +113,7 @@ public static class PrintHelper
         doc.Blocks.Add(new Paragraph(new Run("------------------------------------------")) { TextAlignment = TextAlignment.Center });
 
         // Title
-        doc.Blocks.Add(new Paragraph(new Run("HÓA ĐƠN THANH TOÁN")) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center });
+        doc.Blocks.Add(new Paragraph(new Run(title)) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center });
         doc.Blocks.Add(new Paragraph(new Run($"Số: {hd.MaHoaDon}\nNgày: {DateTime.Now:dd/MM/yyyy HH:mm}")) { TextAlignment = TextAlignment.Center });
         doc.Blocks.Add(new Paragraph(new Run("------------------------------------------")) { TextAlignment = TextAlignment.Center });
 

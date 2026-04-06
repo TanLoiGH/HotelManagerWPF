@@ -1,5 +1,4 @@
 using System.Windows;
-using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
@@ -11,6 +10,9 @@ namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 /// </summary>
 public class CaiDatViewModel : BaseViewModel
 {
+    private readonly EmployeeService _employeeSvc;
+    private readonly AuthService _authSvc;
+
     // Cài đặt hệ thống (lưu vào appsettings.json)
     private string _hotelName = "";
     private string _hotelAddress = "";
@@ -36,17 +38,20 @@ public class CaiDatViewModel : BaseViewModel
     private string _matKhauMoi = "";
     private string _xacNhanMatKhau = "";
 
-    public CaiDatViewModel()
+    public CaiDatViewModel(EmployeeService employeeSvc, AuthService authSvc)
     {
+        _employeeSvc = employeeSvc;
+        _authSvc = authSvc;
+
         SaveSystemCommand = new RelayCommand(_ => ExecuteSaveSystem());
         ReloadSystemCommand = new RelayCommand(_ => LoadSystemSettings());
 
-        UpdateInfoCommand = new RelayCommand(_ => ExecuteUpdateInfo(), _ => CanUpdate);
-        ChangePasswordCommand = new RelayCommand(_ => ExecuteChangePassword(), _ => CanChangePassword);
+        UpdateInfoCommand = new RelayCommand(_ => ExecuteUpdateInfoAsync(), _ => CanUpdate);
+        ChangePasswordCommand = new RelayCommand(_ => ExecuteChangePasswordAsync(), _ => CanChangePassword);
         CancelCommand = new RelayCommand(_ => ExecuteCancel());
 
         LoadSystemSettings();
-        LoadCurrentUserInfo();
+        _ = LoadCurrentUserInfoAsync();
     }
 
     public string HotelName
@@ -258,7 +263,7 @@ public class CaiDatViewModel : BaseViewModel
         }
     }
 
-    private void LoadCurrentUserInfo()
+    private async Task LoadCurrentUserInfoAsync()
     {
         string? maNv = App.CurrentUser?.MaNhanVien ?? AppSession.MaNhanVien;
         if (string.IsNullOrWhiteSpace(maNv))
@@ -270,9 +275,7 @@ public class CaiDatViewModel : BaseViewModel
 
         try
         {
-            using var db = new QuanLyKhachSanContext();
-
-            var nv = db.NhanViens.FirstOrDefault(x => x.MaNhanVien == maNv);
+            var nv = await _employeeSvc.LayNhanVienAsync(maNv);
             if (nv == null)
             {
                 MessageBox.Show("Không tìm thấy thông tin nhân viên.", "Lỗi",
@@ -280,20 +283,8 @@ public class CaiDatViewModel : BaseViewModel
                 return;
             }
 
-            // Account (TaiKhoan) theo user đang đăng nhập. Nếu TenDangNhap chưa có, fallback theo account active.
             string? tenDn = AppSession.TenDangNhap;
-            var tkQuery = db.TaiKhoans.Where(t => t.MaNhanVien == maNv && t.IsActive == true);
-            if (!string.IsNullOrWhiteSpace(tenDn))
-                tkQuery = tkQuery.Where(t => t.TenDangNhap == tenDn);
-
-            var tk = tkQuery
-                .Select(t => new
-                {
-                    t.TenDangNhap,
-                    t.MaQuyen,
-                    TenQuyen = t.MaQuyenNavigation != null ? t.MaQuyenNavigation.TenQuyen : null
-                })
-                .FirstOrDefault();
+            var tk = await _employeeSvc.LayThongTinTaiKhoanAsync(maNv, tenDn);
 
             MaNhanVien = nv.MaNhanVien;
             HoTen = nv.TenNhanVien ?? "";
@@ -315,7 +306,7 @@ public class CaiDatViewModel : BaseViewModel
         }
     }
 
-    private void ExecuteUpdateInfo()
+    private async void ExecuteUpdateInfoAsync()
     {
         if (!CanUpdate)
         {
@@ -326,36 +317,7 @@ public class CaiDatViewModel : BaseViewModel
 
         try
         {
-            using var db = new QuanLyKhachSanContext();
-            var nv = db.NhanViens.FirstOrDefault(x => x.MaNhanVien == MaNhanVien);
-            if (nv == null)
-            {
-                MessageBox.Show("Không tìm thấy nhân viên.", "Lỗi",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            // Validate trùng SĐT/email (ngoại trừ chính mình)
-            if (db.NhanViens.Any(x => x.MaNhanVien != MaNhanVien && x.DienThoai == SoDienThoai))
-            {
-                MessageBox.Show("Số điện thoại đã được sử dụng bởi nhân viên khác.", "Thông báo",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Email) && db.NhanViens.Any(x => x.MaNhanVien != MaNhanVien && x.Email == Email))
-            {
-                MessageBox.Show("Email đã được sử dụng bởi nhân viên khác.", "Thông báo",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            nv.TenNhanVien = HoTen;
-            nv.DienThoai = SoDienThoai;
-            nv.Email = string.IsNullOrWhiteSpace(Email) ? null : Email;
-            nv.DiaChi = string.IsNullOrWhiteSpace(DiaChi) ? null : DiaChi;
-
-            db.SaveChanges();
+            await _employeeSvc.CapNhatThongTinCaNhanAsync(MaNhanVien, HoTen, SoDienThoai, Email, DiaChi);
 
             // Sync session/global user
             AppSession.TenNhanVien = HoTen;
@@ -372,7 +334,7 @@ public class CaiDatViewModel : BaseViewModel
         }
     }
 
-    private void ExecuteChangePassword()
+    private async void ExecuteChangePasswordAsync()
     {
         if (!CanChangePassword)
         {
@@ -397,43 +359,8 @@ public class CaiDatViewModel : BaseViewModel
 
         try
         {
-            using var db = new QuanLyKhachSanContext();
-
-            // Ưu tiên đúng tài khoản đang đăng nhập (TenDangNhap), fallback active account.
             string? tenDn = string.IsNullOrWhiteSpace(TenDangNhap) ? AppSession.TenDangNhap : TenDangNhap;
-            var tkQuery = db.TaiKhoans.Where(t => t.MaNhanVien == MaNhanVien && t.IsActive == true);
-            if (!string.IsNullOrWhiteSpace(tenDn))
-                tkQuery = tkQuery.Where(t => t.TenDangNhap == tenDn);
-
-            var account = tkQuery.FirstOrDefault() ?? db.TaiKhoans.FirstOrDefault(t => t.MaNhanVien == MaNhanVien);
-            if (account == null)
-            {
-                MessageBox.Show("Không tìm thấy tài khoản.", "Lỗi",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var stored = account.MatKhau ?? "";
-            bool ok;
-            if (!string.IsNullOrEmpty(stored) && stored.StartsWith("HASH2:"))
-            {
-                ok = PasswordHasher.Verify(MatKhauCu, stored);
-            }
-            else
-            {
-                // Hỗ trợ legacy plaintext một lần để nâng cấp sang HASH2
-                ok = !string.IsNullOrEmpty(stored) && stored == MatKhauCu;
-            }
-
-            if (!ok)
-            {
-                MessageBox.Show("Mật khẩu cũ không đúng.", "Thông báo",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            account.MatKhau = PasswordHasher.Hash(MatKhauMoi);
-            db.SaveChanges();
+            await _authSvc.DoiMatKhauAsync(MaNhanVien, tenDn, MatKhauCu, MatKhauMoi);
 
             MatKhauCu = "";
             MatKhauMoi = "";
@@ -455,6 +382,6 @@ public class CaiDatViewModel : BaseViewModel
         MatKhauMoi = "";
         XacNhanMatKhau = "";
         LoadSystemSettings();
-        LoadCurrentUserInfo();
+        _ = LoadCurrentUserInfoAsync();
     }
 }

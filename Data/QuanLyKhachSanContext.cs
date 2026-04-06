@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,59 +18,59 @@ public partial class QuanLyKhachSanContext : DbContext
     {
     }
 
-    public virtual DbSet<ChiPhi> ChiPhis { get; set; }
+    public virtual DbSet<ChiPhi> ChiPhis { get; set; } = null!;
 
-    public virtual DbSet<DatPhong> DatPhongs { get; set; }
+    public virtual DbSet<DatPhong> DatPhongs { get; set; } = null!;
 
-    public virtual DbSet<DatPhongChiTiet> DatPhongChiTiets { get; set; }
+    public virtual DbSet<DatPhongChiTiet> DatPhongChiTiets { get; set; } = null!;
 
-    public virtual DbSet<DichVu> DichVus { get; set; }
+    public virtual DbSet<DichVu> DichVus { get; set; } = null!;
 
-    public virtual DbSet<DichVuChiTiet> DichVuChiTiets { get; set; }
+    public virtual DbSet<DichVuChiTiet> DichVuChiTiets { get; set; } = null!;
 
-    public virtual DbSet<HoaDon> HoaDons { get; set; }
+    public virtual DbSet<HoaDon> HoaDons { get; set; } = null!;
 
-    public virtual DbSet<HoaDonChiTiet> HoaDonChiTiets { get; set; }
+    public virtual DbSet<HoaDonChiTiet> HoaDonChiTiets { get; set; } = null!;
 
-    public virtual DbSet<KhachHang> KhachHangs { get; set; }
+    public virtual DbSet<KhachHang> KhachHangs { get; set; } = null!;
 
-    public virtual DbSet<KhuyenMai> KhuyenMais { get; set; }
+    public virtual DbSet<KhuyenMai> KhuyenMais { get; set; } = null!;
 
-    public virtual DbSet<LoaiChiPhi> LoaiChiPhis { get; set; }
+    public virtual DbSet<LoaiChiPhi> LoaiChiPhis { get; set; } = null!;
 
-    public virtual DbSet<LoaiKhach> LoaiKhaches { get; set; }
+    public virtual DbSet<LoaiKhach> LoaiKhaches { get; set; } = null!;
 
-    public virtual DbSet<LoaiPhong> LoaiPhongs { get; set; }
+    public virtual DbSet<LoaiPhong> LoaiPhongs { get; set; } = null!;
 
-    public virtual DbSet<NhaCungCap> NhaCungCaps { get; set; }
+    public virtual DbSet<NhaCungCap> NhaCungCaps { get; set; } = null!;
 
-    public virtual DbSet<NhanVien> NhanViens { get; set; }
+    public virtual DbSet<NhanVien> NhanViens { get; set; } = null!;
 
-    public virtual DbSet<PhanQuyen> PhanQuyens { get; set; }
+    public virtual DbSet<PhanQuyen> PhanQuyens { get; set; } = null!;
 
-    public virtual DbSet<Phong> Phongs { get; set; }
+    public virtual DbSet<Phong> Phongs { get; set; } = null!;
 
-    public virtual DbSet<PhongTrangThai> PhongTrangThais { get; set; }
+    public virtual DbSet<PhongTrangThai> PhongTrangThais { get; set; } = null!;
 
-    public virtual DbSet<PhuongThucThanhToan> PhuongThucThanhToans { get; set; }
+    public virtual DbSet<PhuongThucThanhToan> PhuongThucThanhToans { get; set; } = null!;
 
-    public virtual DbSet<TaiKhoan> TaiKhoans { get; set; }
+    public virtual DbSet<TaiKhoan> TaiKhoans { get; set; } = null!;
 
-    public virtual DbSet<ThanhToan> ThanhToans { get; set; }
+    public virtual DbSet<ThanhToan> ThanhToans { get; set; } = null!;
 
-    public virtual DbSet<TienNghi> TienNghis { get; set; }
+    public virtual DbSet<TienNghi> TienNghis { get; set; } = null!;
 
-    public virtual DbSet<TienNghiDanhMuc> TienNghiDanhMucs { get; set; }
+    public virtual DbSet<TienNghiDanhMuc> TienNghiDanhMucs { get; set; } = null!;
 
-    public virtual DbSet<TienNghiPhong> TienNghiPhongs { get; set; }
+    public virtual DbSet<TienNghiPhong> TienNghiPhongs { get; set; } = null!;
 
-    public virtual DbSet<TienNghiTrangThai> TienNghiTrangThais { get; set; }
+    public virtual DbSet<TienNghiTrangThai> TienNghiTrangThais { get; set; } = null!;
 
-    public virtual DbSet<TrangThaiNhanVien> TrangThaiNhanViens { get; set; }
+    public virtual DbSet<TrangThaiNhanVien> TrangThaiNhanViens { get; set; } = null!;
 
-    public DbSet<VwDoanhThuThang> VwDoanhThuThangs { get; set; }
-    public DbSet<VwCoCauChiPhi> VwCoCauChiPhis { get; set; }
-    public DbSet<VwTopDichVu> VwTopDichVus { get; set; }
+    public DbSet<VwDoanhThuThang> VwDoanhThuThangs { get; set; } = null!;
+    public DbSet<VwCoCauChiPhi> VwCoCauChiPhis { get; set; } = null!;
+    public DbSet<VwTopDichVu> VwTopDichVus { get; set; } = null!;
 
 
 

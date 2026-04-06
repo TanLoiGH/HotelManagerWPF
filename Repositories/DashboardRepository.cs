@@ -36,10 +36,10 @@ namespace QuanLyKhachSan_PhamTanLoi.Repositories
                 .OrderByDescending(x => x.TongSuDung)
                 .Take(5)
                 .ToListAsync();
-    
 
-
-    }
 
 
     }
+
+
+}

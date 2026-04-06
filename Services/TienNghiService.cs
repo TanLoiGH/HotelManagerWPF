@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
@@ -9,6 +10,88 @@ public class TienNghiService
 {
     private readonly QuanLyKhachSanContext _db;
     public TienNghiService(QuanLyKhachSanContext db) => _db = db;
+
+    public async Task<List<TienNghiTrangThai>> LayTrangThaiTienNghiAsync()
+        => await _db.TienNghiTrangThais
+            .AsNoTracking()
+            .OrderBy(t => t.MaTrangThai)
+            .ToListAsync();
+
+    public async Task<List<NhaCungCap>> LayNhaCungCapDangHoatDongAsync()
+        => await _db.NhaCungCaps
+            .AsNoTracking()
+            .Where(n => n.IsActive == true)
+            .OrderBy(n => n.TenNcc)
+            .ToListAsync();
+
+    public async Task<List<TienNghi>> LayDanhMucTienNghiAsync()
+        => await _db.TienNghis
+            .AsNoTracking()
+            .Include(t => t.MaNccNavigation)
+            .Include(t => t.TienNghiPhongs)
+            .OrderBy(t => t.MaTienNghi)
+            .ToListAsync();
+
+    public async Task TaoMoiTienNghiAsync(
+        string tenTienNghi,
+        string? maNcc,
+        DateOnly? hanBaoHanh,
+        int tongSoLuong,
+        string? donViTinh,
+        bool isActive)
+    {
+        var lastMa = await _db.TienNghis
+            .OrderByDescending(t => t.MaTienNghi)
+            .Select(t => t.MaTienNghi)
+            .FirstOrDefaultAsync();
+
+        _db.TienNghis.Add(new TienNghi
+        {
+            MaTienNghi = MaHelper.Next("TN", lastMa),
+            TenTienNghi = tenTienNghi,
+            MaNcc = maNcc,
+            HanBaoHanh = hanBaoHanh,
+            TongSoLuong = tongSoLuong,
+            DonViTinh = donViTinh,
+            IsActive = isActive,
+        });
+
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task CapNhatTienNghiAsync(
+        string maTienNghi,
+        string tenTienNghi,
+        string? maNcc,
+        DateOnly? hanBaoHanh,
+        int tongSoLuong,
+        string? donViTinh,
+        bool isActive)
+    {
+        var item = await _db.TienNghis.FindAsync(maTienNghi);
+        if (item == null) return;
+
+        item.TenTienNghi = tenTienNghi;
+        item.MaNcc = maNcc;
+        item.HanBaoHanh = hanBaoHanh;
+        item.TongSoLuong = tongSoLuong;
+        item.DonViTinh = donViTinh;
+        item.IsActive = isActive;
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task XoaTienNghiAsync(string maTienNghi)
+    {
+        bool used = await _db.TienNghiPhongs.AnyAsync(t => t.MaTienNghi == maTienNghi);
+        if (used)
+            throw new InvalidOperationException("Tiện nghi đã được gán vào phòng, không thể xóa. Hãy tắt Hoạt động (Off).");
+
+        var item = await _db.TienNghis.FindAsync(maTienNghi);
+        if (item == null) return;
+
+        _db.TienNghis.Remove(item);
+        await _db.SaveChangesAsync();
+    }
 
     public async Task CapNhatTrangThaiAsync(
         string maPhong, string maTienNghi, string maTrangThai)
@@ -23,7 +106,7 @@ public class TienNghiService
             {
                 if ((tienNghi.TongSoLuong ?? 0) <= 0)
                     throw new InvalidOperationException($"Tiện nghi {tienNghi.TenTienNghi} đã hết trong kho.");
-                
+
                 tienNghi.TongSoLuong--;
             }
 
@@ -42,7 +125,7 @@ public class TienNghiService
             {
                 // Không cộng lại kho vì đã hỏng/mất, nhưng có thể cần logic khác
             }
-            
+
             item.MaTrangThai = maTrangThai;
         }
 

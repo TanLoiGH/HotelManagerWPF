@@ -3,13 +3,11 @@ using QuestPDF.Fluent;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 
 namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
 {
-    public class DashboardViewModel : INotifyPropertyChanged
+    public class DashboardViewModel
     {
         public DashboardData Data { get; set; } = new();
 
@@ -24,7 +22,6 @@ namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
 
         public int TongPhong => Data.PhongStats.Values.Sum();
 
-        public event PropertyChangedEventHandler? PropertyChanged;
         public void ExportDashboardToPdf(DashboardViewModel vm)
         {
             try
@@ -36,7 +33,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi xuất báo cáo: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Lỗi xuất báo cáo: " + ex.Message);
             }
         }
     }

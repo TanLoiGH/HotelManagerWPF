@@ -11,6 +11,64 @@ public class DatPhongService
     private readonly QuanLyKhachSanContext _db;
     public DatPhongService(QuanLyKhachSanContext db) => _db = db;
 
+    private async Task TaoHoaDonNeuChuaCoAsync(string maDatPhong, string maNhanVien)
+    {
+        bool hdExist = await _db.HoaDons
+            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đà hủy");
+
+        if (hdExist) return;
+
+        var chiTiets = await _db.DatPhongChiTiets
+            .Where(c => c.MaDatPhong == maDatPhong)
+            .ToListAsync();
+
+        if (chiTiets.Count == 0)
+            throw new InvalidOperationException("Không có phòng nào trong đặt phòng.");
+
+        var dp = await _db.DatPhongs.FindAsync(maDatPhong);
+        decimal tienCoc = dp?.TienCoc ?? 0;
+
+        decimal tienPhong = chiTiets
+            .Sum(c => (decimal)(c.NgayTra - c.NgayNhan).TotalDays * c.DonGia);
+
+        var lastMa = await _db.HoaDons
+            .OrderByDescending(h => h.MaHoaDon)
+            .Select(h => h.MaHoaDon)
+            .FirstOrDefaultAsync();
+
+        var newMaHd = MaHelper.Next("HD", lastMa);
+        decimal vatPercent = 10;
+
+        var hd = new HoaDon
+        {
+            MaHoaDon = newMaHd,
+            MaDatPhong = maDatPhong,
+            MaNhanVien = maNhanVien,
+            NgayLap = DateTime.Now,
+            TienPhong = tienPhong,
+            TienDichVu = 0,
+            Vat = vatPercent,
+            MaKhuyenMai = null,
+            TongThanhToan = (tienPhong * (1 + vatPercent / 100m)) - tienCoc,
+            TrangThai = "Chưa thanh toán"
+        };
+
+        _db.HoaDons.Add(hd);
+
+        foreach (var ct in chiTiets)
+        {
+            _db.HoaDonChiTiets.Add(new HoaDonChiTiet
+            {
+                MaHoaDon = hd.MaHoaDon,
+                MaDatPhong = maDatPhong,
+                MaPhong = ct.MaPhong,
+                SoDem = Math.Max(1, (int)(ct.NgayTra - ct.NgayNhan).TotalDays)
+            });
+        }
+
+        await _db.SaveChangesAsync();
+    }
+
     private async Task EnsurePhongAvailableAsync(string maPhong, DateTime ngayNhan, DateTime ngayTra, string? excludeMaDatPhong = null)
     {
         bool conflict = await _db.DatPhongChiTiets
@@ -94,6 +152,8 @@ public class DatPhongService
 
     public async Task CheckInAsync(string maDatPhong, string maNhanVienLeTan)
     {
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
         var dp = await _db.DatPhongs
             .Include(d => d.DatPhongChiTiets)
             .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
@@ -111,7 +171,12 @@ public class DatPhongService
             var phong = await _db.Phongs.FindAsync(ct.MaPhong);
             if (phong != null) phong.MaTrangThaiPhong = "PTT02";
         }
+
         await _db.SaveChangesAsync();
+
+        await TaoHoaDonNeuChuaCoAsync(maDatPhong, maNhanVienLeTan);
+
+        await tx.CommitAsync();
     }
 
     public async Task HuyDatPhongAsync(string maDatPhong, string lyDo, decimal tienHoanTra = 0)
@@ -218,7 +283,6 @@ public class DatPhongService
         };
     }
 }
-
 
 
 

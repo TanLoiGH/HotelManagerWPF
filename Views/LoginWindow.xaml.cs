@@ -1,4 +1,6 @@
-﻿using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
 using System.Windows.Input;
 
@@ -6,10 +8,13 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class LoginWindow : Window
 {
+    private readonly QuanLyKhachSanContext _db;
+
     public LoginWindow()
     {
         InitializeComponent();
-        var vm = new LoginViewModel();
+        _db = new QuanLyKhachSanContext();
+        var vm = new LoginViewModel(new AuthService(_db));
         vm.LoginSuccess += () => DialogResult = true;
         DataContext = vm;
     }
@@ -58,6 +63,12 @@ public partial class LoginWindow : Window
 
         // Fallback: nếu LoginWindow được mở như window thường
         Close();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        _db.Dispose();
     }
 }
 

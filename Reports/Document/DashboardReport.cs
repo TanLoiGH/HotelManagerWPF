@@ -22,7 +22,8 @@ public class DashboardReport : IDocument
 
             page.Header().Element(ComposeHeader);
             page.Content().Element(ComposeContent);
-            page.Footer().AlignCenter().Text(x => {
+            page.Footer().AlignCenter().Text(x =>
+            {
                 x.Span("Trang ");
                 x.CurrentPageNumber();
             });
@@ -89,10 +90,12 @@ public class DashboardReport : IDocument
 
             // 3. Trạng thái phòng (Tổng hợp)
             col.Item().PaddingTop(20).Text($"TỔNG QUAN PHÒNG (Tổng: {_viewModel.TongPhong})").SemiBold().FontSize(14);
-            col.Item().PaddingTop(10).Row(row => {
+            col.Item().PaddingTop(10).Row(row =>
+            {
                 foreach (var status in _viewModel.PhongStatus)
                 {
-                    row.RelativeItem().Column(c => {
+                    row.RelativeItem().Column(c =>
+                    {
                         c.Item().AlignCenter().Text(status.TenTT).FontSize(9);
                         c.Item().AlignCenter().Text(status.SoPhong.ToString()).FontSize(12).SemiBold();
                     });

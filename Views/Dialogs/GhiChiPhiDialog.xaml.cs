@@ -5,8 +5,8 @@
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Services;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
@@ -37,12 +37,9 @@ public partial class GhiChiPhiDialog : Window
     private async Task LoadNhaCungCapAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        var nccs = await db.NhaCungCaps
-            .Where(n => n.IsActive == true)
-            .Select(n => new { n.MaNcc, n.TenNcc })
-            .ToListAsync();
-
-        CboNCC.ItemsSource = nccs;
+        var nccSvc = new NhaCungCapService(db);
+        var nccs = await nccSvc.LayDanhSachAsync();
+        CboNCC.ItemsSource = nccs.Where(n => n.IsActive ?? false).Select(n => new { n.MaNcc, n.TenNcc }).ToList();
         CboNCC.DisplayMemberPath = "TenNcc";
         CboNCC.SelectedValuePath = "MaNcc";
     }
@@ -51,12 +48,9 @@ public partial class GhiChiPhiDialog : Window
     private async Task LoadPhongAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        var phongs = await db.Phongs
-            .Select(p => new { p.MaPhong })
-            .ToListAsync();
+        var roomSvc = new RoomService(db);
+        var phongs = await roomSvc.LayDanhSachMaPhongAsync();
         CboPhong.ItemsSource = phongs;
-        CboPhong.DisplayMemberPath = "MaPhong";
-        CboPhong.SelectedValuePath = "MaPhong";
     }
 
     private void BtnLuu_Click(object sender, RoutedEventArgs e)

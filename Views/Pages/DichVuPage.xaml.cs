@@ -1,10 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -37,17 +36,16 @@ public partial class DichVuPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        _allDv = await db.DichVus
-            .OrderBy(d => d.TenDichVu)
-            .Select(d => new ServiceRow
-            {
-                MaDichVu = d.MaDichVu,
-                TenDichVu = d.TenDichVu,
-                Gia = d.Gia ?? 0,
-                DonViTinh = d.DonViTinh ?? "",
-                IsActive = d.IsActive,
-            })
-            .ToListAsync();
+        var dvSvc = new DichVuService(db);
+        var items = await dvSvc.LayDanhSachAsync();
+        _allDv = items.Select(d => new ServiceRow
+        {
+            MaDichVu = d.MaDichVu,
+            TenDichVu = d.TenDichVu,
+            Gia = d.Gia ?? 0,
+            DonViTinh = d.DonViTinh ?? "",
+            IsActive = d.IsActive,
+        }).ToList();
 
         ApplyFilter();
     }
@@ -115,36 +113,26 @@ public partial class DichVuPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var dvSvc = new DichVuService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.DichVus
-                    .OrderByDescending(d => d.MaDichVu)
-                    .Select(d => d.MaDichVu)
-                    .FirstOrDefaultAsync();
-
-                db.DichVus.Add(new DichVu
-                {
-                    MaDichVu = MaHelper.Next("DV", lastMa),
-                    TenDichVu = ten,
-                    Gia = gia,
-                    DonViTinh = TxtDonVi.Text.Trim(),
-                    IsActive = ChkActive.IsChecked ?? true,
-                });
+                await dvSvc.TaoMoiAsync(
+                    ten,
+                    gia,
+                    TxtDonVi.Text.Trim(),
+                    ChkActive.IsChecked ?? true);
             }
             else if (_selected != null)
             {
-                var dv = await db.DichVus.FindAsync(_selected.MaDichVu);
-                if (dv != null)
-                {
-                    dv.TenDichVu = ten;
-                    dv.Gia = gia;
-                    dv.DonViTinh = TxtDonVi.Text.Trim();
-                    dv.IsActive = ChkActive.IsChecked ?? true;
-                }
+                await dvSvc.CapNhatAsync(
+                    _selected.MaDichVu,
+                    ten,
+                    gia,
+                    TxtDonVi.Text.Trim(),
+                    ChkActive.IsChecked ?? true);
             }
 
-            await db.SaveChangesAsync();
             await LoadAsync();
 
             PanelForm.Visibility = Visibility.Collapsed;
@@ -166,25 +154,10 @@ public partial class DichVuPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var dv = await db.DichVus.FindAsync(_selected.MaDichVu);
-            if (dv != null)
-            {
-                // Nếu đã có giao dịch → chỉ tắt, không xóa
-                bool coGiaoDich = await db.DichVuChiTiets
-                    .AnyAsync(d => d.MaDichVu == dv.MaDichVu);
-
-                if (coGiaoDich)
-                {
-                    dv.IsActive = false;
-                    ConfirmHelper.ShowInfo("Dịch vụ đã có giao dịch — đã chuyển sang trạng thái Tắt thay vì xóa.");
-                }
-                else
-                {
-                    db.DichVus.Remove(dv);
-                }
-
-                await db.SaveChangesAsync();
-            }
+            var dvSvc = new DichVuService(db);
+            bool daTat = await dvSvc.XoaHoacTatAsync(_selected.MaDichVu);
+            if (daTat)
+                ConfirmHelper.ShowInfo("Dịch vụ đã có giao dịch — đã chuyển sang trạng thái Tắt thay vì xóa.");
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;

@@ -1,8 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -25,33 +24,17 @@ public partial class PhuongThucThanhToanPage : Page
         Loaded += async (_, _) => await LoadAsync();
     }
 
-    private static string NextPttt(string? lastMa)
-    {
-        const string prefix = "PTTT";
-        if (string.IsNullOrWhiteSpace(lastMa) || !lastMa.StartsWith(prefix))
-            return "PTTT01";
-
-        var numeric = lastMa[prefix.Length..];
-        int pad = Math.Max(2, numeric.Length);
-
-        if (int.TryParse(numeric, out int n))
-            return $"{prefix}{(n + 1).ToString($"D{pad}")}";
-
-        return "PTTT01";
-    }
-
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        _all = await db.PhuongThucThanhToans
-            .Select(p => new PhuongThucRow
-            {
-                MaPttt = p.MaPttt,
-                TenPhuongThuc = p.TenPhuongThuc,
-                SoGiaoDich = p.ThanhToans.Count(),
-            })
-            .OrderBy(p => p.MaPttt)
-            .ToListAsync();
+        var ptttSvc = new PhuongThucThanhToanService(db);
+        var items = await ptttSvc.LayDanhSachAsync();
+        _all = items.Select(p => new PhuongThucRow
+        {
+            MaPttt = p.MaPttt,
+            TenPhuongThuc = p.TenPhuongThuc,
+            SoGiaoDich = p.SoGiaoDich,
+        }).ToList();
 
         TxtTong.Text = $"{_all.Count} phương thức";
         ApplyFilter();
@@ -112,27 +95,17 @@ public partial class PhuongThucThanhToanPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var ptttSvc = new PhuongThucThanhToanService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.PhuongThucThanhToans
-                    .OrderByDescending(p => p.MaPttt)
-                    .Select(p => p.MaPttt)
-                    .FirstOrDefaultAsync();
-
-                db.PhuongThucThanhToans.Add(new PhuongThucThanhToan
-                {
-                    MaPttt = NextPttt(lastMa),
-                    TenPhuongThuc = ten
-                });
+                await ptttSvc.TaoMoiAsync(ten);
             }
             else if (_selected != null)
             {
-                var item = await db.PhuongThucThanhToans.FindAsync(_selected.MaPttt);
-                if (item != null) item.TenPhuongThuc = ten;
+                await ptttSvc.CapNhatAsync(_selected.MaPttt, ten);
             }
 
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -155,9 +128,8 @@ public partial class PhuongThucThanhToanPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var item = await db.PhuongThucThanhToans.FindAsync(_selected.MaPttt);
-            if (item != null) db.PhuongThucThanhToans.Remove(item);
-            await db.SaveChangesAsync();
+            var ptttSvc = new PhuongThucThanhToanService(db);
+            await ptttSvc.XoaHoacVoHieuHoaAsync(_selected.MaPttt);
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
@@ -170,4 +142,3 @@ public partial class PhuongThucThanhToanPage : Page
         }
     }
 }
-

@@ -1,10 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -38,19 +37,19 @@ public partial class NhaCungCapPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        _all = await db.NhaCungCaps
-            .OrderBy(n => n.TenNcc)
-            .Select(n => new NhaCungCapRow
-            {
-                MaNcc = n.MaNcc,
-                TenNcc = n.TenNcc,
-                DienThoai = n.DienThoai ?? "",
-                Email = n.Email ?? "",
-                DiaChi = n.DiaChi ?? "",
-                NguoiLienHe = n.NguoiLienHe ?? "",
-                IsActive = n.IsActive,
-            })
-            .ToListAsync();
+        var nccSvc = new NhaCungCapService(db);
+        var items = await nccSvc.LayDanhSachAsync();
+
+        _all = items.Select(n => new NhaCungCapRow
+        {
+            MaNcc = n.MaNcc,
+            TenNcc = n.TenNcc,
+            DienThoai = n.DienThoai ?? "",
+            Email = n.Email ?? "",
+            DiaChi = n.DiaChi ?? "",
+            NguoiLienHe = n.NguoiLienHe ?? "",
+            IsActive = n.IsActive,
+        }).ToList();
 
         NCCGrid.ItemsSource = _all;
         TxtTongNCC.Text = $"{_all.Count} nhà cung cấp";
@@ -112,40 +111,29 @@ public partial class NhaCungCapPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var nccSvc = new NhaCungCapService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.NhaCungCaps
-                    .OrderByDescending(n => n.MaNcc)
-                    .Select(n => n.MaNcc)
-                    .FirstOrDefaultAsync();
-
-                db.NhaCungCaps.Add(new NhaCungCap
-                {
-                    MaNcc = MaHelper.Next("NCC", lastMa),
-                    TenNcc = ten,
-                    DienThoai = TxtDienThoai.Text.Trim(),
-                    Email = TxtEmail.Text.Trim(),
-                    NguoiLienHe = TxtNguoiLienHe.Text.Trim(),
-                    DiaChi = TxtDiaChi.Text.Trim(),
-                    IsActive = ChkActive.IsChecked ?? true,
-                });
+                await nccSvc.TaoMoiAsync(
+                    ten,
+                    TxtDienThoai.Text.Trim(),
+                    TxtEmail.Text.Trim(),
+                    TxtDiaChi.Text.Trim(),
+                    TxtNguoiLienHe.Text.Trim(),
+                    ChkActive.IsChecked ?? true);
             }
             else if (_selected != null)
             {
-                var ncc = await db.NhaCungCaps.FindAsync(_selected.MaNcc);
-                if (ncc != null)
-                {
-                    ncc.TenNcc = ten;
-                    ncc.DienThoai = TxtDienThoai.Text.Trim();
-                    ncc.Email = TxtEmail.Text.Trim();
-                    ncc.NguoiLienHe = TxtNguoiLienHe.Text.Trim();
-                    ncc.DiaChi = TxtDiaChi.Text.Trim();
-                    ncc.IsActive = ChkActive.IsChecked ?? true;
-                }
+                await nccSvc.CapNhatAsync(
+                    _selected.MaNcc,
+                    ten,
+                    TxtDienThoai.Text.Trim(),
+                    TxtEmail.Text.Trim(),
+                    TxtDiaChi.Text.Trim(),
+                    TxtNguoiLienHe.Text.Trim(),
+                    ChkActive.IsChecked ?? true);
             }
-
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -166,25 +154,10 @@ public partial class NhaCungCapPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var ncc = await db.NhaCungCaps.FindAsync(_selected.MaNcc);
-            if (ncc != null)
-            {
-                // Kiểm tra có tiện nghi/chi phí liên quan
-                bool coLienQuan = await db.TienNghis.AnyAsync(t => t.MaNcc == ncc.MaNcc)
-                               || await db.ChiPhis.AnyAsync(c => c.MaNcc == ncc.MaNcc);
-
-                if (coLienQuan)
-                {
-                    ncc.IsActive = false;
-                    ConfirmHelper.ShowInfo("NCC đã có dữ liệu liên quan — đã vô hiệu hóa thay vì xóa.");
-                }
-                else
-                {
-                    db.NhaCungCaps.Remove(ncc);
-                }
-
-                await db.SaveChangesAsync();
-            }
+            var nccSvc = new NhaCungCapService(db);
+            bool daVoHieuHoa = await nccSvc.XoaHoacVoHieuHoaAsync(_selected.MaNcc);
+            if (daVoHieuHoa)
+                ConfirmHelper.ShowInfo("NCC đã có dữ liệu liên quan — đã vô hiệu hóa thay vì xóa.");
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;

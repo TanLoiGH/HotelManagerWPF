@@ -5,7 +5,6 @@ using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -20,18 +19,15 @@ public partial class TienNghiPage : Page
     private async Task LoadComboboxesAsync()
     {
         using var db = new QuanLyKhachSanContext();
+        var roomSvc = new RoomService(db);
+        var tnSvc = new TienNghiService(db);
 
         // Load CboPhong
-        var phongs = await db.Phongs
-            .OrderBy(p => p.MaPhong)
-            .Select(p => new { p.MaPhong })
-            .ToListAsync();
+        var phongs = await roomSvc.LayDanhSachMaPhongAsync();
         CboPhong.ItemsSource = phongs;
-        CboPhong.DisplayMemberPath = "MaPhong";
-        CboPhong.SelectedValuePath = "MaPhong";
 
         // Load CboTrangThai
-        var trangThais = await db.TienNghiTrangThais.ToListAsync();
+        var trangThais = await tnSvc.LayTrangThaiTienNghiAsync();
         CboTrangThai.ItemsSource = trangThais;
         CboTrangThai.DisplayMemberPath = "TenTrangThai";
         CboTrangThai.SelectedValuePath = "MaTrangThai";

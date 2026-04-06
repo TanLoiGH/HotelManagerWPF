@@ -1,10 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -56,28 +55,26 @@ public partial class KhuyenMaiPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-
-        var loaiKhach = await db.LoaiKhaches.ToListAsync();
+        var kmSvc = new KhuyenMaiService(db);
+        var loaiKhach = await kmSvc.LayLoaiKhachAsync();
         // Thêm option "Tất cả hạng"
         CboLoaiKhach.ItemsSource = loaiKhach;
         CboLoaiKhach.DisplayMemberPath = "TenLoaiKhach";
         CboLoaiKhach.SelectedValuePath = "MaLoaiKhach";
 
-        _all = await db.KhuyenMais
-            .OrderByDescending(k => k.NgayBatDau)
-            .Select(k => new KhuyenMaiRow
-            {
-                MaKhuyenMai = k.MaKhuyenMai,
-                TenKhuyenMai = k.TenKhuyenMai ?? "",
-                LoaiKhuyenMai = k.LoaiKhuyenMai ?? "Phần trăm",
-                GiaTri = k.GiaTriKm ?? 0,
-                GiaTriToiThieu = k.GiaTriToiThieu ?? 0,
-                TuNgay = k.NgayBatDau,
-                DenNgay = k.NgayKetThuc,
-                IsActive = k.IsActive,
-                MaLoaiKhach = k.MaLoaiKhach,
-            })
-            .ToListAsync();
+        var kms = await kmSvc.LayDanhSachAsync();
+        _all = kms.Select(k => new KhuyenMaiRow
+        {
+            MaKhuyenMai = k.MaKhuyenMai,
+            TenKhuyenMai = k.TenKhuyenMai ?? "",
+            LoaiKhuyenMai = k.LoaiKhuyenMai ?? "Phần trăm",
+            GiaTri = k.GiaTriKm ?? 0,
+            GiaTriToiThieu = k.GiaTriToiThieu ?? 0,
+            TuNgay = k.NgayBatDau,
+            DenNgay = k.NgayKetThuc,
+            IsActive = k.IsActive,
+            MaLoaiKhach = k.MaLoaiKhach,
+        }).ToList();
 
         ApplyFilter();
     }
@@ -170,44 +167,34 @@ public partial class KhuyenMaiPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var kmSvc = new KhuyenMaiService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.KhuyenMais
-                    .OrderByDescending(k => k.MaKhuyenMai)
-                    .Select(k => k.MaKhuyenMai)
-                    .FirstOrDefaultAsync();
-
-                db.KhuyenMais.Add(new KhuyenMai
-                {
-                    MaKhuyenMai = MaHelper.Next("KM", lastMa),
-                    TenKhuyenMai = ten,
-                    LoaiKhuyenMai = loai,
-                    GiaTriKm = giaTri,
-                    GiaTriToiThieu = toiThieu,
-                    NgayBatDau = DpTuNgay.SelectedDate!.Value,
-                    NgayKetThuc = DpDenNgay.SelectedDate!.Value,
-                    MaLoaiKhach = CboLoaiKhach.SelectedValue as string,
-                    IsActive = ChkActive.IsChecked ?? true,
-                });
+                await kmSvc.TaoMoiAsync(
+                    ten,
+                    loai,
+                    giaTri,
+                    toiThieu,
+                    DpTuNgay.SelectedDate!.Value,
+                    DpDenNgay.SelectedDate!.Value,
+                    CboLoaiKhach.SelectedValue as string,
+                    ChkActive.IsChecked ?? true);
             }
             else if (_selected != null)
             {
-                var km = await db.KhuyenMais.FindAsync(_selected.MaKhuyenMai);
-                if (km != null)
-                {
-                    km.TenKhuyenMai = ten;
-                    km.LoaiKhuyenMai = loai;
-                    km.GiaTriKm = giaTri;
-                    km.GiaTriToiThieu = toiThieu;
-                    km.NgayBatDau = DpTuNgay.SelectedDate!.Value;
-                    km.NgayKetThuc = DpDenNgay.SelectedDate!.Value;
-                    km.MaLoaiKhach = CboLoaiKhach.SelectedValue as string;
-                    km.IsActive = ChkActive.IsChecked ?? true;
-                }
+                await kmSvc.CapNhatAsync(
+                    _selected.MaKhuyenMai,
+                    ten,
+                    loai,
+                    giaTri,
+                    toiThieu,
+                    DpTuNgay.SelectedDate!.Value,
+                    DpDenNgay.SelectedDate!.Value,
+                    CboLoaiKhach.SelectedValue as string,
+                    ChkActive.IsChecked ?? true);
             }
 
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -228,22 +215,10 @@ public partial class KhuyenMaiPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var km = await db.KhuyenMais.FindAsync(_selected.MaKhuyenMai);
-            if (km != null)
-            {
-                bool daDung = await db.HoaDons.AnyAsync(h => h.MaKhuyenMai == km.MaKhuyenMai);
-                if (daDung)
-                {
-                    km.IsActive = false;
-                    ConfirmHelper.ShowInfo("Đã tắt khuyến mãi (có hóa đơn liên quan, không xóa được).");
-                }
-                else
-                {
-                    db.KhuyenMais.Remove(km);
-                }
-
-                await db.SaveChangesAsync();
-            }
+            var kmSvc = new KhuyenMaiService(db);
+            bool daTat = await kmSvc.XoaHoacTatAsync(_selected.MaKhuyenMai);
+            if (daTat)
+                ConfirmHelper.ShowInfo("Đã tắt khuyến mãi (có hóa đơn liên quan, không xóa được).");
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;

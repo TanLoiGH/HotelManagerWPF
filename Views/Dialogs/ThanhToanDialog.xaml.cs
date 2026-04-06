@@ -8,7 +8,6 @@ using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
@@ -40,17 +39,8 @@ public partial class ThanhToanDialog : Window
 
     private async Task LoadHoaDonInfoAsync()
     {
-        using var db = new QuanLyKhachSanContext();
-        var hdSvc = new HoaDonService(db, new KhachHangService(db));
-        await hdSvc.EnsureHoaDonChiTietAsync(_maHoaDon);
-
-        // HOA_DON + HOA_DON_CHI_TIET + DICH_VU_CHI_TIET
-        var hd = await db.HoaDons
-            .Include(h => h.HoaDonChiTiets)       // HOA_DON_CHI_TIET
-            .Include(h => h.DichVuChiTiets)        // DICH_VU_CHI_TIET
-                .ThenInclude(d => d.MaDichVuNavigation)
-            .Include(h => h.MaKhuyenMaiNavigation) // KHUYEN_MAI
-            .FirstOrDefaultAsync(h => h.MaHoaDon == _maHoaDon);
+        await _hdSvc.EnsureHoaDonChiTietAsync(_maHoaDon);
+        var hd = await _hdSvc.LayHoaDonThanhToanAsync(_maHoaDon);
 
         if (hd == null) return;
 
@@ -63,11 +53,7 @@ public partial class ThanhToanDialog : Window
         TxtSoTien.Text = (hd.TongThanhToan ?? 0).ToString("N0");
 
         // Hiển thị lịch sử thanh toán (THANH_TOAN)
-        var tts = await db.ThanhToans
-            .Include(t => t.MaPtttNavigation)  // PHUONG_THUC_THANH_TOAN
-            .Where(t => t.MaHoaDon == _maHoaDon)
-            .OrderBy(t => t.NgayThanhToan)
-            .ToListAsync();
+        var tts = await _hdSvc.LayLichSuThanhToanAsync(_maHoaDon);
 
         ListThanhToan.ItemsSource = tts;
         PanelLichSu.Visibility = tts.Any() ? Visibility.Visible : Visibility.Collapsed;
@@ -98,10 +84,10 @@ public partial class ThanhToanDialog : Window
         try
         {
             BtnThanhToan.IsEnabled = false;
-            bool daThuDu = await _hdSvc.ThanhToanAsync(
+            var thongTin = await _hdSvc.ThanhToanVaTraKetQuaAsync(
                 _maHoaDon, soTien, maPTTT, maNhanVien, loai, TxtNoiDung.Text);
 
-            if (daThuDu)
+            if (thongTin.KetQua is KetQuaThanhToan.HoanTat or KetQuaThanhToan.DaHoanTat)
             {
                 MessageBox.Show("Thanh toán hoàn tất! Phòng sẽ được chuyển sang trạng thái cần dọn dẹp.",
                     "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);

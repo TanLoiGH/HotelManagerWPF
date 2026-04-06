@@ -2,10 +2,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -46,45 +46,35 @@ public partial class QuanTriPhongPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
+        var roomSvc = new RoomService(db);
+        var tnSvc = new TienNghiService(db);
 
-        var loaiPhongs = await db.LoaiPhongs
-            .OrderBy(l => l.TenLoaiPhong)
-            .ToListAsync();
+        var loaiPhongs = await roomSvc.LayLoaiPhongAsync();
         CboLoaiPhong.ItemsSource = loaiPhongs;
         CboLoaiPhong.DisplayMemberPath = "TenLoaiPhong";
         CboLoaiPhong.SelectedValuePath = "MaLoaiPhong";
 
-        var trangThais = await db.PhongTrangThais
-            .OrderByDescending(t => t.TenTrangThai)
-            .ToListAsync();
+        var trangThais = await roomSvc.LayTrangThaiPhongAsync();
         CboTrangThai.ItemsSource = trangThais;
         CboTrangThai.DisplayMemberPath = "TenTrangThai";
         CboTrangThai.SelectedValuePath = "MaTrangThaiPhong";
 
-        _tienNghiTrangThais = await db.TienNghiTrangThais
-            .OrderBy(t => t.MaTrangThai)
-            .ToListAsync();
+        _tienNghiTrangThais = await tnSvc.LayTrangThaiTienNghiAsync();
 
         var comboCol = TienNghiGrid.Columns.OfType<DataGridComboBoxColumn>().FirstOrDefault();
         if (comboCol != null)
             comboCol.ItemsSource = _tienNghiTrangThais;
 
-        _all = await db.Phongs
-            .Include(p => p.MaLoaiPhongNavigation)
-            .Include(p => p.MaTrangThaiPhongNavigation)
-            .Select(p => new QuanTriPhongRow
-            {
-                MaPhong = p.MaPhong,
-                MaLoaiPhong = p.MaLoaiPhong,
-                TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
-                MaTrangThaiPhong = p.MaTrangThaiPhong ?? "PTT01",
-                TenTrangThai = p.MaTrangThaiPhongNavigation != null
-                    ? (p.MaTrangThaiPhongNavigation.TenTrangThai ?? "")
-                    : "",
-                IsUsed = p.DatPhongChiTiets.Any() || p.TienNghiPhongs.Any() || p.ChiPhis.Any(),
-            })
-            .OrderBy(p => p.MaPhong)
-            .ToListAsync();
+        var rooms = await roomSvc.LayDanhSachPhongQuanTriAsync();
+        _all = rooms.Select(p => new QuanTriPhongRow
+        {
+            MaPhong = p.MaPhong,
+            MaLoaiPhong = p.MaLoaiPhong,
+            TenLoaiPhong = p.TenLoaiPhong,
+            MaTrangThaiPhong = p.MaTrangThaiPhong,
+            TenTrangThai = p.TenTrangThai,
+            IsUsed = p.IsUsed,
+        }).ToList();
 
         TxtTong.Text = $"{_all.Count} phòng";
         ApplyFilter();
@@ -156,20 +146,17 @@ public partial class QuanTriPhongPage : Page
     private async Task LoadTienNghiAsync(string maPhong)
     {
         using var db = new QuanLyKhachSanContext();
-        var items = await db.TienNghiPhongs
-            .Include(t => t.MaTienNghiNavigation)
-            .Where(t => t.MaPhong == maPhong)
-            .OrderBy(t => t.MaTienNghiNavigation.TenTienNghi)
-            .Select(t => new TienNghiPhongRow
-            {
-                MaTienNghi = t.MaTienNghi,
-                TenTienNghi = t.MaTienNghiNavigation.TenTienNghi,
-                MaTrangThai = t.MaTrangThai ?? "TNTT01",
-            })
-            .ToListAsync();
+        var roomSvc = new RoomService(db);
+        var items = await roomSvc.LayTienNghiPhongQuanTriAsync(maPhong);
 
         _tienNghiItems.Clear();
-        foreach (var i in items) _tienNghiItems.Add(i);
+        foreach (var i in items)
+            _tienNghiItems.Add(new TienNghiPhongRow
+            {
+                MaTienNghi = i.MaTienNghi,
+                TenTienNghi = i.TenTienNghi,
+                MaTrangThai = i.MaTrangThai,
+            });
     }
 
     private async void BtnChonTienNghi_Click(object sender, RoutedEventArgs e)
@@ -184,33 +171,8 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var current = await db.TienNghiPhongs
-                .Where(t => t.MaPhong == _selected.MaPhong)
-                .Select(t => t.MaTienNghi)
-                .ToListAsync();
-
-            var toAdd = selectedIds.Except(current).ToList();
-            var toRemove = current.Except(selectedIds).ToList();
-
-            foreach (var id in toAdd)
-            {
-                db.TienNghiPhongs.Add(new TienNghiPhong
-                {
-                    MaPhong = _selected.MaPhong,
-                    MaTienNghi = id,
-                    MaTrangThai = "TNTT01"
-                });
-            }
-
-            if (toRemove.Count > 0)
-            {
-                var removeItems = await db.TienNghiPhongs
-                    .Where(t => t.MaPhong == _selected.MaPhong && toRemove.Contains(t.MaTienNghi))
-                    .ToListAsync();
-                db.TienNghiPhongs.RemoveRange(removeItems);
-            }
-
-            await db.SaveChangesAsync();
+            var roomSvc = new RoomService(db);
+            await roomSvc.CapNhatDanhSachTienNghiPhongAsync(_selected.MaPhong, selectedIds);
             await LoadTienNghiAsync(_selected.MaPhong);
             await LoadAsync(); // Reload danh sách phòng để cập nhật IsUsed (Có/Không)
         }
@@ -219,38 +181,6 @@ public partial class QuanTriPhongPage : Page
             ConfirmHelper.ShowError($"Lỗi cập nhật tiện nghi: {ex.Message}");
         }
     }
-
-    //private async void BtnGoTienNghiDaChon_Click(object sender, RoutedEventArgs e)
-    //{
-    //    if (_selected == null || _isNew) return;
-
-    //    var rows = TienNghiGrid.SelectedItems.Cast<object>()
-    //        .OfType<TienNghiPhongRow>()
-    //        .ToList();
-
-    //    if (rows.Count == 0) return;
-
-    //    if (MessageBox.Show($"Gỡ {rows.Count} tiện nghi đã chọn khỏi phòng {_selected.MaPhong}?",
-    //            "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning)
-    //        != MessageBoxResult.Yes) return;
-
-    //    try
-    //    {
-    //        using var db = new QuanLyKhachSanContext();
-    //        var ids = rows.Select(r => r.MaTienNghi).ToList();
-    //        var removeItems = await db.TienNghiPhongs
-    //            .Where(t => t.MaPhong == _selected.MaPhong && ids.Contains(t.MaTienNghi))
-    //            .ToListAsync();
-    //        db.TienNghiPhongs.RemoveRange(removeItems);
-    //        await db.SaveChangesAsync();
-    //        await LoadTienNghiAsync(_selected.MaPhong);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        MessageBox.Show($"Lỗi gỡ tiện nghi: {ex.Message}", "Lỗi",
-    //            MessageBoxButton.OK, MessageBoxImage.Error);
-    //    }
-    //}
 
     private async void BtnGoTienNghi_Click(object sender, RoutedEventArgs e)
     {
@@ -264,9 +194,8 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var item = await db.TienNghiPhongs.FindAsync(_selected.MaPhong, row.MaTienNghi);
-            if (item != null) db.TienNghiPhongs.Remove(item);
-            await db.SaveChangesAsync();
+            var roomSvc = new RoomService(db);
+            await roomSvc.GoTienNghiKhoiPhongAsync(_selected.MaPhong, row.MaTienNghi);
             await LoadTienNghiAsync(_selected.MaPhong);
         }
         catch (Exception ex)
@@ -300,31 +229,17 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var roomSvc = new RoomService(db);
 
             if (_isNew)
             {
-                bool exists = await db.Phongs.AnyAsync(p => p.MaPhong == maPhong);
-                if (exists)
-                    throw new InvalidOperationException("Mã phòng đã tồn tại.");
-
-                db.Phongs.Add(new Phong
-                {
-                    MaPhong = maPhong,
-                    MaLoaiPhong = maLoaiPhong,
-                    MaTrangThaiPhong = maTrangThai
-                });
+                await roomSvc.TaoPhongAsync(maPhong, maLoaiPhong, maTrangThai);
             }
             else if (_selected != null)
             {
-                var p = await db.Phongs.FindAsync(_selected.MaPhong);
-                if (p != null)
-                {
-                    p.MaLoaiPhong = maLoaiPhong;
-                    p.MaTrangThaiPhong = maTrangThai;
-                }
+                await roomSvc.CapNhatPhongAsync(_selected.MaPhong, maLoaiPhong, maTrangThai);
             }
 
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -350,24 +265,16 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-
-            bool used = await db.Phongs
-                .Where(p => p.MaPhong == _selected.MaPhong)
-                .AnyAsync(p => p.DatPhongChiTiets.Any() || p.TienNghiPhongs.Any() || p.ChiPhis.Any());
-
-            if (used)
-            {
-                ConfirmHelper.ShowWarning("Phòng đã phát sinh dữ liệu, không thể xóa.");
-                return;
-            }
-
-            var p = await db.Phongs.FindAsync(_selected.MaPhong);
-            if (p != null) db.Phongs.Remove(p);
-            await db.SaveChangesAsync();
+            var roomSvc = new RoomService(db);
+            await roomSvc.XoaPhongAsync(_selected.MaPhong);
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
+        }
+        catch (InvalidOperationException ex)
+        {
+            ConfirmHelper.ShowWarning(ex.Message);
         }
         catch (Exception ex)
         {
@@ -375,4 +282,3 @@ public partial class QuanTriPhongPage : Page
         }
     }
 }
-

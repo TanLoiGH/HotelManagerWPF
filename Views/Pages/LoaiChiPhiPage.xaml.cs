@@ -1,9 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -29,15 +28,14 @@ public partial class LoaiChiPhiPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        _all = await db.LoaiChiPhis
-            .Select(l => new LoaiChiPhiRow
-            {
-                MaLoaiCp = l.MaLoaiCp,
-                TenLoaiCp = l.TenLoaiCp,
-                SoPhieu = l.ChiPhis.Count(),
-            })
-            .OrderBy(l => l.MaLoaiCp)
-            .ToListAsync();
+        var cpSvc = new ChiPhiService(db);
+        var items = await cpSvc.LayDanhSachLoaiChiPhiAsync();
+        _all = items.Select(l => new LoaiChiPhiRow
+        {
+            MaLoaiCp = l.MaLoaiCp,
+            TenLoaiCp = l.TenLoaiCp,
+            SoPhieu = l.ChiPhis.Count,
+        }).ToList();
 
         TxtTong.Text = $"{_all.Count} loại chi phí";
         ApplyFilter();
@@ -98,27 +96,17 @@ public partial class LoaiChiPhiPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var cpSvc = new ChiPhiService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.LoaiChiPhis
-                    .OrderByDescending(l => l.MaLoaiCp)
-                    .Select(l => l.MaLoaiCp)
-                    .FirstOrDefaultAsync();
-
-                db.LoaiChiPhis.Add(new LoaiChiPhi
-                {
-                    MaLoaiCp = MaHelper.Next("LCP", lastMa),
-                    TenLoaiCp = ten
-                });
+                await cpSvc.TaoMoiLoaiChiPhiAsync(ten);
             }
             else if (_selected != null)
             {
-                var item = await db.LoaiChiPhis.FindAsync(_selected.MaLoaiCp);
-                if (item != null) item.TenLoaiCp = ten;
+                await cpSvc.CapNhatLoaiChiPhiAsync(_selected.MaLoaiCp, ten);
             }
 
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -141,9 +129,8 @@ public partial class LoaiChiPhiPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var item = await db.LoaiChiPhis.FindAsync(_selected.MaLoaiCp);
-            if (item != null) db.LoaiChiPhis.Remove(item);
-            await db.SaveChangesAsync();
+            var cpSvc = new ChiPhiService(db);
+            await cpSvc.XoaHoacVoHieuHoaLoaiChiPhiAsync(_selected.MaLoaiCp);
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
@@ -156,4 +143,3 @@ public partial class LoaiChiPhiPage : Page
         }
     }
 }
-

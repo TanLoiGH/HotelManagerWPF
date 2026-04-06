@@ -16,21 +16,24 @@ internal static class PlaceholderPageBuilder
             (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hexColor)!);
 
         var grid = new System.Windows.Controls.Grid();
-        var sp   = new System.Windows.Controls.StackPanel
+        var sp = new System.Windows.Controls.StackPanel
         {
-            VerticalAlignment   = System.Windows.VerticalAlignment.Center,
+            VerticalAlignment = System.Windows.VerticalAlignment.Center,
             HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
         };
 
         sp.Children.Add(new System.Windows.Controls.TextBlock
         {
-            Text = icon, FontSize = 64,
+            Text = icon,
+            FontSize = 64,
             HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
             Margin = new System.Windows.Thickness(0, 0, 0, 16),
         });
         sp.Children.Add(new System.Windows.Controls.TextBlock
         {
-            Text = title, FontSize = 28, FontWeight = System.Windows.FontWeights.Bold,
+            Text = title,
+            FontSize = 28,
+            FontWeight = System.Windows.FontWeights.Bold,
             Foreground = brush,
             HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
             Margin = new System.Windows.Thickness(0, 0, 0, 8),

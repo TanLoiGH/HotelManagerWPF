@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Services;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -51,15 +51,15 @@ public partial class ChonTienNghiPhongDialog : Window
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
+        var roomSvc = new RoomService(db);
+        var tnSvc = new TienNghiService(db);
 
-        var assigned = await db.TienNghiPhongs
-            .Where(t => t.MaPhong == _maPhong)
+        var assigned = (await roomSvc.LayTienNghiPhongAsync(_maPhong))
             .Select(t => t.MaTienNghi)
-            .ToListAsync();
+            .ToHashSet();
 
-        _all = await db.TienNghis
-            .Include(t => t.MaNccNavigation)
-            .Where(t => t.IsActive == true)
+        var allTienNghi = await tnSvc.GetAllTienNghiAsync();
+        _all = allTienNghi
             .OrderBy(t => t.TenTienNghi)
             .Select(t => new AmenityPickItem
             {
@@ -68,7 +68,7 @@ public partial class ChonTienNghiPhongDialog : Window
                 TenNCC = t.MaNccNavigation != null ? t.MaNccNavigation.TenNcc : "—",
                 IsChecked = assigned.Contains(t.MaTienNghi),
             })
-            .ToListAsync();
+            .ToList();
 
         ListTienNghi.ItemsSource = _all;
         _view = CollectionViewSource.GetDefaultView(ListTienNghi.ItemsSource);
@@ -119,4 +119,3 @@ public partial class ChonTienNghiPhongDialog : Window
     }
 
 }
-

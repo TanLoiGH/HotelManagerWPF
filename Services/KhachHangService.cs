@@ -11,6 +11,90 @@ public class KhachHangService
     private readonly QuanLyKhachSanContext _db;
     public KhachHangService(QuanLyKhachSanContext db) => _db = db;
 
+    public async Task<List<LoaiKhach>> LayLoaiKhachAsync()
+    {
+        return await _db.LoaiKhaches
+            .AsNoTracking()
+            .OrderBy(l => l.NguongTichLuy)
+            .ToListAsync();
+    }
+
+    public async Task<KhachHang?> LayTheoMaAsync(string maKhachHang)
+    {
+        if (string.IsNullOrWhiteSpace(maKhachHang)) return null;
+        return await _db.KhachHangs
+            .AsNoTracking()
+            .FirstOrDefaultAsync(k => k.MaKhachHang == maKhachHang);
+    }
+
+    public async Task TaoMoiAsync(
+        string tenKhachHang,
+        string? dienThoai,
+        string? cccd,
+        string? email,
+        string? diaChi,
+        string? maLoaiKhach)
+    {
+        var lastMa = await _db.KhachHangs
+            .OrderByDescending(k => k.MaKhachHang)
+            .Select(k => k.MaKhachHang)
+            .FirstOrDefaultAsync();
+
+        _db.KhachHangs.Add(new KhachHang
+        {
+            MaKhachHang = MaHelper.Next("KH", lastMa),
+            TenKhachHang = tenKhachHang,
+            DienThoai = dienThoai,
+            Cccd = cccd,
+            Email = email,
+            DiaChi = diaChi,
+            MaLoaiKhach = maLoaiKhach,
+            TongTichLuy = 0
+        });
+
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task CapNhatAsync(
+        string maKhachHang,
+        string tenKhachHang,
+        string? dienThoai,
+        string? cccd,
+        string? email,
+        string? diaChi,
+        string? maLoaiKhach)
+    {
+        var kh = await _db.KhachHangs.FindAsync(maKhachHang);
+        if (kh == null) return;
+
+        kh.TenKhachHang = tenKhachHang;
+        kh.DienThoai = dienThoai;
+        kh.Cccd = cccd;
+        kh.Email = email;
+        kh.DiaChi = diaChi;
+        kh.MaLoaiKhach = maLoaiKhach;
+
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task<bool> CoLichSuDatPhongAsync(string maKhachHang)
+    {
+        if (string.IsNullOrWhiteSpace(maKhachHang)) return false;
+        return await _db.DatPhongs
+            .AsNoTracking()
+            .AnyAsync(d => d.MaKhachHang == maKhachHang);
+    }
+
+    public async Task XoaAsync(string maKhachHang)
+    {
+        var kh = await _db.KhachHangs.FindAsync(maKhachHang);
+        if (kh == null) return;
+
+        _db.KhachHangs.Remove(kh);
+        await _db.SaveChangesAsync();
+    }
+
+    // Tìm khách theo CCCD/SĐT, nếu chưa có thì tạo mới và gán hạng mặc định.
     public async Task<KhachHang> TimHoacTaoAsync(
         string tenKhachHang,
         string? dienThoai,
@@ -21,34 +105,34 @@ public class KhachHangService
         string? visa = null,
         string? quocTich = null)
     {
-        KhachHang? existing = null;
+        KhachHang? khachDaCo = null;
 
         if (!string.IsNullOrWhiteSpace(cccd))
-            existing = await _db.KhachHangs.FirstOrDefaultAsync(k => k.Cccd == cccd);
+            khachDaCo = await _db.KhachHangs.FirstOrDefaultAsync(k => k.Cccd == cccd);
         else if (!string.IsNullOrWhiteSpace(dienThoai))
-            existing = await _db.KhachHangs.FirstOrDefaultAsync(k => k.DienThoai == dienThoai);
+            khachDaCo = await _db.KhachHangs.FirstOrDefaultAsync(k => k.DienThoai == dienThoai);
 
-        if (existing != null)
-            return existing;
+        if (khachDaCo != null)
+            return khachDaCo;
 
-        var lastMa = await _db.KhachHangs
+        var maKhachCuoi = await _db.KhachHangs
             .OrderByDescending(k => k.MaKhachHang)
             .Select(k => k.MaKhachHang)
             .FirstOrDefaultAsync();
 
-        var tong = 0m;
-        var maLoai = await TinhHangAsync(_db, tong);
+        var tongTichLuyBanDau = 0m;
+        var maLoaiKhach = await TinhHangAsync(_db, tongTichLuyBanDau);
 
         var kh = new KhachHang
         {
-            MaKhachHang = MaHelper.Next("KH", lastMa),
+            MaKhachHang = MaHelper.Next("KH", maKhachCuoi),
             TenKhachHang = tenKhachHang,
             DienThoai = dienThoai,
             Cccd = cccd,
-            Email = email, 
+            Email = email,
             DiaChi = diaChi,
-            TongTichLuy = tong,
-            MaLoaiKhach = maLoai,
+            TongTichLuy = tongTichLuyBanDau,
+            MaLoaiKhach = maLoaiKhach,
             Passport = passport,
             Visa = visa,
             QuocTich = quocTich
@@ -60,6 +144,7 @@ public class KhachHangService
         return kh;
     }
 
+    // Tính hạng khách theo tổng tích lũy hiện tại.
     private async Task<string?> TinhHangAsync(QuanLyKhachSanContext db, decimal tongTichLuy)
     {
         var loai = await db.LoaiKhaches
@@ -69,6 +154,8 @@ public class KhachHangService
 
         return loai?.MaLoaiKhach;
     }
+
+    // Cộng điểm tích lũy và tự động nâng hạng nếu đạt ngưỡng.
     internal async Task NangHangAsync(string maKhachHang, decimal soTienMoi)
     {
         var kh = await _db.KhachHangs.FindAsync(maKhachHang);
@@ -84,9 +171,11 @@ public class KhachHangService
         await _db.SaveChangesAsync();
     }
 
+    // Lấy danh sách khách để hiển thị trang quản lý, có hỗ trợ lọc theo từ khóa.
     public async Task<List<KhachHangViewModel>> GetListAsync(string? keyword = null)
     {
         var q = _db.KhachHangs
+            .AsNoTracking()
             .Include(k => k.MaLoaiKhachNavigation)
             .AsQueryable();
 
@@ -110,7 +199,20 @@ public class KhachHangService
         }).ToListAsync();
     }
 
+    // Tìm nhanh khách hàng phục vụ thao tác đặt phòng.
+    public async Task<List<KhachHang>> SearchKhachHangAsync(string keyword, int limit = 8)
+    {
+        if (string.IsNullOrWhiteSpace(keyword)) return new List<KhachHang>();
 
+        return await _db.KhachHangs
+            .AsNoTracking()
+            .Include(k => k.MaLoaiKhachNavigation)
+            .Where(k => k.TenKhachHang.Contains(keyword) ||
+                        (k.DienThoai != null && k.DienThoai.Contains(keyword)) ||
+                        (k.Cccd != null && k.Cccd.Contains(keyword)))
+            .Take(limit)
+            .ToListAsync();
+    }
 }
 
 

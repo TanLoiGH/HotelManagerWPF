@@ -1,9 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -48,37 +47,31 @@ public partial class DanhMucTienNghiPage : Page
         BtnXoa.IsEnabled = canCrud;
 
         using var db = new QuanLyKhachSanContext();
+        var tnSvc = new TienNghiService(db);
 
         // NCC combo (thêm option "không chọn")
-        var nccs = await db.NhaCungCaps
-            .Where(n => n.IsActive == true)
-            .OrderBy(n => n.TenNcc)
-            .Select(n => new { n.MaNcc, n.TenNcc })
-            .ToListAsync();
+        var nccs = await tnSvc.LayNhaCungCapDangHoatDongAsync();
 
         var nccSource = new List<object> { new { MaNcc = "", TenNcc = "— Không chọn —" } };
-        nccSource.AddRange(nccs);
+        nccSource.AddRange(nccs.Select(n => new { n.MaNcc, n.TenNcc }));
         CboNCC.ItemsSource = nccSource;
         CboNCC.DisplayMemberPath = "TenNcc";
         CboNCC.SelectedValuePath = "MaNcc";
         CboNCC.SelectedIndex = 0;
 
-        _all = await db.TienNghis
-            .Include(t => t.MaNccNavigation)
-            .Select(t => new TienNghiRow
-            {
-                MaTienNghi = t.MaTienNghi,
-                TenTienNghi = t.TenTienNghi,
-                MaNcc = t.MaNcc,
-                TenNCC = t.MaNccNavigation != null ? t.MaNccNavigation.TenNcc : "—",
-                HanBaoHanh = t.HanBaoHanh,
-                TongSoLuong = t.TongSoLuong ?? 0,
-                DonViTinh = t.DonViTinh ?? "",
-                IsActive = t.IsActive == true,
-                SoPhong = t.TienNghiPhongs.Count(),
-            })
-            .OrderBy(t => t.MaTienNghi)
-            .ToListAsync();
+        var tienNghis = await tnSvc.LayDanhMucTienNghiAsync();
+        _all = tienNghis.Select(t => new TienNghiRow
+        {
+            MaTienNghi = t.MaTienNghi,
+            TenTienNghi = t.TenTienNghi,
+            MaNcc = t.MaNcc,
+            TenNCC = t.MaNccNavigation != null ? t.MaNccNavigation.TenNcc : "—",
+            HanBaoHanh = t.HanBaoHanh,
+            TongSoLuong = t.TongSoLuong ?? 0,
+            DonViTinh = t.DonViTinh ?? "",
+            IsActive = t.IsActive == true,
+            SoPhong = t.TienNghiPhongs.Count,
+        }).ToList();
 
         TxtTong.Text = $"{_all.Count} tiện nghi";
         ApplyFilter();
@@ -179,40 +172,30 @@ public partial class DanhMucTienNghiPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var tnSvc = new TienNghiService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.TienNghis
-                    .OrderByDescending(t => t.MaTienNghi)
-                    .Select(t => t.MaTienNghi)
-                    .FirstOrDefaultAsync();
-
-                db.TienNghis.Add(new TienNghi
-                {
-                    MaTienNghi = MaHelper.Next("TN", lastMa),
-                    TenTienNghi = ten,
-                    MaNcc = maNcc,
-                    HanBaoHanh = hanBaoHanh,
-                    TongSoLuong = soLuong,
-                    DonViTinh = TxtDonVi.Text.Trim(),
-                    IsActive = ChkActive.IsChecked == true,
-                });
+                await tnSvc.TaoMoiTienNghiAsync(
+                    ten,
+                    maNcc,
+                    hanBaoHanh,
+                    soLuong,
+                    TxtDonVi.Text.Trim(),
+                    ChkActive.IsChecked == true);
             }
             else if (_selected != null)
             {
-                var item = await db.TienNghis.FindAsync(_selected.MaTienNghi);
-                if (item != null)
-                {
-                    item.TenTienNghi = ten;
-                    item.MaNcc = maNcc;
-                    item.HanBaoHanh = hanBaoHanh;
-                    item.TongSoLuong = soLuong;
-                    item.DonViTinh = TxtDonVi.Text.Trim();
-                    item.IsActive = ChkActive.IsChecked == true;
-                }
+                await tnSvc.CapNhatTienNghiAsync(
+                    _selected.MaTienNghi,
+                    ten,
+                    maNcc,
+                    hanBaoHanh,
+                    soLuong,
+                    TxtDonVi.Text.Trim(),
+                    ChkActive.IsChecked == true);
             }
 
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -242,16 +225,8 @@ public partial class DanhMucTienNghiPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            bool used = await db.TienNghis
-                .Where(t => t.MaTienNghi == _selected.MaTienNghi)
-                .AnyAsync(t => t.TienNghiPhongs.Any());
-
-            if (used)
-                throw new InvalidOperationException("Tiện nghi đã được gán vào phòng, không thể xóa. Hãy tắt Hoạt động (Off).");
-
-            var item = await db.TienNghis.FindAsync(_selected.MaTienNghi);
-            if (item != null) db.TienNghis.Remove(item);
-            await db.SaveChangesAsync();
+            var tnSvc = new TienNghiService(db);
+            await tnSvc.XoaTienNghiAsync(_selected.MaTienNghi);
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
@@ -269,4 +244,3 @@ public partial class DanhMucTienNghiPage : Page
         }
     }
 }
-

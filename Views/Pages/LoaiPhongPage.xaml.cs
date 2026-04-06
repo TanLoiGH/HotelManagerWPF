@@ -1,9 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -33,17 +32,17 @@ public partial class LoaiPhongPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        _all = await db.LoaiPhongs
-            .Select(lp => new LoaiPhongRow
-            {
-                MaLoaiPhong = lp.MaLoaiPhong,
-                TenLoaiPhong = lp.TenLoaiPhong ?? "",
-                SoNguoiToiDa = lp.SoNguoiToiDa,
-                GiaPhong = lp.GiaPhong,
-                SoPhong = lp.Phongs.Count(),
-            })
-            .OrderBy(lp => lp.MaLoaiPhong)
-            .ToListAsync();
+        var loaiPhongSvc = new LoaiPhongService(db);
+        var items = await loaiPhongSvc.LayDanhSachAsync();
+
+        _all = items.Select(lp => new LoaiPhongRow
+        {
+            MaLoaiPhong = lp.MaLoaiPhong,
+            TenLoaiPhong = lp.TenLoaiPhong,
+            SoNguoiToiDa = lp.SoNguoiToiDa,
+            GiaPhong = lp.GiaPhong,
+            SoPhong = lp.SoPhong,
+        }).ToList();
 
         LpGrid.ItemsSource = _all;
         TxtTong.Text = $"{_all.Count} loại phòng";
@@ -103,34 +102,23 @@ public partial class LoaiPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var loaiPhongSvc = new LoaiPhongService(db);
 
             if (_isNew)
             {
-                var lastMa = await db.LoaiPhongs
-                    .OrderByDescending(lp => lp.MaLoaiPhong)
-                    .Select(lp => lp.MaLoaiPhong)
-                    .FirstOrDefaultAsync();
-
-                db.LoaiPhongs.Add(new LoaiPhong
-                {
-                    MaLoaiPhong = MaHelper.Next("LP", lastMa),
-                    TenLoaiPhong = ten,
-                    SoNguoiToiDa = soNguoi > 0 ? soNguoi : null,
-                    GiaPhong = gia,
-                });
+                await loaiPhongSvc.TaoMoiAsync(
+                    ten,
+                    soNguoi > 0 ? soNguoi : null,
+                    gia);
             }
             else if (_selected != null)
             {
-                var lp = await db.LoaiPhongs.FindAsync(_selected.MaLoaiPhong);
-                if (lp != null)
-                {
-                    lp.TenLoaiPhong = ten;
-                    lp.SoNguoiToiDa = soNguoi > 0 ? soNguoi : null;
-                    lp.GiaPhong = gia;
-                }
+                await loaiPhongSvc.CapNhatAsync(
+                    _selected.MaLoaiPhong,
+                    ten,
+                    soNguoi > 0 ? soNguoi : null,
+                    gia);
             }
-
-            await db.SaveChangesAsync();
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;
             PanelEmpty.Visibility = Visibility.Visible;
@@ -151,9 +139,8 @@ public partial class LoaiPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var lp = await db.LoaiPhongs.FindAsync(_selected.MaLoaiPhong);
-            if (lp != null) db.LoaiPhongs.Remove(lp);
-            await db.SaveChangesAsync();
+            var loaiPhongSvc = new LoaiPhongService(db);
+            await loaiPhongSvc.XoaAsync(_selected.MaLoaiPhong);
 
             await LoadAsync();
             PanelForm.Visibility = Visibility.Collapsed;

@@ -118,6 +118,40 @@ public class AuthService
                         .ToList()
             })
             .ToListAsync();
+
+    public async Task DoiMatKhauAsync(string maNhanVien, string? tenDangNhap, string matKhauCu, string matKhauMoi)
+    {
+        if (string.IsNullOrWhiteSpace(maNhanVien))
+            throw new InvalidOperationException("Không xác định được mã nhân viên.");
+
+        var tkQuery = _db.TaiKhoans.Where(t => t.MaNhanVien == maNhanVien && t.IsActive == true);
+        if (!string.IsNullOrWhiteSpace(tenDangNhap))
+            tkQuery = tkQuery.Where(t => t.TenDangNhap == tenDangNhap);
+
+        var account = await tkQuery.FirstOrDefaultAsync()
+                      ?? await _db.TaiKhoans.FirstOrDefaultAsync(t => t.MaNhanVien == maNhanVien);
+
+        if (account == null)
+            throw new InvalidOperationException("Không tìm thấy tài khoản.");
+
+        var stored = account.MatKhau ?? "";
+        bool ok;
+
+        if (!string.IsNullOrEmpty(stored) && stored.StartsWith("HASH2:"))
+        {
+            ok = PasswordHasher.Verify(matKhauCu, stored);
+        }
+        else
+        {
+            ok = !string.IsNullOrEmpty(stored) && stored == matKhauCu;
+        }
+
+        if (!ok)
+            throw new InvalidOperationException("Mật khẩu cũ không đúng.");
+
+        account.MatKhau = PasswordHasher.Hash(matKhauMoi);
+        await _db.SaveChangesAsync();
+    }
 }
 
 

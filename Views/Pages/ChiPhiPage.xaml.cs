@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
@@ -45,24 +44,20 @@ public partial class ChiPhiPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
+            var chiPhiSvc = new ChiPhiService(db);
 
-            var rows = await db.ChiPhis
-                .Include(c => c.MaLoaiCpNavigation)
-                .Include(c => c.MaNccNavigation)
-                .Where(c => c.NgayChiPhi >= tu && c.NgayChiPhi <= den)
-                .OrderByDescending(c => c.NgayChiPhi)
-                .Select(c => new ChiPhiRow
-                {
-                    MaChiPhi = c.MaChiPhi,
-                    TenChiPhi = c.TenChiPhi,
-                    TenLoaiCp = c.MaLoaiCpNavigation.TenLoaiCp,
-                    SoTien = c.SoTien,
-                    NgayChiPhi = c.NgayChiPhi,
-                    TenNcc = c.MaNccNavigation != null ? c.MaNccNavigation.TenNcc : "",
-                    MaPhong = c.MaPhong ?? "",
-                    GhiChu = c.GhiChu ?? "",
-                })
-                .ToListAsync();
+            var items = await chiPhiSvc.LayChiPhiTheoNgayAsync(tu, den);
+            var rows = items.Select(c => new ChiPhiRow
+            {
+                MaChiPhi = c.MaChiPhi,
+                TenChiPhi = c.TenChiPhi,
+                TenLoaiCp = c.TenLoaiCp,
+                SoTien = c.SoTien,
+                NgayChiPhi = c.NgayChiPhi,
+                TenNcc = c.TenNcc,
+                MaPhong = c.MaPhong,
+                GhiChu = c.GhiChu,
+            }).ToList();
 
             CpGrid.ItemsSource = rows;
 

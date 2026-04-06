@@ -9,7 +9,7 @@ public partial class DatPhong
 
     public string? MaKhachHang { get; set; }
 
-    public decimal?  TienCoc { get; set; }
+    public decimal? TienCoc { get; set; }
 
     public DateTime? NgayDat { get; set; }
 

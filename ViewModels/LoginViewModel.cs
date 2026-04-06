@@ -1,5 +1,4 @@
-﻿using System.Windows.Controls;
-using QuanLyKhachSan_PhamTanLoi.Data;
+using System.Windows.Controls;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -7,6 +6,7 @@ namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public class LoginViewModel : BaseViewModel
 {
+    private readonly AuthService _authSvc;
     private string _tenDangNhap = "";
     private string _errorMessage = "";
     private bool _isLoading;
@@ -38,8 +38,9 @@ public class LoginViewModel : BaseViewModel
     // LoginWindow subscribe event này để đóng cửa sổ
     public event Action? LoginSuccess;
 
-    public LoginViewModel()
+    public LoginViewModel(AuthService authSvc)
     {
+        _authSvc = authSvc;
         LoginCommand = new RelayCommand(ExecuteLogin, _ => !IsLoading);
     }
 
@@ -58,9 +59,7 @@ public class LoginViewModel : BaseViewModel
 
         try
         {
-            using var db = new QuanLyKhachSanContext();
-            var authSvc = new AuthService(db);
-            var result = await authSvc.DangNhapAsync(TenDangNhap, password);
+            var result = await _authSvc.DangNhapAsync(TenDangNhap, password);
 
             if (result == null)
             {
