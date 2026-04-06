@@ -32,29 +32,26 @@ public class ReportService
 
         if (loadProcedures)
         {
-            cmd.CommandText = """
-                SELECT s.name + '.' + p.name as FullName, p.name as ProcName
-                FROM sys.procedures p
-                INNER JOIN sys.schemas s ON s.schema_id = p.schema_id
-                WHERE p.name LIKE 'SP_BAO_CAO_%'
-                AND s.name = 'dbo'
-                ORDER BY s.name, p.name
-                """;
+            cmd.CommandText =
+            "SELECT s.name + '.' + p.name as FullName, p.name as ProcName " +
+            "FROM sys.procedures p " +
+            "INNER JOIN sys.schemas s ON s.schema_id = p.schema_id " +
+            "WHERE p.name LIKE 'SP_BAO_CAO%' " +
+            "AND s.name = 'dbo' " +
+            "ORDER BY s.name, p.name";
         }
         else
         {
-            cmd.CommandText = """
-                SELECT s.name + '.' + v.name as FullName, v.name as ViewName
-                FROM sys.views v
-                INNER JOIN sys.schemas s ON s.schema_id = v.schema_id
-                WHERE v.name LIKE 'VW_%'
-                AND s.name = 'dbo'
-                ORDER BY s.name, v.name
-                """;
+            cmd.CommandText =
+            "SELECT s.name + '.' + v.name as FullName, v.name as ViewName " +
+            "FROM sys.views v " +
+            "INNER JOIN sys.schemas s ON s.schema_id = v.schema_id " +
+            "WHERE v.name LIKE 'VW_%' " +
+            "AND s.name = 'dbo' " +
+            "ORDER BY s.name, v.name";
         }
-
+        cmd.CommandType = CommandType.Text;
         await using var reader = await cmd.ExecuteReaderAsync();
-
         while (await reader.ReadAsync())
         {
             var fullName = reader.GetString(0);

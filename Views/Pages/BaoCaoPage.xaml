@@ -68,7 +68,7 @@
                               AutoGenerateColumns="True" IsReadOnly="True"
                               HeadersVisibility="Column" CanUserAddRows="False"
                               Background="{DynamicResource Brush.Surface}" 
-                              BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                              BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" FontSize="15" />
 
                     <!-- Panel Trạng thái -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
