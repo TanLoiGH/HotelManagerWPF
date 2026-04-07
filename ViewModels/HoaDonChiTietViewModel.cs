@@ -30,6 +30,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private bool _dangXuLy;
     private string _khachHang = "";
     private string _nhanVien = "";
+    private string _maKhachHang = "";
+    private string _maNhanVien = "";
     private DateTime? _ngayLap;
     private string _trangThai = "";
     private string _trangThaiDatPhong = "";
@@ -100,8 +102,48 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    public string KhachHang { get => _khachHang; private set => SetProperty(ref _khachHang, value); }
-    public string NhanVien { get => _nhanVien; private set => SetProperty(ref _nhanVien, value); }
+    public string MaKhachHang
+    {
+        get => _maKhachHang;
+        private set
+        {
+            if (SetProperty(ref _maKhachHang, value))
+                OnPropertyChanged(nameof(KhachHangDisplay));
+        }
+    }
+
+    public string MaNhanVien
+    {
+        get => _maNhanVien;
+        private set
+        {
+            if (SetProperty(ref _maNhanVien, value))
+                OnPropertyChanged(nameof(NhanVienDisplay));
+        }
+    }
+    public string KhachHang
+    {
+        get => _khachHang;
+        private set
+        {
+            if (SetProperty(ref _khachHang, value))
+                OnPropertyChanged(nameof(KhachHangDisplay));
+        }
+    }
+    public string NhanVien
+    {
+        get => _nhanVien;
+        private set
+        {
+            if (SetProperty(ref _nhanVien, value))
+                OnPropertyChanged(nameof(NhanVienDisplay));
+        }
+    }
+
+    public string KhachHangDisplay => $"{MaKhachHang} - {KhachHang}";
+    public string NhanVienDisplay => $"{MaNhanVien} - {NhanVien}";
+
+
     public DateTime? NgayLap { get => _ngayLap; private set => SetProperty(ref _ngayLap, value); }
     public string TrangThai
     {
@@ -230,6 +272,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
             if (hd == null) return;
 
+            MaKhachHang = hd.MaDatPhongNavigation?.MaKhachHang ?? "";
+            MaNhanVien = hd.MaNhanVien ?? "";
             KhachHang = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
             NhanVien = hd.MaNhanVienNavigation?.TenNhanVien ?? "";
             NgayLap = hd.NgayLap;

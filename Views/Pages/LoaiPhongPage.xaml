@@ -73,7 +73,7 @@
                         Style="{DynamicResource MacFluent.ShadowCard}"
                         helpers:ThemeProperties.CornerRadius="16">
             <StackPanel>
-                <TextBlock x:Name="TxtFormTitle" Text="Chi tiết loại phòng"
+                <TextBlock x:Name="TxtFormTitle" Text="Chi tiết loại phòng" 
                            FontSize="18" FontWeight="Bold"
                            Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,20"/>
 

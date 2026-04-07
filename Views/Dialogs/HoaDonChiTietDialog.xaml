@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:QuanLyKhachSan_PhamTanLoi.Views.Dialogs"
+        xmlns:local="clr-namespace:QuanLyKhachSan_PhamTanLoi.Views.Dialogs" xmlns:viewmodels="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:HoaDonChiTietViewModel}"
         mc:Ignorable="d"
         Title="Chi tiết hóa đơn"
         Width="980"
@@ -76,10 +76,10 @@
 
                     <StackPanel>
                         <TextBlock Text="Khách hàng" Foreground="{DynamicResource Brush.TextLabel}"/>
-                        <TextBlock Text="{Binding KhachHang}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding KhachHangDisplay}" FontWeight="Bold"/>
 
                         <TextBlock Text="Nhân viên" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,10,0,0"/>
-                        <TextBlock Text="{Binding NhanVien}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding NhanVienDisplay}" FontWeight="Bold"/>
 
                         <TextBlock Text="Ngày lập" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,10,0,0"/>
                         <TextBlock Text="{Binding NgayLap,StringFormat=dd/MM/yyyy}"/>

@@ -68,7 +68,7 @@ public partial class LoaiPhongPage : Page
     {
         PanelEmpty.Visibility = Visibility.Collapsed;
         PanelForm.Visibility = Visibility.Visible;
-        TxtFormTitle.Text = row == null ? "Thêm loại phòng mới" : "Sửa loại phòng";
+        TxtFormTitle.Text = row == null ? "" : "";
         TxtTen.Text = row?.TenLoaiPhong ?? "";
         TxtSoNguoi.Text = row?.SoNguoiToiDa?.ToString() ?? "2";
         TxtGia.Text = row?.GiaPhong.ToString("N0") ?? "";
