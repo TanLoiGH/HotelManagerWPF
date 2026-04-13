@@ -17,6 +17,11 @@ public partial class DatPhong
     public string? TrangThai { get; set; }
     
     public string? MaNhanVien { get; set; }
+    public DateTime? NgayNhanDuKien { get; set; }
+
+    public DateTime? NgayTraDuKien { get; set; }
+
+    public string? GhiChu { get; set; }
 
     public virtual NhanVien? MaNhanVienNavigation { get; set; }
 

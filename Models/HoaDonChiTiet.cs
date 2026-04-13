@@ -13,6 +13,8 @@ public partial class HoaDonChiTiet
 
     public int SoDem { get; set; }
 
+    public decimal? DonGia { get; set; }
+
     public virtual DatPhongChiTiet DatPhongChiTiet { get; set; } = null!;
 
     public virtual HoaDon MaHoaDonNavigation { get; set; } = null!;

@@ -3,7 +3,7 @@ using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels; // THÊM DÒNG NÀY ĐỂ NHẬN DIỆN KieuInHoaDon
 using System.Windows;
 
-namespace QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
+namespace QuanLyKhachSan_PhamTanLoi.Services;
 
 public interface IInHoaDonService
 {
