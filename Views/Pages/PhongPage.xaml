@@ -376,14 +376,14 @@
 
                             </StackPanel>
 
-<!-- ══ FORM ĐẶT PHÒNG ══ -->
+                            <!-- ══ FORM ĐẶT PHÒNG ══ -->
                             <StackPanel x:Name="PanelDatPhong" Visibility="{Binding IsRoomAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                                 <TextBlock Text="📅  Đặt phòng" FontSize="16" FontWeight="Bold"
                                            Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
 
                                 <!-- Tìm khách hàng -->
-                                <TextBlock Text="Khách hàng" FontSize="14" FontWeight="SemiBold"
+                                <TextBlock Text="Search" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                 <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
                                         Height="36" Margin="0,0,0,4">
@@ -401,48 +401,50 @@
                                            Visibility="{Binding SelectedKhach, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,8" TextWrapping="Wrap"/>
 
                                 <!-- Khách mới -->
-                                <Expander Header="➕ Khách mới" Margin="0,0,0,10">
+                                <Expander Header="➕ Khách mới" Margin="0,0,0,10" IsExpanded="False">
                                     <StackPanel Margin="0,8,0,0">
+
+                                        <TextBlock Text="Quốc tịch (Mặc định: Việt Nam)" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"  />
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34" Margin="0,0,0,12" Background="{DynamicResource Brush.SurfaceTranslucent}">
+                                            <TextBox Text="{Binding NewKhachQuocTich, UpdateSourceTrigger=PropertyChanged}" 
+                                                     ToolTip="Gõ tên quốc gia (VD: Mỹ, Anh, Nhật). Bỏ trống hệ thống tự hiểu là Việt Nam."
+                                                     BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15" />
+                                        </Border>
+
+                                        <TextBlock Text="Họ và tên khách hàng" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="34" Margin="0,0,0,8">
+                                            <TextBox Text="{Binding NewKhachTen, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
+                                        </Border>
+
                                         <TextBlock Text="Số điện thoại" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                         <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="34" Margin="0,0,0,8">
-                                            <TextBox Text="{Binding NewKhachSdt, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
-                                                     VerticalAlignment="Center" FontSize="15"/>
-                                        </Border>
-                                        <TextBlock Text="CCCD" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"
-                                                   Visibility="{Binding IsKhachTrongNuoc, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                        <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="34"
-                                                Visibility="{Binding IsKhachTrongNuoc, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <TextBox Text="{Binding NewKhachCccd, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
-                                                     VerticalAlignment="Center" FontSize="15"/>
+                                            <TextBox Text="{Binding NewKhachSdt, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
 
-                                        <TextBlock Text="Địa chỉ" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
-                                            <TextBox Text="{Binding NewKhachDiaChi, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
-                                   VerticalAlignment="Center" FontSize="15"/>
+                                        <TextBlock Text="Địa chỉ liên hệ" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34" Margin="0,0,0,16">
+                                            <TextBox Text="{Binding NewKhachDiaChi, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
                                         </Border>
 
-                                        <TextBlock Text="Số Passport" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"
-                                                   Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34"
-                                                Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <TextBox Text="{Binding NewKhachPassport, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
-                                                     VerticalAlignment="Center" FontSize="15"/>
-                                        </Border>
+                                        <StackPanel Visibility="{Binding IsKhachTrongNuoc, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="Số CCCD" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.BrandPrimary}" Margin="0,0,0,4"/>
+                                            <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.BrandPrimary}" BorderThickness="1.5" Height="34" Margin="0,0,0,8">
+                                                <TextBox Text="{Binding NewKhachCccd, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
+                                            </Border>
+                                        </StackPanel>
 
-                                        <TextBlock Text="Số Visa" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"
-                                                   Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34"
-                                                Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <TextBox Text="{Binding NewKhachVisa, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
-                                                     VerticalAlignment="Center" FontSize="15"/>
-                                        </Border>
+                                        <StackPanel Visibility="{Binding IsKhachNuocNgoai, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="Số Passport" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.WarningText}" Margin="0,0,0,4"/>
+                                            <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.WarningText}" BorderThickness="1.5" Height="34" Margin="0,0,0,8">
+                                                <TextBox Text="{Binding NewKhachPassport, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
+                                            </Border>
 
-                                        <TextBlock Text="Quốc tịch" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"  />
-                                        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34">
-                                            <TextBox Text="{Binding NewKhachQuocTich, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0"
-                                   VerticalAlignment="Center" FontSize="15" />
-                                        </Border>
+                                            <TextBlock Text="Số Visa (Nếu có)" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                            <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34" Margin="0,0,0,8">
+                                                <TextBox Text="{Binding NewKhachVisa, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
+                                            </Border>
+                                        </StackPanel>
+
                                     </StackPanel>
                                 </Expander>
 
@@ -472,6 +474,12 @@
                                                Foreground="{DynamicResource Brush.WarningText}"
                                                TextWrapping="Wrap"/>
                                 </Border>
+
+                                <StackPanel Margin="0,10,0,0">
+                                    <TextBlock Text="Tiền cọc trước (VNĐ):" FontWeight="SemiBold" Foreground="Gray"/>
+                                    <TextBox Text="{Binding TienCoc, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" 
+             Height="35" VerticalContentAlignment="Center" Margin="0,5,0,0"/>
+                                </StackPanel>  
 
                                 <!-- Tính giá -->
                                 <Border CornerRadius="8" Padding="12,8" Background="{DynamicResource Brush.SurfaceSoft}" Margin="0,0,0,14">

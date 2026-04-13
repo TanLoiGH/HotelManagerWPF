@@ -95,6 +95,7 @@ public class DatPhongService
     public async Task<DatPhong> TaoDatPhongAsync(
         string maKhachHang,
         List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)> rooms,
+        string maNhanVien = null,
         decimal tienCoc = 0,
         int soNguoi = 1)
     {
@@ -134,6 +135,7 @@ public class DatPhongService
         {
             MaDatPhong = MaHelper.Next("DP", lastMa),
             MaKhachHang = maKhachHang,
+            MaNhanVien = maNhanVien,
             NgayDat = DateTime.Now,
             TienCoc = tienCoc,
             TrangThai = "Chờ nhận phòng"

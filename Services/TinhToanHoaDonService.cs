@@ -22,6 +22,10 @@ public static class TinhToanHoaDonService
 
     public static decimal TinhTongThanhToan(decimal tienPhong, decimal tienDichVu, decimal vatPercent, decimal tienCoc, decimal giamGia)
     {
+       
+
+
+
         decimal tongTruocVat = (tienPhong + tienDichVu) - giamGia;
         if (tongTruocVat < 0) tongTruocVat = 0;
 

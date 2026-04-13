@@ -71,6 +71,7 @@ public class LoginViewModel : BaseViewModel
             App.CurrentUser = result;
 
             // Sync sang AppSession nếu còn dùng ở chỗ khác
+            AppSession.CurrentUser = result;
             AppSession.MaNhanVien = result.MaNhanVien;
             AppSession.TenNhanVien = result.TenNhanVien;
             AppSession.MaQuyen = result.Quyen.FirstOrDefault();

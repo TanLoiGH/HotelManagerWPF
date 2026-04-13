@@ -149,6 +149,7 @@ public partial class QuanLyKhachSanContext : DbContext
                 .HasConstraintName("FK_CP_PHONG");
         });
 
+
         modelBuilder.Entity<DatPhong>(entity =>
         {
             entity.HasKey(e => e.MaDatPhong);
@@ -161,6 +162,12 @@ public partial class QuanLyKhachSanContext : DbContext
             entity.Property(e => e.MaKhachHang)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+
+            // 1. THÊM CẤU HÌNH CHO CỘT MaNhanVien
+            entity.Property(e => e.MaNhanVien)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+
             entity.Property(e => e.NgayDat)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -171,8 +178,13 @@ public partial class QuanLyKhachSanContext : DbContext
             entity.HasOne(d => d.MaKhachHangNavigation).WithMany(p => p.DatPhongs)
                 .HasForeignKey(d => d.MaKhachHang)
                 .HasConstraintName("FK_DP_KH");
-        });
 
+            // 2. THÊM CẤU HÌNH KHÓA NGOẠI CHO NHÂN VIÊN
+            entity.HasOne(d => d.MaNhanVienNavigation)
+                .WithMany() // Để trống trong ngoặc nếu class NhanVien không có ICollection<DatPhong>
+                .HasForeignKey(d => d.MaNhanVien)
+                .HasConstraintName("FK_DP_NV");
+        });
         modelBuilder.Entity<DatPhongChiTiet>(entity =>
         {
             entity.HasKey(e => new { e.MaDatPhong, e.MaPhong }).HasName("PK_DPCT");

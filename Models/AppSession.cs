@@ -1,4 +1,6 @@
-﻿namespace QuanLyKhachSan_PhamTanLoi.Helpers;
+﻿using QuanLyKhachSan_PhamTanLoi.ViewModels;
+
+namespace QuanLyKhachSan_PhamTanLoi.Helpers;
 
 public static class AppSession
 {
@@ -7,6 +9,7 @@ public static class AppSession
     public static string? MaQuyen { get; set; }
     public static string? TenDangNhap { get; set; }
 
+    public static LoginResult? CurrentUser { get; set; }
     public static bool IsLoggedIn => !string.IsNullOrEmpty(MaNhanVien);
 
     public static void Clear()
@@ -15,6 +18,7 @@ public static class AppSession
         TenNhanVien = null;
         MaQuyen = null;
         TenDangNhap = null;
+        CurrentUser = null;
     }
 }
 
