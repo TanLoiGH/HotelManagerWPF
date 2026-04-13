@@ -288,7 +288,7 @@ public class CaiDatViewModel : BaseViewModel
 
     private async Task LoadCurrentUserInfoAsync()
     {
-        string? maNv = App.CurrentUser?.MaNhanVien ?? AppSession.MaNhanVien;
+        string? maNv = AppSession.MaNhanVien ?? AppSession.MaNhanVien;
         if (string.IsNullOrWhiteSpace(maNv))
         {
             MessageBox.Show("Bạn chưa đăng nhập hoặc session đã hết.", "Thông báo",

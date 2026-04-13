@@ -21,7 +21,7 @@
 
         <!-- Preview Area -->
         <Border Grid.Row="1" BorderThickness="1" BorderBrush="{DynamicResource Brush.Border}" 
-                CornerRadius="8" Background="#8A8383">
+                CornerRadius="8" Background="#E5E5E5">
             <FlowDocumentScrollViewer x:Name="DocViewer" VerticalScrollBarVisibility="Auto" Zoom="100"/>
         </Border>
 

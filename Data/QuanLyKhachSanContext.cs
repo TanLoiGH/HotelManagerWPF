@@ -163,7 +163,7 @@ public partial class QuanLyKhachSanContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
 
-            // 1. THÊM CẤU HÌNH CHO CỘT MaNhanVien
+            // 1. THÊM CẤU HÌNH CHO CỘT MaNhanVienCheckIn
             entity.Property(e => e.MaNhanVien)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -181,7 +181,7 @@ public partial class QuanLyKhachSanContext : DbContext
 
             // 2. THÊM CẤU HÌNH KHÓA NGOẠI CHO NHÂN VIÊN
             entity.HasOne(d => d.MaNhanVienNavigation)
-                .WithMany() // Để trống trong ngoặc nếu class NhanVien không có ICollection<DatPhong>
+                .WithMany() // Để trống trong ngoặc nếu class TenNhanVienCheckIn không có ICollection<DatPhong>
                 .HasForeignKey(d => d.MaNhanVien)
                 .HasConstraintName("FK_DP_NV");
         });

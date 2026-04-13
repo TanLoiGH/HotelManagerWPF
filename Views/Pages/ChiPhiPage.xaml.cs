@@ -94,7 +94,7 @@ public partial class ChiPhiPage : Page
             var r = dialog.Result.Value;
             await chiPhiSvc.GhiChiPhiAsync(
                 r.MaLoaiCP, r.TenChiPhi, r.SoTien,
-                App.CurrentUser?.MaNhanVien,
+                AppSession.MaNhanVien,
                 r.MaNCC, r.MaPhong, r.GhiChu);
 
             if (DpTuNgay.SelectedDate.HasValue && DpDenNgay.SelectedDate.HasValue)

@@ -1,4 +1,5 @@
 using QuanLyKhachSan_PhamTanLoi.Dtos;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +12,7 @@ namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public sealed class HoaDonChiTietViewModel : BaseViewModel
 {
+    #region TÀI NGUYÊN VÀ DỊCH VỤ (SERVICES)
     private static readonly CultureInfo VanHoaVietNam = new("vi-VN");
     private static readonly CultureInfo VanHoaMy = new("en-US");
     private static readonly TimeSpan ThoiGianHetHanPttt = TimeSpan.FromMinutes(5);
@@ -26,40 +28,147 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private readonly IInHoaDonService _inHoaDon;
     private readonly IChonDichVuService _chonDichVu;
     private readonly Func<Task>? _taiLaiTrangHoaDonAsync;
+    #endregion
 
+    #region KHAI BÁO BIẾN (FIELDS)
     private bool _dangXuLy;
-    private string _khachHang = "";
-    private string _nhanVien = "";
+
+    // Khách hàng
     private string _maKhachHang = "";
-    private string _maNhanVien = "";
+    private string _khachHang = "";
+
+    // Nhân viên
+    private string _maNhanVienDatPhong = "";
+    private string _tenNhanVienDatPhong = "";
+    private string _maNhanVienCheckIn = "";
+    private string _tenNhanVienCheckIn = "";
+
+    // Thông tin hóa đơn & phòng
     private DateTime? _ngayLap;
     private string _trangThai = "";
     private string _trangThaiDatPhong = "";
     private string _maDatPhong = "";
+
+    // Tiền bạc
     private decimal _tienPhong;
     private decimal _tienDichVu;
-    private decimal _tongThanhToan;
     private decimal _vatPercent;
+    private decimal _tienCoc;
+    private decimal _tongThanhToan;
+    private decimal _conLai;
     private string _khuyenMai = "Không";
 
+    // Thanh toán & Tương tác UI
     private PhongItemVm? _selectedPhong;
-
     private string _soTienNhap = "";
     private PhuongThucThanhToanDto? _phuongThucThanhToanDuocChon;
     private string _loaiGiaoDichDuocChon = "Thanh toán cuối";
     private string _noiDung = "";
-    private decimal _conLai;
+    #endregion
 
+    #region THUỘC TÍNH (PROPERTIES)
+    public string MaHoaDon => _maHoaDon;
+
+    public bool DangXuLy
+    {
+        get => _dangXuLy;
+        private set { if (!SetProperty(ref _dangXuLy, value)) return; RaiseAllCanExecuteChanged(); }
+    }
+
+    // --- KHÁCH HÀNG ---
+    public string MaKhachHang { get => _maKhachHang; private set { if (SetProperty(ref _maKhachHang, value)) OnPropertyChanged(nameof(KhachHangDisplay)); } }
+    public string KhachHang { get => _khachHang; private set { if (SetProperty(ref _khachHang, value)) OnPropertyChanged(nameof(KhachHangDisplay)); } }
+    public string KhachHangDisplay => $"{MaKhachHang} - {KhachHang}";
+
+    // --- NHÂN VIÊN ---
+    public string MaNhanVienDatPhong { get => _maNhanVienDatPhong; set => SetProperty(ref _maNhanVienDatPhong, value); }
+    public string TenNhanVienDatPhong { get => _tenNhanVienDatPhong; set => SetProperty(ref _tenNhanVienDatPhong, value); }
+
+    public string MaNhanVienCheckIn { get => _maNhanVienCheckIn; private set { if (SetProperty(ref _maNhanVienCheckIn, value)) OnPropertyChanged(nameof(NhanVienCheckInDisplay)); } }
+    public string TenNhanVienCheckIn { get => _tenNhanVienCheckIn; private set { if (SetProperty(ref _tenNhanVienCheckIn, value)) OnPropertyChanged(nameof(NhanVienCheckInDisplay)); } }
+    public string NhanVienCheckInDisplay => $"{MaNhanVienCheckIn} - {TenNhanVienCheckIn}";
+
+    public string MaNhanVienCheckOut => AppSession.MaNhanVien ?? "He thong";
+    public string TenNhanVienCheckOut => AppSession.TenNhanVien ?? "He thong";
+    public string NhanVienCheckOutDisplay => $"{MaNhanVienCheckOut} - {TenNhanVienCheckOut}";
+
+    // --- THÔNG TIN HÓA ĐƠN ---
+    public DateTime? NgayLap { get => _ngayLap; private set => SetProperty(ref _ngayLap, value); }
+    public string MaDatPhong { get => _maDatPhong; private set => SetProperty(ref _maDatPhong, value); }
+
+    public string TrangThai
+    {
+        get => _trangThai;
+        private set
+        {
+            if (!SetProperty(ref _trangThai, value)) return;
+            OnPropertyChanged(nameof(CoTheChinhSua));
+            OnPropertyChanged(nameof(CoTheTraPhong));
+            OnPropertyChanged(nameof(CoTheCapNhatTraSom));
+            RaiseAllCanExecuteChanged();
+        }
+    }
+
+    public string TrangThaiDatPhong
+    {
+        get => _trangThaiDatPhong;
+        private set
+        {
+            if (!SetProperty(ref _trangThaiDatPhong, value)) return;
+            OnPropertyChanged(nameof(CoTheTraPhong));
+            OnPropertyChanged(nameof(CoTheCapNhatTraSom));
+            RaiseAllCanExecuteChanged();
+        }
+    }
+
+    public bool CoTheChinhSua => TrangThai == "Chưa thanh toán";
+    public bool CoTheTraPhong => TrangThai == "Đã thanh toán" && TrangThaiDatPhong != "Đã trả phòng" && !string.IsNullOrWhiteSpace(MaDatPhong);
+    public bool CoTheCapNhatTraSom => CoTheChinhSua && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != "Đã trả phòng";
+
+    // --- TIỀN BẠC ---
+    public decimal TienPhong { get => _tienPhong; private set { if (SetProperty(ref _tienPhong, value)) OnPropertyChanged(nameof(VatAmount)); } }
+    public decimal TienDichVu { get => _tienDichVu; private set { if (SetProperty(ref _tienDichVu, value)) OnPropertyChanged(nameof(VatAmount)); } }
+    public decimal VatPercent { get => _vatPercent; private set { if (SetProperty(ref _vatPercent, value)) OnPropertyChanged(nameof(VatAmount)); } }
+    public decimal VatAmount => (TienPhong + TienDichVu) * (VatPercent / 100m);
+
+    public decimal TienCoc { get => _tienCoc; private set { if (SetProperty(ref _tienCoc, value)) OnPropertyChanged(nameof(TienCocHienThi)); } }
+    public decimal TongThanhToan { get => _tongThanhToan; private set => SetProperty(ref _tongThanhToan, value); }
+    public string KhuyenMai { get => _khuyenMai; private set => SetProperty(ref _khuyenMai, value); }
+
+    public string TienPhongHienThi => $"{TienPhong:N0} ₫";
+    public string TienDichVuHienThi => $"{TienDichVu:N0} ₫";
+    public string VatPhanTramHienThi => $"{VatPercent:N0}%";
+    public string TienVatHienThi => $"{VatAmount:N0} ₫";
+    public string TienCocHienThi => $"- {TienCoc:N0} ₫";
+    public string TongThanhToanHienThi => $"{TongThanhToan:N0} ₫";
+
+    public decimal ConLai
+    {
+        get => _conLai;
+        private set { if (!SetProperty(ref _conLai, value)) return; OnPropertyChanged(nameof(ConLaiHienThi)); }
+    }
+    public string ConLaiHienThi => ConLai >= 0 ? $"Còn lại: {ConLai:N0} ₫" : $"Dư: {Math.Abs(ConLai):N0} ₫";
+
+    // --- GIAO DIỆN & DANH SÁCH ---
+    public ObservableCollection<PhongItemVm> Phongs { get; } = new();
+    public ObservableCollection<DichVuItemVm> DichVus { get; } = new();
+    public ObservableCollection<ThanhToanItemVm> LichSuThanhToan { get; } = new();
+    public ObservableCollection<PhuongThucThanhToanDto> DanhSachPhuongThucThanhToan { get; } = new();
+    public ObservableCollection<string> DanhSachLoaiGiaoDich { get; } = ["Thanh toán cuối", "Thanh toán trước", "Đặt cọc", "Hoàn tiền"];
+
+    public PhongItemVm? SelectedPhong { get => _selectedPhong; set => SetProperty(ref _selectedPhong, value); }
+    public PhuongThucThanhToanDto? PhuongThucThanhToanDuocChon { get => _phuongThucThanhToanDuocChon; set => SetProperty(ref _phuongThucThanhToanDuocChon, value); }
+    public string LoaiGiaoDichDuocChon { get => _loaiGiaoDichDuocChon; set => SetProperty(ref _loaiGiaoDichDuocChon, value); }
+    public string SoTienNhap { get => _soTienNhap; set => SetProperty(ref _soTienNhap, value); }
+    public string NoiDung { get => _noiDung; set => SetProperty(ref _noiDung, value); }
+    public bool CoLichSu => LichSuThanhToan.Count > 0;
+    #endregion
+
+    #region CONSTRUCTOR & COMMANDS
     public HoaDonChiTietViewModel(
-        string maHoaDon,
-        HoaDonService hoaDonSvc,
-        DichVuService dichVuSvc,
-        Func<Window?> layChuSoHuu,
-        Action<bool?> dong,
-        IHopThoaiService hopThoai,
-        IInHoaDonService inHoaDon,
-        IChonDichVuService chonDichVu,
-        Func<Task>? taiLaiTrangHoaDonAsync = null)
+        string maHoaDon, HoaDonService hoaDonSvc, DichVuService dichVuSvc, Func<Window?> layChuSoHuu,
+        Action<bool?> dong, IHopThoaiService hopThoai, IInHoaDonService inHoaDon,
+        IChonDichVuService chonDichVu, Func<Task>? taiLaiTrangHoaDonAsync = null)
     {
         _maHoaDon = maHoaDon;
         _hoaDon = hoaDonSvc;
@@ -89,178 +198,15 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     public ICommand TraPhongCommand { get; }
     public ICommand CapNhatTraSomHomNayCommand { get; }
     public ICommand DongCommand { get; }
+    #endregion
 
-    public string MaHoaDon => _maHoaDon;
-
-    public bool DangXuLy
-    {
-        get => _dangXuLy;
-        private set
-        {
-            if (!SetProperty(ref _dangXuLy, value)) return;
-            RaiseAllCanExecuteChanged();
-        }
-    }
-
-    public string MaKhachHang
-    {
-        get => _maKhachHang;
-        private set
-        {
-            if (SetProperty(ref _maKhachHang, value))
-                OnPropertyChanged(nameof(KhachHangDisplay));
-        }
-    }
-
-    public string MaNhanVien
-    {
-        get => _maNhanVien;
-        private set
-        {
-            if (SetProperty(ref _maNhanVien, value))
-                OnPropertyChanged(nameof(NhanVienDisplay));
-        }
-    }
-    public string KhachHang
-    {
-        get => _khachHang;
-        private set
-        {
-            if (SetProperty(ref _khachHang, value))
-                OnPropertyChanged(nameof(KhachHangDisplay));
-        }
-    }
-    public string NhanVien
-    {
-        get => _nhanVien;
-        private set
-        {
-            if (SetProperty(ref _nhanVien, value))
-                OnPropertyChanged(nameof(NhanVienDisplay));
-        }
-    }
-
-    public string KhachHangDisplay => $"{MaKhachHang} - {KhachHang}";
-    public string NhanVienDisplay => $"{MaNhanVien} - {NhanVien}";
-
-
-    public DateTime? NgayLap { get => _ngayLap; private set => SetProperty(ref _ngayLap, value); }
-    public string TrangThai
-    {
-        get => _trangThai;
-        private set
-        {
-            if (!SetProperty(ref _trangThai, value)) return;
-            OnPropertyChanged(nameof(CoTheChinhSua));
-            OnPropertyChanged(nameof(CoTheTraPhong));
-            OnPropertyChanged(nameof(CoTheCapNhatTraSom));
-            RaiseAllCanExecuteChanged();
-        }
-    }
-
-    public bool CoTheChinhSua => TrangThai == "Chưa thanh toán";
-
-    public string MaDatPhong { get => _maDatPhong; private set => SetProperty(ref _maDatPhong, value); }
-    public string TrangThaiDatPhong
-    {
-        get => _trangThaiDatPhong;
-        private set
-        {
-            if (!SetProperty(ref _trangThaiDatPhong, value)) return;
-            OnPropertyChanged(nameof(CoTheTraPhong));
-            OnPropertyChanged(nameof(CoTheCapNhatTraSom));
-            RaiseAllCanExecuteChanged();
-        }
-    }
-
-    public bool CoTheTraPhong => TrangThai == "Đã thanh toán" && TrangThaiDatPhong != "Đã trả phòng" && !string.IsNullOrWhiteSpace(MaDatPhong);
-    public bool CoTheCapNhatTraSom => CoTheChinhSua && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != "Đã trả phòng";
-
-    public decimal TienPhong { get => _tienPhong; private set { if (SetProperty(ref _tienPhong, value)) OnPropertyChanged(nameof(VatAmount)); } }
-    public decimal TienDichVu { get => _tienDichVu; private set { if (SetProperty(ref _tienDichVu, value)) OnPropertyChanged(nameof(VatAmount)); } }
-    public decimal TongThanhToan { get => _tongThanhToan; private set => SetProperty(ref _tongThanhToan, value); }
-    public decimal VatPercent { get => _vatPercent; private set { if (SetProperty(ref _vatPercent, value)) OnPropertyChanged(nameof(VatAmount)); } }
-    public string KhuyenMai { get => _khuyenMai; private set => SetProperty(ref _khuyenMai, value); }
-
-    public decimal VatAmount => (TienPhong + TienDichVu) * (VatPercent / 100m);
-
-    public string TienPhongHienThi => $"{TienPhong:N0} ₫";
-    public string TienDichVuHienThi => $"{TienDichVu:N0} ₫";
-    public string VatPhanTramHienThi => $"{VatPercent:N0}%";
-    public string TienVatHienThi => $"{VatAmount:N0} ₫";
-    public string TongThanhToanHienThi => $"{TongThanhToan:N0} ₫";
-
-    public ObservableCollection<PhongItemVm> Phongs { get; } = new();
-    public ObservableCollection<DichVuItemVm> DichVus { get; } = new();
-
-    public PhongItemVm? SelectedPhong
-    {
-        get => _selectedPhong;
-        set => SetProperty(ref _selectedPhong, value);
-    }
-
-    public ObservableCollection<PhuongThucThanhToanDto> DanhSachPhuongThucThanhToan { get; } = new();
-    public ObservableCollection<string> DanhSachLoaiGiaoDich { get; } =
-    [
-        "Thanh toán cuối",
-        "Thanh toán trước",
-        "Đặt cọc",
-        "Hoàn tiền"
-    ];
-
-    public PhuongThucThanhToanDto? PhuongThucThanhToanDuocChon
-    {
-        get => _phuongThucThanhToanDuocChon;
-        set => SetProperty(ref _phuongThucThanhToanDuocChon, value);
-    }
-
-    public string LoaiGiaoDichDuocChon
-    {
-        get => _loaiGiaoDichDuocChon;
-        set => SetProperty(ref _loaiGiaoDichDuocChon, value);
-    }
-
-    public string SoTienNhap
-    {
-        get => _soTienNhap;
-        set => SetProperty(ref _soTienNhap, value);
-    }
-
-    public string NoiDung
-    {
-        get => _noiDung;
-        set => SetProperty(ref _noiDung, value);
-    }
-
-    public ObservableCollection<ThanhToanItemVm> LichSuThanhToan { get; } = new();
-
-    public bool CoLichSu => LichSuThanhToan.Count > 0;
-
-    public decimal ConLai
-    {
-        get => _conLai;
-        private set
-        {
-            if (!SetProperty(ref _conLai, value)) return;
-            OnPropertyChanged(nameof(ConLaiHienThi));
-        }
-    }
-
-    public string ConLaiHienThi => ConLai >= 0 ? $"Còn lại: {ConLai:N0} ₫" : $"Dư: {Math.Abs(ConLai):N0} ₫";
-
+    #region LOGIC XỬ LÝ
     public async Task TaiLaiAsync()
     {
         if (DangXuLy) return;
         DangXuLy = true;
-
-        try
-        {
-            await TaiLaiDuLieuNoiBoAsync();
-        }
-        finally
-        {
-            DangXuLy = false;
-        }
+        try { await TaiLaiDuLieuNoiBoAsync(); }
+        finally { DangXuLy = false; }
     }
 
     private async Task TaiLaiDuLieuNoiBoAsync()
@@ -269,13 +215,17 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         {
             await _hoaDon.DamBaoHoaDonChiTietAsync(_maHoaDon);
             var hd = await _hoaDon.LayHoaDonChiTietAsync(_maHoaDon);
-
             if (hd == null) return;
 
             MaKhachHang = hd.MaDatPhongNavigation?.MaKhachHang ?? "";
-            MaNhanVien = hd.MaNhanVien ?? "";
             KhachHang = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
-            NhanVien = hd.MaNhanVienNavigation?.TenNhanVien ?? "";
+
+            MaNhanVienCheckIn = hd.MaNhanVien ?? "";
+            TenNhanVienCheckIn = hd.MaNhanVienNavigation?.TenNhanVien ?? "";
+
+            MaNhanVienDatPhong = hd.MaDatPhongNavigation?.MaNhanVien ?? "";
+            TenNhanVienDatPhong = hd.MaDatPhongNavigation?.MaNhanVienNavigation?.TenNhanVien ?? "";
+
             NgayLap = hd.NgayLap;
             TrangThai = hd.TrangThai ?? "";
             MaDatPhong = hd.MaDatPhong ?? "";
@@ -283,20 +233,23 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
             TienPhong = hd.TienPhong ?? 0;
             TienDichVu = hd.TienDichVu ?? 0;
-            TongThanhToan = hd.TongThanhToan ?? 0;
             VatPercent = hd.Vat ?? 0;
+            TienCoc = hd.MaDatPhongNavigation?.TienCoc ?? 0;
             KhuyenMai = hd.MaKhuyenMaiNavigation?.TenKhuyenMai ?? "Không";
+
+            // Tính lại Tổng thanh toán hiển thị cho khách (Đã trừ cọc)
+            TongThanhToan = (TienPhong + TienDichVu + VatAmount) - TienCoc;
 
             var maPhongDangChon = SelectedPhong?.MaPhong;
             Phongs.Clear();
             foreach (var p in hd.HoaDonChiTiets.Select(p => new PhongItemVm
-                     {
-                         MaPhong = p.MaPhong,
-                         NgayNhan = p.DatPhongChiTiet.NgayNhan,
-                         NgayTra = p.DatPhongChiTiet.NgayTra,
-                         SoDem = p.SoDem,
-                         DonGia = p.DatPhongChiTiet.DonGia
-                     }))
+            {
+                MaPhong = p.MaPhong,
+                NgayNhan = p.DatPhongChiTiet.NgayNhan,
+                NgayTra = p.DatPhongChiTiet.NgayTra,
+                SoDem = p.SoDem,
+                DonGia = p.DatPhongChiTiet.DonGia
+            }))
                 Phongs.Add(p);
 
             SelectedPhong = !string.IsNullOrWhiteSpace(maPhongDangChon)
@@ -305,11 +258,11 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
             DichVus.Clear();
             foreach (var d in hd.DichVuChiTiets.Select(d => new DichVuItemVm
-                     {
-                         TenDichVu = d.MaDichVuNavigation.TenDichVu,
-                         SoLuong = d.SoLuong,
-                         DonGia = d.DonGia
-                     }))
+            {
+                TenDichVu = d.MaDichVuNavigation.TenDichVu,
+                SoLuong = d.SoLuong,
+                DonGia = d.DonGia
+            }))
                 DichVus.Add(d);
 
             OnPropertyChanged(nameof(TienPhongHienThi));
@@ -317,10 +270,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             OnPropertyChanged(nameof(VatPhanTramHienThi));
             OnPropertyChanged(nameof(TongThanhToanHienThi));
 
-            await Task.WhenAll(
-                    TaiLaiLichSuThanhToanAsync(),
-                    TaiLaiPhuongThucThanhToanAsync()
-                );
+            await Task.WhenAll(TaiLaiLichSuThanhToanAsync(), TaiLaiPhuongThucThanhToanAsync());
 
             if (!CoTheChinhSua)
             {
@@ -337,8 +287,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     private async Task TaiLaiPhuongThucThanhToanAsync()
     {
-        if (_cachePhuongThucThanhToan != null &&
-            (DateTime.Now - _thoiDiemTaiPttt) <= ThoiGianHetHanPttt)
+        if (_cachePhuongThucThanhToan != null && (DateTime.Now - _thoiDiemTaiPttt) <= ThoiGianHetHanPttt)
         {
             GanDanhSachPhuongThucThanhToan(_cachePhuongThucThanhToan);
             return;
@@ -356,14 +305,11 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private void GanDanhSachPhuongThucThanhToan(IEnumerable<PhuongThucThanhToanDto> danhSach)
     {
         var maDangChon = PhuongThucThanhToanDuocChon?.MaPTTT;
-
         DanhSachPhuongThucThanhToan.Clear();
-        foreach (var p in danhSach)
-            DanhSachPhuongThucThanhToan.Add(p);
+        foreach (var p in danhSach) DanhSachPhuongThucThanhToan.Add(p);
 
         if (!string.IsNullOrWhiteSpace(maDangChon))
-            PhuongThucThanhToanDuocChon = DanhSachPhuongThucThanhToan.FirstOrDefault(x => x.MaPTTT == maDangChon)
-                                          ?? DanhSachPhuongThucThanhToan.FirstOrDefault();
+            PhuongThucThanhToanDuocChon = DanhSachPhuongThucThanhToan.FirstOrDefault(x => x.MaPTTT == maDangChon) ?? DanhSachPhuongThucThanhToan.FirstOrDefault();
         else
             PhuongThucThanhToanDuocChon ??= DanhSachPhuongThucThanhToan.FirstOrDefault();
     }
@@ -377,15 +323,15 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         {
             LoaiGiaoDich = t.LoaiGiaoDich ?? "",
             SoTien = t.SoTien,
-            NgayThanhToan = t.NgayThanhToan
+            NgayThanhToan = t.NgayThanhToan,
+            MaNhanVienThuTien = t.NguoiThu ?? "",
+            TenNhanVienThuTien = t.NguoiThuNavigation?.TenNhanVien ?? "Hệ thống"
         }).ToList();
 
         LichSuThanhToan.Clear();
-        foreach (var t in items)
-            LichSuThanhToan.Add(t);
+        foreach (var t in items) LichSuThanhToan.Add(t);
 
         OnPropertyChanged(nameof(CoLichSu));
-
         decimal tongDaThu = items.Sum(t => t.SoTien);
         ConLai = TongThanhToan - tongDaThu;
 
@@ -402,7 +348,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
 
         var owner = _layChuSoHuu();
-
         try
         {
             var dvs = await _dichVuSvc.GetAllDichVuAsync();
@@ -427,8 +372,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
             await _dichVuSvc.UpsertDichVuAsync(_maHoaDon, MaDatPhong, phong, maDichVu, soLuong);
             await TaiLaiAsync();
-            if (_taiLaiTrangHoaDonAsync != null)
-                await _taiLaiTrangHoaDonAsync();
+            if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
         }
         catch (Exception ex)
         {
@@ -444,7 +388,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             return;
         }
 
-        // Nếu đã dư/đủ tiền, cho phép chốt hóa đơn mà không cần nhập thêm tiền.
         decimal soTien = 0;
         if (ConLai > 0)
         {
@@ -455,17 +398,12 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             }
         }
 
-        var maNhanVien = App.CurrentUser?.MaNhanVien ?? "NV001";
-
-        if (!_hopThoai.XacNhan($"Xac nhan thanh toan so tien {soTien:N0} d cho hoa don {_maHoaDon}?", "Xac nhan thanh toan"))
-            return;
+        var maNhanVien = AppSession.MaNhanVien ?? "NV001";
+        if (!_hopThoai.XacNhan($"Xac nhan thanh toan so tien {soTien:N0} d cho hoa don {_maHoaDon}?", "Xac nhan thanh toan")) return;
 
         DangXuLy = true;
         try
         {
-            // Logic mới:
-            // - "Thanh toán cuối": bắt buộc in hóa đơn trước, in xong mới ghi nhận thanh toán.
-            // - Các loại giao dịch khác (đặt cọc/hoàn tiền): vẫn ghi nhận như bình thường.
             if (LoaiGiaoDichDuocChon == "Thanh toán cuối")
             {
                 if (ConLai > 0 && soTien < ConLai)
@@ -474,23 +412,20 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                     return;
                 }
 
-                // Nếu đã đủ tiền (ConLai <= 0) thì chỉ cần in + đồng bộ trạng thái.
                 if (ConLai <= 0)
                 {
                     var hdPrint0 = await _hoaDon.LayHoaDonDeInAsync(_maHoaDon);
                     if (hdPrint0 == null) return;
 
                     var khName0 = hdPrint0.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
-                    var staffName0 = hdPrint0.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
-
+                    var staffName0 = NhanVienCheckOutDisplay;
                     bool printed0 = _inHoaDon.XemTruocVaInHoaDon(hdPrint0, khName0, staffName0, owner: _layChuSoHuu());
+
                     if (!printed0) return;
 
                     await _hoaDon.DongBoTrangThaiThanhToanAsync(_maHoaDon);
-
                     _hopThoai.ThongBao("Thanh toan hoan tat! Co the tra phong khi khach roi di.");
-                    if (_taiLaiTrangHoaDonAsync != null)
-                        await _taiLaiTrangHoaDonAsync();
+                    if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
                     await TaiLaiDuLieuNoiBoAsync();
                     return;
                 }
@@ -499,23 +434,18 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 if (hdPrint == null) return;
 
                 var khName = hdPrint.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
-                var staffName = hdPrint.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
-
+                var staffName = NhanVienCheckOutDisplay;
                 bool printed = _inHoaDon.XemTruocVaInHoaDon(hdPrint, khName, staffName, owner: _layChuSoHuu());
-                if (!printed)
-                    return;
+                if (!printed) return;
             }
 
-            var thongTin = await _hoaDon.ThanhToanVaTraKetQuaAsync(
-                _maHoaDon, soTien, maPttt, maNhanVien, LoaiGiaoDichDuocChon, NoiDung);
-
+            var thongTin = await _hoaDon.ThanhToanVaTraKetQuaAsync(_maHoaDon, soTien, maPttt, maNhanVien, LoaiGiaoDichDuocChon, NoiDung);
             SoTienNhap = "";
 
             if (thongTin.KetQua is KetQuaThanhToan.HoanTat or KetQuaThanhToan.DaHoanTat)
             {
                 _hopThoai.ThongBao("Thanh toan hoan tat! Co the tra phong khi khach roi di.");
-                if (_taiLaiTrangHoaDonAsync != null)
-                    await _taiLaiTrangHoaDonAsync();
+                if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
                 await TaiLaiDuLieuNoiBoAsync();
                 return;
             }
@@ -526,8 +456,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 _hopThoai.CanhBao(thongTin.ThongDiep);
 
             await TaiLaiDuLieuNoiBoAsync();
-            if (_taiLaiTrangHoaDonAsync != null)
-                await _taiLaiTrangHoaDonAsync();
+            if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
         }
         catch (Exception ex)
         {
@@ -541,26 +470,19 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     private async Task TraPhongAsync()
     {
-        if (!CoTheTraPhong)
-            return;
-
-        if (!_hopThoai.XacNhan($"Xac nhan tra phong cho hoa don {_maHoaDon}?", "Xac nhan tra phong"))
-            return;
+        if (!CoTheTraPhong) return;
+        if (!_hopThoai.XacNhan($"Xac nhan tra phong cho hoa don {_maHoaDon}?", "Xac nhan tra phong")) return;
 
         DangXuLy = true;
         try
         {
-            var maNhanVien = App.CurrentUser?.MaNhanVien ?? "NV001";
+            var maNhanVien = AppSession.MaNhanVien ?? "NV001";
             await _hoaDon.TraPhongAsync(_maHoaDon, maNhanVien);
             _hopThoai.ThongBao("Tra phong thanh cong! Phong da chuyen sang trang thai can don dep.");
             await TaiLaiDuLieuNoiBoAsync();
 
-            if (_taiLaiTrangHoaDonAsync != null)
-                await _taiLaiTrangHoaDonAsync();
-
-            //đóng sau khi trả phòng để tránh trường hợp nhân viên quên đóng và tiếp tục thao tác trên hóa đơn đã trả
+            if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
             _dong(true);
-
         }
         catch (Exception ex)
         {
@@ -575,15 +497,12 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private async Task CapNhatTraSomHomNayAsync()
     {
         if (!CoTheCapNhatTraSom) return;
-
-        if (!_hopThoai.XacNhan("Cap nhat ngay tra phong = hom nay va tinh lai tien phong?", "Cap nhat tra som"))
-            return;
+        if (!_hopThoai.XacNhan("Cap nhat ngay tra phong = hom nay va tinh lai tien phong?", "Cap nhat tra som")) return;
 
         DangXuLy = true;
         try
         {
             var thongTin = await _hoaDon.CapNhatTienPhongKhiTraSomAsync(_maHoaDon, DateTime.Now);
-
             if (thongTin.KetQua == KetQuaThanhToan.TuChoi)
             {
                 _hopThoai.CanhBao(thongTin.ThongDiep);
@@ -595,9 +514,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             else
                 _hopThoai.ThongBao($"Da tinh lai tong tien. Con lai: {thongTin.ConLai:N0} đ.");
 
-            if (_taiLaiTrangHoaDonAsync != null)
-                await _taiLaiTrangHoaDonAsync();
-
+            if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
             await TaiLaiDuLieuNoiBoAsync();
         }
         catch (Exception ex)
@@ -617,15 +534,13 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         try
         {
             var hd = await _hoaDon.LayHoaDonDeInAsync(_maHoaDon);
-
             if (hd == null) return;
 
             var khName = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
-            var staffName = hd.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
+            var staffName = NhanVienCheckOutDisplay;
 
             bool daIn = _inHoaDon.XemTruocVaInHoaDon(hd, khName, staffName, owner: _layChuSoHuu());
-            if (daIn)
-                await TaiLaiDuLieuNoiBoAsync();
+            if (daIn) await TaiLaiDuLieuNoiBoAsync();
         }
         catch (Exception ex)
         {
@@ -644,15 +559,13 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         try
         {
             var hd = await _hoaDon.LayHoaDonDeInAsync(_maHoaDon);
-
             if (hd == null) return;
 
             var khName = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
-            var staffName = hd.MaNhanVienNavigation?.TenNhanVien ?? "N/A";
+            var staffName = NhanVienCheckOutDisplay;
 
             bool daIn = _inHoaDon.XemTruocVaInTamTinh(hd, khName, staffName, owner: _layChuSoHuu());
-            if (daIn)
-                await TaiLaiDuLieuNoiBoAsync();
+            if (daIn) await TaiLaiDuLieuNoiBoAsync();
         }
         catch (Exception ex)
         {
@@ -689,16 +602,10 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
         raw = Regex.Replace(raw, @"[^\d\.,\-]", "");
 
-        if (decimal.TryParse(raw,
-                NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
-                VanHoaVietNam,
-                out soTien))
+        if (decimal.TryParse(raw, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, VanHoaVietNam, out soTien))
             return true;
 
-        if (decimal.TryParse(raw,
-                NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
-                VanHoaMy,
-                out soTien))
+        if (decimal.TryParse(raw, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, VanHoaMy, out soTien))
             return true;
 
         var digits = Regex.Replace(raw, @"[^\d\-]", "");
@@ -706,8 +613,10 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
         return decimal.TryParse(digits, NumberStyles.Integer | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out soTien);
     }
+    #endregion
 }
 
+#region LỚP PHỤ TRỢ (HELPER CLASSES)
 public sealed class PhongItemVm
 {
     public string MaPhong { get; set; } = "";
@@ -735,5 +644,8 @@ public sealed class ThanhToanItemVm
     public string LoaiGiaoDich { get; set; } = "";
     public decimal SoTien { get; set; }
     public DateTime? NgayThanhToan { get; set; }
+    public string MaNhanVienThuTien { get; set; } = "";
+    public string TenNhanVienThuTien { get; set; } = "";
     public string SoTienText => $"{SoTien:N0} ₫";
 }
+#endregion

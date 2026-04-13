@@ -95,7 +95,7 @@ public partial class TienNghiPage : Page
                 maLoaiCP: "LCP003",
                 tenChiPhi: $"Sửa {item.TenTienNghi} – Phòng {maPhong}",
                 soTien: cp,
-                maNhanVien: App.CurrentUser?.MaNhanVien,
+                maNhanVien: AppSession.MaNhanVien,
                 maPhong: maPhong);
 
             await tienNghiSvc.CapNhatTrangThaiAsync(maPhong, item.MaTienNghi, "TNTT03");

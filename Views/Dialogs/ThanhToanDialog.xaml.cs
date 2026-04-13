@@ -74,7 +74,7 @@ public partial class ThanhToanDialog : Window
             return;
         }
 
-        string maNhanVien = App.CurrentUser?.MaNhanVien ?? "NV001";
+        string maNhanVien = AppSession.MaNhanVien ?? "NV001";
         string loai = CboLoaiGD.SelectedIndex == 0
             ? "Thanh toán cuối" : CboLoaiGD.SelectedItem?.ToString() ?? "Thanh toán cuối";
 

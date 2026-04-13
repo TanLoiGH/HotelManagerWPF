@@ -78,8 +78,8 @@
                         <TextBlock Text="Khách hàng" Foreground="{DynamicResource Brush.TextLabel}"/>
                         <TextBlock Text="{Binding KhachHangDisplay}" FontWeight="Bold"/>
 
-                        <TextBlock Text="Nhân viên" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,10,0,0"/>
-                        <TextBlock Text="{Binding NhanVienDisplay}" FontWeight="Bold"/>
+                        <TextBlock Text="Nhân viên Check-in" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,10,0,0"/>
+                        <TextBlock Text="{Binding NhanVienCheckInDisplay}" FontWeight="Bold"/>
 
                         <TextBlock Text="Ngày lập" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,10,0,0"/>
                         <TextBlock Text="{Binding NgayLap,StringFormat=dd/MM/yyyy}"/>
@@ -135,6 +135,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -149,6 +150,8 @@
 
                         <TextBlock Grid.Row="2" Text="VAT" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,6,0,0"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding VatPhanTramHienThi}" Margin="0,6,0,0"/>
+
+
 
                         <TextBlock Grid.Row="3" Text="TỔNG THANH TOÁN" FontWeight="Bold" Margin="0,10,0,0"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TongThanhToanHienThi}"
@@ -165,7 +168,8 @@
                     BorderThickness="1"
                     BorderBrush="{DynamicResource Brush.Border}">
                 <Grid>
-                    <Grid.RowDefinitions>
+                    <Grid.RowDefinitions >
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -173,10 +177,15 @@
                     </Grid.RowDefinitions>
 
                     <!-- THANH TOÁN -->
+                    <Grid Grid.Row="1"  Margin="0,4" Visibility="{Binding TienCoc, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='>0'}">
+                        <TextBlock Text="Đã trừ tiền cọc:" FontStyle="Italic" Foreground="#D32F2F"/>
+                        <TextBlock Text="{Binding TienCocHienThi}" HorizontalAlignment="Right" FontWeight="Bold" Foreground="#D32F2F"/>
+                        <TextBlock Text="---------------------" HorizontalAlignment="Right" Margin="0,15,0,0" Foreground="BlueViolet"/>
+                    </Grid>
                     <TextBlock Grid.Row="0" Text="THANH TOÁN" FontSize="18" FontWeight="Bold"
                                Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,10"/>
 
-                    <StackPanel Grid.Row="1" Margin="0,0,0,12">
+                    <StackPanel Grid.Row="2" Margin="0,0,0,12">
                         <TextBlock Text="{Binding ConLaiHienThi}" FontSize="14"
                                    Foreground="{DynamicResource Brush.Error}" HorizontalAlignment="Right"/>
 
@@ -192,13 +201,14 @@
                                             <TextBlock HorizontalAlignment="Right" FontSize="14" FontWeight="SemiBold" Margin="210,0,0,0"
                                                        Text="{Binding SoTienText}"/>
                                         </Grid>
+
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
                         </StackPanel>
                     </StackPanel>
 
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Hidden">
                         <StackPanel>
                             
                             <TextBlock Text="Hóa đơn đã chốt, chỉ được xem." Margin="0,0,0,10"
@@ -255,7 +265,7 @@
                         </StackPanel>
                     </ScrollViewer>
 
-                    <StackPanel Grid.Row="3" Orientation="Vertical">
+                    <StackPanel Grid.Row="4" Orientation="Vertical">
 
                         <TextBlock  Text="Cập nhật trả sớm hôm nay" FontSize="14" Foreground="{DynamicResource Brush.TextDisabled}" Margin="0,0,0,4"/>
                         <Button Content="Thanh toán ngay" Height="40" Margin="0,0,0,10" Command="{Binding CapNhatTraSomHomNayCommand}">
