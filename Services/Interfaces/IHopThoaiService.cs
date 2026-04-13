@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace QuanLyKhachSan_PhamTanLoi.Services;
+namespace QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 public interface IHopThoaiService
 {

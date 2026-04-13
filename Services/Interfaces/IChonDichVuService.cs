@@ -2,7 +2,7 @@ using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using QuanLyKhachSan_PhamTanLoi.Views;
 using System.Windows;
 
-namespace QuanLyKhachSan_PhamTanLoi.Services;
+namespace QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 public interface IChonDichVuService
 {

@@ -1,5 +1,6 @@
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
 
