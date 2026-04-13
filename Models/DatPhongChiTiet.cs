@@ -14,10 +14,10 @@ public partial class DatPhongChiTiet
     public DateTime NgayTra { get; set; }
 
     public decimal DonGia { get; set; }
-
+        
     public string? MaNhanVien { get; set; }
 
-    public string? GhiChu { get; set; }
+ 
 
     public virtual ICollection<DichVuChiTiet> DichVuChiTiets { get; set; } = new List<DichVuChiTiet>();
 

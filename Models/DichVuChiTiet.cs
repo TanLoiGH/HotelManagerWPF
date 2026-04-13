@@ -19,6 +19,7 @@ public partial class DichVuChiTiet
 
     public DateTime? NgaySuDung { get; set; }
 
+
     public virtual DatPhongChiTiet DatPhongChiTiet { get; set; } = null!;
 
     public virtual DichVu MaDichVuNavigation { get; set; } = null!;
