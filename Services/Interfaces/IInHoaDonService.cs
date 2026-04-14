@@ -1,30 +1,51 @@
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
-using QuanLyKhachSan_PhamTanLoi.ViewModels; // THÊM DÒNG NÀY ĐỂ NHẬN DIỆN KieuInHoaDon
+using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using System;
+using System.IO;
 using System.Windows;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
 public interface IInHoaDonService
 {
-    // Bổ sung KieuInHoaDon vào tham số thứ 4
     bool XemTruocVaInHoaDon(HoaDon hoaDon, string tenKhachHang, string tenNhanVien, HoaDonChiTietViewModel.KieuInHoaDon kieuIn = HoaDonChiTietViewModel.KieuInHoaDon.TongHop, Window? owner = null);
     bool XemTruocVaInTamTinh(HoaDon hoaDon, string tenKhachHang, string tenNhanVien, Window? owner = null);
 }
 
 public sealed class InHoaDonServiceWpf : IInHoaDonService
 {
-    // Bổ sung tương tự vào phần implement
     public bool XemTruocVaInHoaDon(HoaDon hoaDon, string tenKhachHang, string tenNhanVien, HoaDonChiTietViewModel.KieuInHoaDon kieuIn = HoaDonChiTietViewModel.KieuInHoaDon.TongHop, Window? owner = null)
     {
-        // Tạm thời vẫn truyền vào hàm Build cũ, ở bước tiếp theo khi bạn làm giao diện in chúng ta sẽ truyền kieuIn này vào PrintHelper
-        var doc = PrintHelper.BuildPOSInvoiceDocument(hoaDon, tenKhachHang, tenNhanVien);
-        return PrintHelper.PreviewAndPrint(doc, $"HD_{hoaDon.MaHoaDon}", owner);
+        try
+        {
+            // Tạo đường dẫn file tạm trong thư mục Temp của Windows
+            string tempFile = Path.Combine(Path.GetTempPath(), $"HD_{hoaDon.MaHoaDon}_{DateTime.Now.Ticks}.pdf");
+
+            QuestPdfHelper.XuatVaMoHoaDonPdf(hoaDon, tenKhachHang, tenNhanVien, tempFile, kieuIn, false);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ConfirmHelper.ShowError($"Lỗi khi tạo PDF: {ex.Message}");
+            return false;
+        }
     }
 
     public bool XemTruocVaInTamTinh(HoaDon hoaDon, string tenKhachHang, string tenNhanVien, Window? owner = null)
     {
-        var doc = PrintHelper.BuildTamTinhDocument(hoaDon, tenKhachHang, tenNhanVien);
-        return PrintHelper.PreviewAndPrint(doc, $"TAM_TINH_{hoaDon.MaHoaDon}", owner);
+        try
+        {
+            string tempFile = Path.Combine(Path.GetTempPath(), $"TamTinh_{hoaDon.MaHoaDon}_{DateTime.Now.Ticks}.pdf");
+
+            // Tham số cuối laTamTinh = true để đổi tiêu đề bill
+            QuestPdfHelper.XuatVaMoHoaDonPdf(hoaDon, tenKhachHang, tenNhanVien, tempFile, HoaDonChiTietViewModel.KieuInHoaDon.TongHop, true);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ConfirmHelper.ShowError($"Lỗi khi tạo PDF tạm tính: {ex.Message}");
+            return false;
+        }
     }
 }

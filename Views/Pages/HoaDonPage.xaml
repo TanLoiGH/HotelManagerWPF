@@ -41,7 +41,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
+
             <Border CornerRadius="8" Background="{DynamicResource Brush.SurfaceSoft}" Padding="10,5">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -54,11 +54,6 @@
                              Text="{Binding TuKhoaTimKiem, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
             </Border>
-
-            <Button Grid.Column="1" x:Name="BtnTestPrint" Content="🧪 In thử" 
-                    Margin="12,0,0,0" Padding="15,0" Height="38"
-                    Style="{DynamicResource MacFluent.ButtonSecondary}"
-                    Click="BtnTestPrint_Click"/>
         </Grid>
 
         <!-- DataGrid -->

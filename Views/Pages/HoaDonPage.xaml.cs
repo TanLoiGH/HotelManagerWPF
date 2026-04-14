@@ -28,11 +28,6 @@ public partial class HoaDonPage : Page
         Loaded += async (_, _) => await _viewModel.TaiDuLieuAsync();
     }
 
-    private void BtnTestPrint_Click(object sender, RoutedEventArgs e)
-    {
-        PrintHelper.TestPrint();
-    }
-
     private async void HoaDonRow_Click(object sender, MouseButtonEventArgs e)
     {
         if (sender is not DataGridRow row) return;

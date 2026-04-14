@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="QuanLyKhachSan_PhamTanLoi.Views.Dialogs.HoaDonPrintTemplate"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuanLyKhachSan_PhamTanLoi.Views.Dialogs" xmlns:viewmodels="clr-namespace:QuanLyKhachSan_PhamTanLoi.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:HoaDonChiTietViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel Margin="40">
+        <TextBlock Text="HOTEL NAME" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Text="HÓA ĐƠN THANH TOÁN" FontSize="20" HorizontalAlignment="Center" Margin="0,10"/>
+
+        <Grid Margin="0,20">
+            <TextBlock Text="{Binding KhachHangDisplay}" HorizontalAlignment="Left"/>
+            <TextBlock Text="{Binding NhanVienCheckInDisplay}" HorizontalAlignment="Left"/>
+            <TextBlock Text="{Binding NhanVienCheckOutDisplay}" HorizontalAlignment="Left"/>
+
+            <TextBlock Text="{Binding MaHoaDon}" HorizontalAlignment="Right"/>
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding DanhSachChiTiet}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding TenDichVu}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ThanhTien}" TextAlignment="Right"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

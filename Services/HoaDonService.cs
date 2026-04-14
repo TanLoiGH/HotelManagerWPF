@@ -505,6 +505,11 @@ public class HoaDonService
             .Include(h => h.MaDatPhongNavigation)
                 .ThenInclude(d => d!.MaKhachHangNavigation)
             .Include(h => h.MaNhanVienNavigation)
+            // BẮT BUỘC PHẢI THÊM 2 DÒNG NÀY ĐỂ BẢN IN LẤY ĐƯỢC DATA
+            .Include(h => h.HoaDonChiTiets)
+                .ThenInclude(ct => ct.DatPhongChiTiet)
+            .Include(h => h.DichVuChiTiets)
+                .ThenInclude(dv => dv.MaDichVuNavigation)
             .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
     }
 

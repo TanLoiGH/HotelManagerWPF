@@ -418,9 +418,10 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     private async Task ThanhToanAsync()
     {
+        // 1. Validate đầu vào
         if (PhuongThucThanhToanDuocChon?.MaPTTT is not string maPttt || string.IsNullOrWhiteSpace(maPttt))
         {
-            _hopThoai.CanhBao("Vui long chon phuong thuc thanh toan.");
+            _hopThoai.CanhBao("Vui lòng chọn phương thức thanh toán.");
             return;
         }
 
@@ -429,52 +430,51 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         {
             if (!ThuParseSoTien(SoTienNhap, out soTien) || soTien <= 0)
             {
-                _hopThoai.CanhBao("So tien khong hop le.");
+                _hopThoai.CanhBao("Số tiền không hợp lệ.");
                 return;
             }
         }
 
         var maNhanVien = AppSession.MaNhanVien ?? "NV001";
-        if (!_hopThoai.XacNhan($"Xac nhan thanh toan so tien {soTien:N0} d cho hoa don {_maHoaDon}?", "Xac nhan thanh toan")) return;
+        if (!_hopThoai.XacNhan($"Xác nhận thanh toán số tiền {soTien:N0} đ cho hóa đơn {_maHoaDon}?", "Xác nhận thanh toán")) return;
 
         DangXuLy = true;
         try
         {
-            if (LoaiGiaoDichDuocChon == "Thanh toán cuối")
+            // 2. Kiểm tra logic Thanh toán cuối
+            if (LoaiGiaoDichDuocChon == "Thanh toán cuối" && ConLai > 0 && soTien < ConLai)
             {
-                if (ConLai > 0 && soTien < ConLai)
-                {
-                    _hopThoai.CanhBao($"So tien thanh toan chua du de chot hoa don.  {soTien:N0}đ");
-                    return;
-                }
-
-                // Gọi hàm Master Print siêu gọn
-                bool printed = await InHoaDonMasterAsync(false, KieuInHoaDon.TongHop);
-                if (!printed) return;
-
-                if (ConLai <= 0)
-                {
-                    await _hoaDon.DongBoTrangThaiThanhToanAsync(_maHoaDon);
-                    _hopThoai.ThongBao("Thanh toan hoan tat! Co the tra phong khi khach roi di.");
-                    if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
-                    await TaiLaiDuLieuNoiBoAsync();
-                    return;
-                }
+                _hopThoai.CanhBao($"Số tiền thanh toán chưa đủ để chốt hóa đơn. {soTien:N0}đ");
+                return;
             }
 
+            // 3. XỬ LÝ DATA: Lưu thông tin thanh toán vào Database TRƯỚC
             var thongTin = await _hoaDon.ThanhToanVaTraKetQuaAsync(_maHoaDon, soTien, maPttt, maNhanVien, LoaiGiaoDichDuocChon, NoiDung);
             SoTienNhap = "";
 
+            // 4. XỬ LÝ UI: Hiển thị kết quả & In hóa đơn
             if (thongTin.KetQua is KetQuaThanhToan.HoanTat or KetQuaThanhToan.DaHoanTat)
             {
-                _hopThoai.ThongBao("Thanh toan hoan tat! Co the tra phong khi khach roi di.");
+                if (LoaiGiaoDichDuocChon == "Thanh toán cuối")
+                {
+                    await _hoaDon.DongBoTrangThaiThanhToanAsync(_maHoaDon);
+                }
+
+                _hopThoai.ThongBao("Thanh toán hoàn tất! Có thể trả phòng khi khách rời đi.");
+
+                // Gọi Print: Tạm tắt cờ DangXuLy để hàm InHoaDonMasterAsync có thể chạy qua lệnh check
+                DangXuLy = false;
+                await InHoaDonMasterAsync(false, KieuInHoaDon.TongHop);
+                DangXuLy = true; // Bật lại để block finally phía dưới xử lý an toàn
+
                 if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
                 await TaiLaiDuLieuNoiBoAsync();
                 return;
             }
-
+                
+            // Các trường hợp trả thiếu tiền hoặc lỗi logic khác
             if (thongTin.KetQua == KetQuaThanhToan.GhiNhanChuaDu)
-                _hopThoai.ThongBao($"Da ghi nhan thanh toan {soTien:N0} đ. Khach chua thanh toan du.");
+                _hopThoai.ThongBao($"Đã ghi nhận thanh toán {soTien:N0} đ. Khách chưa thanh toán đủ.");
             else
                 _hopThoai.CanhBao(thongTin.ThongDiep);
 
@@ -483,7 +483,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            _hopThoai.BaoLoi($"Loi thanh toan: {ex.Message}");
+            _hopThoai.BaoLoi($"Lỗi thanh toán: {ex.Message}");
         }
         finally
         {

@@ -1,5 +1,6 @@
-﻿using QuanLyKhachSan_PhamTanLoi.Views;
-using QuanLyKhachSan_PhamTanLoi.ViewModels;
+﻿using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Views;
+using QuestPDF.Infrastructure;
 using System.Windows;
 
 namespace QuanLyKhachSan_PhamTanLoi
@@ -15,7 +16,7 @@ namespace QuanLyKhachSan_PhamTanLoi
 
             // ✅ Không tự shutdown khi LoginWindow đóng
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-
+            QuestPDF.Settings.License = LicenseType.Community;
             var login = new LoginWindow();
             login.ShowDialog();
 
