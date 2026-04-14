@@ -38,6 +38,8 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Content="In Tiền Phòng" Command="{Binding InHoaDonTienPhongCommand}" Margin="0,0,10,0"/>
+                <Button Content="In Dịch Vụ" Command="{Binding InHoaDonDichVuCommand}" Margin="0,0,10,0"/>
                 <Button Content="🧾  Tạm in" Height="38" Padding="16,0" Margin="0,0,10,0"
                         Style="{DynamicResource MacFluent.ButtonAction.AddSoft}"
                         Command="{Binding TamInCommand}"/>

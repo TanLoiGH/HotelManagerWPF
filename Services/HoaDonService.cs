@@ -22,6 +22,8 @@ public class HoaDonService
     {
         return await _db.HoaDons
             .AsNoTracking()
+            .Include(h => h.HoaDonChiTiets)
+            .Include(h => h.DichVuChiTiets)
             .Include(h => h.MaDatPhongNavigation)
                 .ThenInclude(d => d!.MaKhachHangNavigation)
             .OrderByDescending(h => h.NgayLap)

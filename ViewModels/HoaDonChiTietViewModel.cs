@@ -174,6 +174,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         _chonDichVu = chonDichVu;
         _taiLaiTrangHoaDonAsync = taiLaiTrangHoaDonAsync;
 
+        #region  CONSTRUCTOR
         TaiLaiCommand = new AsyncRelayCommand(async _ => await TaiLaiAsync(), _ => !DangXuLy);
         TamInCommand = new AsyncRelayCommand(async _ => await TamInAsync(), _ => !DangXuLy && CoTheChinhSua);
         InHoaDonCommand = new AsyncRelayCommand(async _ => await InHoaDonAsync(), _ => !DangXuLy && !CoTheChinhSua);
@@ -181,17 +182,25 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         ThanhToanCommand = new AsyncRelayCommand(async _ => await ThanhToanAsync(), _ => !DangXuLy && CoTheChinhSua);
         TraPhongCommand = new AsyncRelayCommand(async _ => await TraPhongAsync(), _ => !DangXuLy && CoTheTraPhong);
         CapNhatTraSomHomNayCommand = new AsyncRelayCommand(async _ => await CapNhatTraSomHomNayAsync(), _ => !DangXuLy && CoTheCapNhatTraSom);
+       
+        InHoaDonTienPhongCommand = new AsyncRelayCommand(async _ => await InHoaDonTienPhongAsync(),_ => !DangXuLy && !CoTheChinhSua);  // Khởi tạo lệnh in tiền phòng
+        InHoaDonDichVuCommand = new AsyncRelayCommand(async _ => await InHoaDonDichVuAsync(), _ => !DangXuLy && !CoTheChinhSua);  // Khởi tạo lệnh in dịch vụ
         DongCommand = new RelayCommand(_ => _dong(false));
+        #endregion
     }
 
-    public ICommand TaiLaiCommand { get; }
-    public ICommand TamInCommand { get; }
-    public ICommand InHoaDonCommand { get; }
-    public ICommand ThemDichVuCommand { get; }
-    public ICommand ThanhToanCommand { get; }
-    public ICommand TraPhongCommand { get; }
-    public ICommand CapNhatTraSomHomNayCommand { get; }
-    public ICommand DongCommand { get; }
+        #region COMMANDS
+        public ICommand TaiLaiCommand { get; }
+        public ICommand TamInCommand { get; }
+        public ICommand InHoaDonCommand { get; }
+        public ICommand ThemDichVuCommand { get; }
+        public ICommand ThanhToanCommand { get; }
+        public ICommand TraPhongCommand { get; }
+        public ICommand CapNhatTraSomHomNayCommand { get; }
+        public ICommand DongCommand { get; }
+        public ICommand InHoaDonTienPhongCommand { get; } // Lệnh in chỉ tiền phòng
+        public ICommand InHoaDonDichVuCommand { get; }    // Lệnh in chỉ dịch vụ
+        #endregion
     #endregion
 
     #region LOGIC XỬ LÝ
@@ -237,6 +246,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     // Các lệnh gọi in từ nút bấm (UI)
     private async Task InHoaDonAsync() => await InHoaDonMasterAsync(false, KieuInHoaDon.TongHop);
     private async Task TamInAsync() => await InHoaDonMasterAsync(true);
+    private async Task InHoaDonTienPhongAsync()=> await InHoaDonMasterAsync(false, KieuInHoaDon.ChiTienPhong);
+    private async Task InHoaDonDichVuAsync()=> await InHoaDonMasterAsync(false, KieuInHoaDon.ChiDichVu);
 
     public async Task TaiLaiAsync()
     {
@@ -550,6 +561,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
+    // / Hàm tiện ích để gọi RaiseCanExecuteChanged cho tất cả các lệnh liên quan khi trạng thái có thể thay đổi
     private void RaiseAllCanExecuteChanged()
     {
         (TaiLaiCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
@@ -559,6 +571,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         (ThanhToanCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (TraPhongCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (CapNhatTraSomHomNayCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (InHoaDonTienPhongCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (InHoaDonDichVuCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (DongCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
 
