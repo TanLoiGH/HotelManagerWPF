@@ -25,11 +25,11 @@ public class KhuyenMaiRow
     public string DenNgayText => DenNgay?.ToString("dd/MM/yy") ?? "";
 
     private bool ConHieuLuc => IsActive == true
-        && TuNgay <= DateTime.Now && DenNgay >= DateTime.Now;
+        && TuNgay <= TimeHelper.GetVietnamTime() && DenNgay >= TimeHelper.GetVietnamTime();
 
     public string StatusText => ConHieuLuc ? "Đang chạy"
         : IsActive == false ? "Tắt"
-        : DenNgay < DateTime.Now ? "Hết hạn" : "Chưa bắt đầu";
+        : DenNgay < TimeHelper.GetVietnamTime() ? "Hết hạn" : "Chưa bắt đầu";
 
     public SolidColorBrush StatusColor => StatusText switch
     {

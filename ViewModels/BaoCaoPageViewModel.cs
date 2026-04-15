@@ -161,7 +161,7 @@ public class BaoCaoPageViewModel : BaseViewModel
         var dialog = new Microsoft.Win32.SaveFileDialog
         {
             Filter = "Excel files (*.xlsx)|*.xlsx|CSV files (*.csv)|*.csv",
-            FileName = $"BaoCao_{SelectedReport?.DisplayName ?? "Data"}_{DateTime.Now:yyyyMMdd}"
+            FileName = $"BaoCao_{SelectedReport?.DisplayName ?? "Data"}_{TimeHelper.GetVietnamTime():yyyyMMdd}"
         };
 
         if (dialog.ShowDialog() == true)

@@ -43,7 +43,7 @@ public class ChiPhiService
             MaPhong = maPhong,
             TenChiPhi = tenChiPhi,
             SoTien = soTien,
-            NgayChiPhi = DateTime.Now,
+            NgayChiPhi = TimeHelper.GetVietnamTime(),
             GhiChu = ghiChu
         });
         await _db.SaveChangesAsync();

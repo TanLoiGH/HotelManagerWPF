@@ -2,6 +2,7 @@
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuanLyKhachSan_PhamTanLoi.Reports.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 
 public class DashboardReport : IDocument
 {
@@ -38,7 +39,7 @@ public class DashboardReport : IDocument
             row.RelativeItem().Column(col =>
             {
                 col.Item().Text("BÁO CÁO QUẢN TRỊ KHÁCH SẠN").FontSize(20).SemiBold().FontColor(Colors.Blue.Medium);
-                col.Item().Text($"Ngày xuất: {DateTime.Now:dd/MM/yyyy HH:mm}");
+                col.Item().Text($"Ngày xuất: {TimeHelper.GetVietnamTime():dd/MM/yyyy HH:mm}");
             });
         });
     }

@@ -78,7 +78,7 @@ public static class QuestPdfHelper
                 row.RelativeItem().Column(c =>
                 {
                     c.Item().Text($"Số HD/ Invoke NO: {hd.MaHoaDon}");
-                    c.Item().Text($"Ngày lập: {DateTime.Now:dd/MM/yyyy}");
+                    c.Item().Text($"Ngày lập: {TimeHelper.GetVietnamTime():dd/MM/yyyy}");
                     c.Item().Text($"Thu ngân: {tenNhanVien}").Bold();
                 });
                 row.RelativeItem().Column(c =>

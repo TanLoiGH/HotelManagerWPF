@@ -85,7 +85,7 @@ public class HoaDonService
             MaHoaDon = newMaHd,
             MaDatPhong = maDatPhong,
             MaNhanVien = maNhanVien,
-            NgayLap = DateTime.Now,
+            NgayLap = TimeHelper.GetVietnamTime(),
             TienPhong = tienPhong,
             TienDichVu = 0,
             Vat = vatPercent,
@@ -225,7 +225,7 @@ public class HoaDonService
                     MaPttt = maPTTT,
                     SoTien = soTien,
                     LoaiGiaoDich = loaiGiaoDich,
-                    NgayThanhToan = DateTime.Now,
+                    NgayThanhToan = TimeHelper.GetVietnamTime(),
                     NguoiThu = nguoiThu,
                     NoiDung = noiDung
                 });
@@ -251,7 +251,7 @@ public class HoaDonService
                         MaPhong = hd.MaDatPhongNavigation?.DatPhongChiTiets.FirstOrDefault()?.MaPhong, // Gắn mã phòng liên quan nếu có
                         TenChiPhi = $"Hoàn tiền thừa/cọc cho khách (Hóa đơn: {maHoaDon})",
                         SoTien = Math.Abs(soTien), // Bảng Chi Phí luôn ghi nhận số DƯƠNG
-                        NgayChiPhi = DateTime.Now,
+                        NgayChiPhi = TimeHelper.GetVietnamTime(),
                         GhiChu = noiDung ?? $"Hệ thống tự động ghi nhận khoản chi do hoàn tiền."
                     });
                 }
@@ -381,7 +381,7 @@ public class HoaDonService
                 return;
             }
 
-            await CapNhatTienPhongTheoThoiDiemTraPhongAsync(hd, thoiDiem ?? DateTime.Now);
+            await CapNhatTienPhongTheoThoiDiemTraPhongAsync(hd, thoiDiem ?? TimeHelper.GetVietnamTime());
 
             var tongDaThu = await _db.ThanhToans
                 .Where(t => t.MaHoaDon == maHoaDon)

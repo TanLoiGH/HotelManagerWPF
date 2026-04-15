@@ -28,7 +28,7 @@ public class KhuyenMaiService
 
     public async Task<List<KhuyenMai>> LayKhuyenMaiConHieuLucTheoLoaiKhachAsync(string? maLoaiKhach)
     {
-        var now = DateTime.Now;
+        var now = TimeHelper.GetVietnamTime();
         return await _db.KhuyenMais
             .AsNoTracking()
             .Where(k => k.IsActive == true

@@ -112,7 +112,7 @@ public class DichVuService
                 MaDichVu = maDichVu,
                 SoLuong = soLuong,
                 DonGia = dv.Gia ?? 0,
-                NgaySuDung = DateTime.Now
+                NgaySuDung = TimeHelper.GetVietnamTime()
             });
         }
 
@@ -142,7 +142,7 @@ public class DichVuService
                 hd.MaKhuyenMaiNavigation = await _db.KhuyenMais.FindAsync(hd.MaKhuyenMai);
 
             var km = hd.MaKhuyenMaiNavigation;
-            if (km is { IsActive: true } && km.NgayBatDau <= DateTime.Now && DateTime.Now <= km.NgayKetThuc)
+            if (km is { IsActive: true } && km.NgayBatDau <= TimeHelper.GetVietnamTime() && TimeHelper.GetVietnamTime() <= km.NgayKetThuc)
             {
                 kmPercent = km.LoaiKhuyenMai == "Phần trăm"
                     ? km.GiaTriKm ?? 0

@@ -25,7 +25,7 @@ public static class VoucherHelper
 
         sb.AppendLine("<div class='header'>");
         sb.AppendLine("<div class='title'>PHIẾU THU TIỀN ĐẶT CỌC</div>");
-        sb.AppendLine($"<div>Số: {dp.MaDatPhong} | Ngày: {DateTime.Now:dd/MM/yyyy HH:mm}</div>");
+        sb.AppendLine($"<div>Số: {dp.MaDatPhong} | Ngày: {TimeHelper.GetVietnamTime():dd/MM/yyyy HH:mm}</div>");
         sb.AppendLine("</div>");
 
         sb.AppendLine("<div class='info-grid'>");
@@ -65,7 +65,7 @@ public static class VoucherHelper
 
         sb.AppendLine("<div class='header'>");
         sb.AppendLine("<div class='title'>PHIẾU CHI HOÀN TRẢ TIỀN CỌC</div>");
-        sb.AppendLine($"<div>Số: {dp.MaDatPhong}-REF | Ngày: {DateTime.Now:dd/MM/yyyy HH:mm}</div>");
+        sb.AppendLine($"<div>Số: {dp.MaDatPhong}-REF | Ngày: {TimeHelper.GetVietnamTime():dd/MM/yyyy HH:mm}</div>");
         sb.AppendLine("</div>");
 
         sb.AppendLine("<div class='info-grid'>");
@@ -105,7 +105,7 @@ public static class VoucherHelper
 
         sb.AppendLine("<div class='center bold'>HÓA ĐƠN THANH TOÁN</div>");
         sb.AppendLine($"<div class='center'>Số: {hd.MaHoaDon}</div>");
-        sb.AppendLine($"<div class='center'>Ngày: {DateTime.Now:dd/MM/yyyy HH:mm}</div>");
+        sb.AppendLine($"<div class='center'>Ngày: {TimeHelper.GetVietnamTime():dd/MM/yyyy HH:mm}</div>");
         sb.AppendLine("<div class='line'></div>");
 
         sb.AppendLine($"<div>Khách hàng: {khName}</div>");

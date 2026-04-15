@@ -1,3 +1,5 @@
+using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,15 +9,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public class DashboardViewModel : BaseViewModel
 {
     private readonly DashboardService _dashboardService;
-    private DateTime _tuNgay = new(DateTime.Now.Year, DateTime.Now.Month, 1);
-    private DateTime _denNgay = DateTime.Today;
+    private DateTime _tuNgay = new(TimeHelper.GetVietnamTime().Year, TimeHelper.GetVietnamTime().Month, 1);
+    private DateTime _denNgay = TimeHelper.GetVietnamTime().Date;
 
     private string _doanhThuText = "0 ₫";
     private string _chiPhiText = "0 ₫";

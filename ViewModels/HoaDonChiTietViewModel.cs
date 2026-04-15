@@ -550,7 +550,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         DangXuLy = true;
         try
         {
-            var thongTin = await _hoaDon.CapNhatTienPhongKhiTraSomAsync(_maHoaDon, DateTime.Now);
+            var thongTin = await _hoaDon.CapNhatTienPhongKhiTraSomAsync(_maHoaDon, TimeHelper.GetVietnamTime());
             if (thongTin.KetQua == KetQuaThanhToan.TuChoi)
             {
                 _hopThoai.CanhBao(thongTin.ThongDiep);

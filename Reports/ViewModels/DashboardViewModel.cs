@@ -1,4 +1,5 @@
 using QuanLyKhachSan_PhamTanLoi.Dtos;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuestPDF.Fluent;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
             try
             {
                 var report = new DashboardReport(vm);
-                string fileName = $"BaoCao_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+                string fileName = $"BaoCao_{TimeHelper.GetVietnamTime():yyyyMMdd_HHmm}.pdf";
                 report.GeneratePdf(fileName);
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(fileName) { UseShellExecute = true });
             }

@@ -14,7 +14,7 @@ public partial class MainWindow : Window
     private Border? _activeNavItem;
     public string WelcomeMessage => $"{AppSession.TenNhanVien ?? "Admin"}";
     public string MaQuyen => AppSession.MaQuyen ?? "";
-    public string NgayHienTai => DateTime.Now.ToString("dddd, dd/MM/yyyy");
+    public string NgayHienTai => TimeHelper.GetVietnamTime().ToString("dddd, dd/MM/yyyy");
 
     public MainWindow()
     {
