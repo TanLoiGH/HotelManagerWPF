@@ -159,10 +159,10 @@ public static class QuestPdfHelper
             decimal tienDichVu = (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiDichVu) ? (hd.TienDichVu ?? 0) : 0;
             decimal phanTramVat = hd.Vat ?? 0;
             decimal subTotal = tienPhong + tienDichVu;
-            decimal vatAmount = tienPhong * (phanTramVat / 100m);
+            decimal vatAmount = subTotal * (phanTramVat / 100m);
 
             decimal tienCoc = (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiTienPhong) ? (hd.MaDatPhongNavigation?.TienCoc ?? 0) : 0;
-            decimal tongThanhToan = subTotal + vatAmount - tienCoc;
+            decimal tongThanhToan = hd.TongThanhToan ?? (subTotal + vatAmount - tienCoc);
 
             col.Item().PaddingTop(15).Column(c =>
             {

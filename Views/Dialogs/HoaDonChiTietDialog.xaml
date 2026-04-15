@@ -155,8 +155,6 @@
                         <TextBlock Grid.Row="2" Text="VAT" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,6,0,0"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding VatPhanTramHienThi}" Margin="0,6,0,0"/>
 
-
-
                         <TextBlock Grid.Row="3" Text="TỔNG THANH TOÁN" FontWeight="Bold" Margin="0,10,0,0"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TongThanhToanHienThi}"
                                    FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}" Margin="0,10,0,0"/>
@@ -242,10 +240,12 @@
                                 </StackPanel.Style>
                             <TextBlock Text="Số tiền thanh toán" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                             <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="36" Margin="0,0,0,10">
-                                <TextBox BorderThickness="0" Padding="10,0"
+                                    <TextBox BorderThickness="0" Padding="10,0"
                                          VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold"
                                          TextAlignment="Right"
-                                         Text="{Binding SoTienNhap, UpdateSourceTrigger=PropertyChanged}"/>
+                                              x:Name="txtSoTien"
+                                         Text="{Binding SoTienNhap, UpdateSourceTrigger=PropertyChanged}"
+                                         TextChanged="txtSoTien_TextChanged"/>
                             </Border>
 
                             <TextBlock Text="Phương thức thanh toán" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>

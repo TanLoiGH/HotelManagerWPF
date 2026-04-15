@@ -3,6 +3,7 @@ using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views.Dialogs;
 
@@ -51,5 +52,51 @@ public partial class HoaDonChiTietDialog : Window
     {
         base.OnClosed(e);
         _db.Dispose();
+    }
+
+    private void txtSoTien_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        var textBox = sender as TextBox;
+        if (textBox == null) return;
+
+        // 1. Tạm tắt sự kiện để tránh lặp vô hạn (Infinite Loop)
+        textBox.TextChanged -= txtSoTien_TextChanged;
+
+        try
+        {
+            // 2. Lưu lại vị trí con trỏ chuột
+            int selectionStart = textBox.SelectionStart;
+            int lengthBefore = textBox.Text.Length;
+
+            // 3. Xóa các ký tự không phải số để lấy số nguyên thủy
+            string rawText = textBox.Text.Replace(",", "").Replace(".", "").Replace(" ", "");
+
+            // 4. Định dạng lại thành tiền tệ (N0)
+            if (decimal.TryParse(rawText, out decimal soTien))
+            {
+                textBox.Text = soTien.ToString("N0");
+
+                int lengthAfter = textBox.Text.Length;
+                int viTriMoi = selectionStart + (lengthAfter - lengthBefore);
+
+                if (viTriMoi < 0) viTriMoi = 0;
+                if (viTriMoi > lengthAfter) viTriMoi = lengthAfter;
+
+                textBox.SelectionStart = viTriMoi;
+            }
+            else if (string.IsNullOrEmpty(rawText))
+            {
+                textBox.Text = "";
+            }
+
+            // 6. Cập nhật thẳng giá trị đã format xuống ViewModel
+            _vm.SoTienNhap = textBox.Text;
+        }
+        finally
+        {
+            // Bật lại sự kiện
+            textBox.TextChanged += txtSoTien_TextChanged;
+        }
+
     }
 }

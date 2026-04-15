@@ -124,7 +124,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     public decimal TienPhong { get => _tienPhong; private set { if (SetProperty(ref _tienPhong, value)) OnPropertyChanged(nameof(VatAmount)); } }
     public decimal TienDichVu { get => _tienDichVu; private set { if (SetProperty(ref _tienDichVu, value)) OnPropertyChanged(nameof(VatAmount)); } }
     public decimal VatPercent { get => _vatPercent; private set { if (SetProperty(ref _vatPercent, value)) OnPropertyChanged(nameof(VatAmount)); } }
-    public decimal VatAmount => TienPhong * (VatPercent / 100m); // Chỉ tính VAT cho tiền phòng
+    public decimal VatAmount => (TienPhong + TienDichVu) * (VatPercent / 100m); // Chỉ tính VAT cho tiền phòng
+
 
     public decimal TienCoc { get => _tienCoc; private set { if (SetProperty(ref _tienCoc, value)) OnPropertyChanged(nameof(TienCocHienThi)); } }
     public decimal TongThanhToan { get => _tongThanhToan; private set => SetProperty(ref _tongThanhToan, value); }
@@ -437,6 +438,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
 
         decimal soTien = 0;
+
+        // Chỉ yêu cầu nhập và validate số tiền nếu khách CÒN NỢ
         if (ConLai > 0)
         {
             if (!ThuParseSoTien(SoTienNhap, out soTien) || soTien <= 0)
@@ -445,9 +448,20 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 return;
             }
         }
+        else
+        {
+            // Nếu đã đủ tiền hoặc dư tiền cọc, mặc định số tiền giao dịch phát sinh là 0
+            soTien = 0;
+        }
 
         var maNhanVien = AppSession.MaNhanVien ?? "NV001";
-        if (!_hopThoai.XacNhan($"Xác nhận thanh toán số tiền {soTien:N0} đ cho hóa đơn {_maHoaDon}?", "Xác nhận thanh toán")) return;
+
+        // Thay đổi câu hỏi xác nhận cho phù hợp với ngữ cảnh
+        string cauHoiXacNhan = soTien > 0
+            ? $"Xác nhận thanh toán số tiền {soTien:N0} đ cho hóa đơn {_maHoaDon}?"
+            : $"Hóa đơn {_maHoaDon} đã đủ tiền. Xác nhận chốt hóa đơn và in?";
+
+        if (!_hopThoai.XacNhan(cauHoiXacNhan, "Xác nhận thanh toán")) return;
 
         DangXuLy = true;
         try
@@ -459,21 +473,21 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 return;
             }
 
-            // 3. XỬ LÝ DATA: Lưu thông tin thanh toán vào Database TRƯỚC
+            // 3. XỬ LÝ DATA: Lưu thông tin thanh toán vào Database
             var thongTin = await _hoaDon.ThanhToanVaTraKetQuaAsync(_maHoaDon, soTien, maPttt, maNhanVien, LoaiGiaoDichDuocChon, NoiDung);
             SoTienNhap = "";
 
             // 4. XỬ LÝ UI: Hiển thị kết quả & In hóa đơn
             if (thongTin.KetQua is KetQuaThanhToan.HoanTat or KetQuaThanhToan.DaHoanTat)
             {
-                if (LoaiGiaoDichDuocChon == "Thanh toán cuối")
+                if (LoaiGiaoDichDuocChon == "Thanh toán cuối" || ConLai <= 0)
                 {
                     await _hoaDon.DongBoTrangThaiThanhToanAsync(_maHoaDon);
                 }
 
-                _hopThoai.ThongBao("Thanh toán hoàn tất! Có thể trả phòng khi khách rời đi.");
+                _hopThoai.ThongBao("Chốt hóa đơn hoàn tất! Hệ thống sẽ hiển thị bản in.");
 
-                // Gọi Print: Tạm tắt cờ DangXuLy để hàm InHoaDonMasterAsync có thể chạy qua lệnh check
+                // Gọi Print: Tạm tắt cờ DangXuLy để hàm InHoaDonMasterAsync có thể chạy
                 DangXuLy = false;
                 await InHoaDonMasterAsync(false, KieuInHoaDon.TongHop);
                 DangXuLy = true; // Bật lại để block finally phía dưới xử lý an toàn
@@ -482,7 +496,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 await TaiLaiDuLieuNoiBoAsync();
                 return;
             }
-                
+
             // Các trường hợp trả thiếu tiền hoặc lỗi logic khác
             if (thongTin.KetQua == KetQuaThanhToan.GhiNhanChuaDu)
                 _hopThoai.ThongBao($"Đã ghi nhận thanh toán {soTien:N0} đ. Khách chưa thanh toán đủ.");
@@ -576,30 +590,21 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         (DongCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
 
-    private static bool ThuParseSoTien(string? text, out decimal soTien)
-    {
-        soTien = 0;
-        if (string.IsNullOrWhiteSpace(text)) return false;
+   private static bool ThuParseSoTien(string? text, out decimal soTien)
+{
+    soTien = 0;
+    if (string.IsNullOrWhiteSpace(text)) return false;
 
-        var raw = text.Trim();
-        raw = raw.Replace("₫", "", StringComparison.OrdinalIgnoreCase)
-                 .Replace("đ", "", StringComparison.OrdinalIgnoreCase)
-                 .Replace("d", "", StringComparison.OrdinalIgnoreCase)
-                 .Trim();
+    // BƯỚC 1: Dùng Regex gọt sạch MỌI THỨ (chữ đ, dấu phẩy, khoảng trắng, dấu chấm...)
+    // Chỉ giữ lại duy nhất các con số từ 0-9 và dấu trừ (-)
+    var digits = Regex.Replace(text, @"[^\d\-]", "");
 
-        raw = Regex.Replace(raw, @"[^\d\.,\-]", "");
+    // BƯỚC 2: Kiểm tra an toàn
+    if (digits == "-" || string.IsNullOrWhiteSpace(digits)) return false;
 
-        if (decimal.TryParse(raw, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, VanHoaVietNam, out soTien))
-            return true;
-
-        if (decimal.TryParse(raw, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, VanHoaMy, out soTien))
-            return true;
-
-        var digits = Regex.Replace(raw, @"[^\d\-]", "");
-        if (digits == "-" || digits.Length == 0) return false;
-
-        return decimal.TryParse(digits, NumberStyles.Integer | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out soTien);
-    }
+    // BƯỚC 3: Ép kiểu chuỗi số nguyên thuần túy
+    return decimal.TryParse(digits, NumberStyles.Integer | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out soTien);
+}
     #endregion
 }
 
