@@ -636,7 +636,7 @@ public sealed class ThanhToanItemVm
     public string LoaiGiaoDich { get; set; } = "";
     public decimal SoTien { get; set; }
     public DateTime? NgayThanhToan { get; set; }
-    public string MaNhanVienThuTien { get; set; } = "";
+    public string MaNhanVienThuTien { get; set; } = ""; 
     public string TenNhanVienThuTien { get; set; } = "";
     public string SoTienText => $"{SoTien:N0} ₫";
 }

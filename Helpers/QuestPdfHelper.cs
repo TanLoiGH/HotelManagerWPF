@@ -1,8 +1,9 @@
-﻿using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using System;
 using System.Diagnostics;
 
@@ -11,16 +12,16 @@ namespace QuanLyKhachSan_PhamTanLoi.Helpers;
 public static class QuestPdfHelper
 {
     public static void XuatVaMoHoaDonPdf(HoaDon hd, string tenKhachHang, string tenNhanVien, string duongDanLuu,
-        HoaDonChiTietViewModel.KieuInHoaDon kieuIn = HoaDonChiTietViewModel.KieuInHoaDon.TongHop, bool laTamTinh = false)
+      HoaDonChiTietViewModel.KieuInHoaDon kieuIn = HoaDonChiTietViewModel.KieuInHoaDon.TongHop, bool laTamTinh = false)
     {
-        var document = Document.Create(container =>
+        var document = QuestPDF.Fluent.Document.Create(container =>
         {
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.PageColor(Colors.White);
-                page.DefaultTextStyle(x => x.FontSize(11).FontFamily(Fonts.Arial));
+                page.DefaultTextStyle(x => x.FontSize(11).FontFamily(QuestPDF.Helpers.Fonts.Arial));
 
                 page.Header().Element(x => ComposeHeader(x, laTamTinh, kieuIn));
                 page.Content().Element(x => ComposeContent(x, hd, tenKhachHang, tenNhanVien, kieuIn));
@@ -57,7 +58,7 @@ public static class QuestPdfHelper
         {
             col.Item().AlignCenter().Text("HOTEL NAME").FontSize(24).SemiBold().FontColor(Colors.Blue.Darken2);
             col.Item().AlignCenter().Text("123 Đường ABC, Quận XXZ, TP. Hà Nội");
-            col.Item().AlignCenter().Text("Tel: (024) 1234 5678  |  Email: info@hotelname.com");
+            col.Item().AlignCenter().Text("Tel: (024) 1234 5678  |  Email: info@hotelname.com");
             col.Item().PaddingTop(10).AlignCenter().Text(title).FontSize(20).Bold();
             col.Item().AlignCenter().Text(subTitle).FontSize(12).FontColor(Colors.Grey.Medium);
         });
@@ -66,14 +67,21 @@ public static class QuestPdfHelper
     private static void ComposeContent(IContainer container, HoaDon hd, string tenKhachHang, string tenNhanVien, HoaDonChiTietViewModel.KieuInHoaDon kieuIn)
     {
         var showRentalDate = kieuIn != HoaDonChiTietViewModel.KieuInHoaDon.ChiDichVu;
-       
-        var ngayDen = hd.MaDatPhongNavigation?.NgayNhanDuKien?.ToString("dd/MM/yyyy") ?? "...";
-        var ngayDi = hd.MaDatPhongNavigation?.NgayTraDuKien?.ToString("dd/MM/yyyy") ?? "...";
+
+        //Hiển thị ngày thuê & trả dựa trên chi tiết đặt phòng nếu có, ưu tiên lấy min(NgayNhan) và max(NgayTra) trong các chi tiết
+        var ctdps = hd.HoaDonChiTiets?.Select(x => x.DatPhongChiTiet).Where(x => x != null).ToList();
+        var ngayDen = ctdps != null && ctdps.Any()
+          ? ctdps.Min(x => x.NgayNhan).ToString("dd/MM/yyyy HH:mm")
+          : (hd.MaDatPhongNavigation?.NgayNhanDuKien?.ToString("dd/MM/yyyy HH:mm") ?? "...");
+
+        var ngayDi = ctdps != null && ctdps.Any()
+          ? ctdps.Max(x => x.NgayTra).ToString("dd/MM/yyyy HH:mm")
+          : (hd.MaDatPhongNavigation?.NgayTraDuKien?.ToString("dd/MM/yyyy HH:mm") ?? "...");
 
         container.PaddingVertical(1, Unit.Centimetre).Column(col =>
         {
-            // --- THÔNG TIN CHUNG ---
-            col.Item().Row(row =>
+            // --- THÔNG TIN CHUNG ---
+            col.Item().Row(row =>
             {
                 row.RelativeItem().Column(c =>
                 {
@@ -85,7 +93,7 @@ public static class QuestPdfHelper
                 {
                     c.Item().Text($"Khách hàng: {tenKhachHang}").Bold();
                     if (showRentalDate) // Chỉ hiện ngày thuê khi in tiền phòng
-                    {
+                    {
                         c.Item().Text($"Phòng: {hd.MaDatPhong}");
                         c.Item().Text($"Thời gian: {ngayDen} - {ngayDi}");
                     }
@@ -94,8 +102,8 @@ public static class QuestPdfHelper
 
             col.Item().PaddingVertical(15);
 
-            // --- BẢNG CHI TIẾT ---
-            col.Item().Table(table =>
+            // --- BẢNG CHI TIẾT ---
+            col.Item().Table(table =>
             {
                 table.ColumnsDefinition(columns =>
                 {
@@ -119,8 +127,8 @@ public static class QuestPdfHelper
 
                 int stt = 1;
 
-                // Tiền Phòng
-                if (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiTienPhong)
+                // Tiền Phòng
+                if (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiTienPhong)
                 {
                     foreach (var p in hd.HoaDonChiTiets)
                     {
@@ -134,8 +142,8 @@ public static class QuestPdfHelper
                     }
                 }
 
-                // Dịch vụ
-                if (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiDichVu)
+                // Dịch vụ
+                if (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiDichVu)
                 {
                     foreach (var dv in hd.DichVuChiTiets)
                     {
@@ -154,8 +162,8 @@ public static class QuestPdfHelper
                 static IContainer BlockStyle(IContainer container) => container.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5);
             });
 
-            // --- TỔNG TIỀN & FOOTER ---
-            decimal tienPhong = (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiTienPhong) ? (hd.TienPhong ?? 0) : 0;
+            // --- TỔNG TIỀN & FOOTER ---
+            decimal tienPhong = (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiTienPhong) ? (hd.TienPhong ?? 0) : 0;
             decimal tienDichVu = (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiDichVu) ? (hd.TienDichVu ?? 0) : 0;
             decimal phanTramVat = hd.Vat ?? 0;
             decimal subTotal = tienPhong + tienDichVu;
@@ -164,25 +172,38 @@ public static class QuestPdfHelper
             decimal tienCoc = (kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.TongHop || kieuIn == HoaDonChiTietViewModel.KieuInHoaDon.ChiTienPhong) ? (hd.MaDatPhongNavigation?.TienCoc ?? 0) : 0;
             decimal tongThanhToan = hd.TongThanhToan ?? (subTotal + vatAmount - tienCoc);
 
-            col.Item().PaddingTop(15).Column(c =>
+            col.Item().PaddingTop(15).Row(row =>
             {
-                c.Item().AlignRight().Text($"Tổng tiền phòng & dịch vụ: {subTotal:N0} VNĐ");
-
-                if (vatAmount > 0)
-                    c.Item().AlignRight().Text($"VAT {phanTramVat}%: {vatAmount:N0} VNĐ");
-
-                if (tienCoc > 0)
-                    c.Item().AlignRight().Text($"Đã thanh toán cọc: -{tienCoc:N0} VNĐ").FontColor(Colors.Red.Medium);
-
-                c.Item().PaddingTop(5).AlignRight().Text(text =>
+                row.RelativeItem(); // Tạo một khoảng trống đẩy bảng sang phải
+                row.ConstantItem(350).Table(t =>
                 {
-                    text.Span("TỔNG THANH TOÁN: ").SemiBold();
-                    text.Span($"{tongThanhToan:N0} VNĐ").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                    t.ColumnsDefinition(c =>
+                    {
+                        c.RelativeColumn();      // Cột chứa chữ (Tự co giãn)
+                        c.ConstantColumn(120);   // Cột chứa tiền (Cố định chiều rộng 120)
+                    });
+                    t.Cell().PaddingBottom(6).AlignRight().Text("Tổng tiền phòng & dịch vụ: ");
+                    t.Cell().PaddingBottom(6).AlignRight().Text($"{subTotal:N0} VNĐ").Bold();
+
+                    if (vatAmount > 0)
+                    {
+                        t.Cell().PaddingBottom(6).AlignRight().Text($"VAT {phanTramVat}%: ");
+                        t.Cell().PaddingBottom(6).AlignRight().Text($"{vatAmount:N0} VNĐ").Bold();
+                    }
+
+                    if (tienCoc > 0)
+                    {
+                        t.Cell().PaddingBottom(6).AlignRight().Text("Đã thanh toán cọc: ").FontColor(Colors.Red.Medium);
+                        t.Cell().PaddingBottom(6).AlignRight().Text($"- {tienCoc:N0} VNĐ").FontColor(Colors.Red.Medium).Bold();
+                    }
+
+                    t.Cell().PaddingTop(5).AlignRight().Text("TỔNG THANH TOÁN: ").SemiBold();
+                    t.Cell().PaddingTop(5).AlignRight().Text($"{tongThanhToan:N0} VNĐ").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
                 });
             });
 
-            // Chữ ký & Đọc số
-            col.Item().PaddingTop(30).Column(c =>
+            // Chữ ký & Đọc số
+            col.Item().PaddingTop(30).Column(c =>
             {
                 c.Item().Text($"Số tiền bằng chữ: {NumberToText((long)tongThanhToan)} đồng chẵn.").Italic();
 
@@ -210,8 +231,8 @@ public static class QuestPdfHelper
         catch { }
     }
 
-    #region HÀM ĐỌC SỐ THÀNH CHỮ TIẾNG VIỆT
-    private static string NumberToText(long inputNumber)
+    #region HÀM ĐỌC SỐ THÀNH CHỮ TIẾNG VIỆT
+    private static string NumberToText(long inputNumber)
     {
         string[] unitNumbers = new string[] { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
         string[] placeValues = new string[] { "", "nghìn", "triệu", "tỷ" };
@@ -269,5 +290,5 @@ public static class QuestPdfHelper
             return res.Trim();
         }
     }
-    #endregion
+    #endregion
 }
