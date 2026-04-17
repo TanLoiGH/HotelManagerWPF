@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
-public class DatPhongService
+public class DatPhongService : IDatPhongService
 {
     private readonly QuanLyKhachSanContext _db;
     public DatPhongService(QuanLyKhachSanContext db) => _db = db;
@@ -226,14 +227,20 @@ public class DatPhongService
                 .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
                 ?? throw new KeyNotFoundException("Không tìm thấy đặt phòng");
 
-            // Cập nhật trạng thái hủy
+            // Xác định trạng thái hủy cụ thể dựa trên tiền hoàn trả
             if (dp.TienCoc > 0)
             {
-                if (tienHoanTra >= dp.TienCoc) dp.TrangThai = "Đã hủy - Hoàn cọc";
-                else if (tienHoanTra > 0) dp.TrangThai = $"Đã hủy - Hoàn cọc {tienHoanTra:N0}";
-                else dp.TrangThai = "Đã hủy - Mất cọc";
+                if (tienHoanTra >= dp.TienCoc)
+                    dp.TrangThai = "Đã hủy - Hoàn cọc";
+                else if (tienHoanTra > 0)
+                    dp.TrangThai = $"Đã hủy - Hoàn cọc {tienHoanTra:N0}";
+                else
+                    dp.TrangThai = "Đã hủy - Mất cọc";
             }
-            else dp.TrangThai = "Đã hủy";
+            else
+            {
+                dp.TrangThai = "Đã hủy";
+            }
 
             // Giải phóng các phòng trong đoàn
             foreach (var ct in dp.DatPhongChiTiets)
@@ -270,11 +277,6 @@ public class DatPhongService
         await EnsurePhongAvailableAsync(maPhong, ct.NgayNhan, ngayTraMoi, maDatPhong);
 
         ct.NgayTra = ngayTraMoi;
-        await _db.SaveChangesAsync();
-
-        // Cập nhật lại ngày trả dự kiến của Header Đặt phòng
-        var dp = await _db.DatPhongs.Include(d => d.DatPhongChiTiets).FirstAsync(d => d.MaDatPhong == maDatPhong);
-        dp.NgayTraDuKien = dp.DatPhongChiTiets.Max(c => c.NgayTra);
 
         await _db.SaveChangesAsync();
         await tx.CommitAsync();

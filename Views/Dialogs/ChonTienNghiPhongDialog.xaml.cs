@@ -51,7 +51,7 @@ public partial class ChonTienNghiPhongDialog : Window
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        var roomSvc = new RoomService(db);
+        var roomSvc = new PhongService(db);
         var tnSvc = new TienNghiService(db);
 
         var assigned = (await roomSvc.LayTienNghiPhongAsync(_maPhong))

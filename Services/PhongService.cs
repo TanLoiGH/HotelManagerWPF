@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,10 +21,10 @@ public record TienNghiPhongQuanTriItem(
     string TenTienNghi,
     string MaTrangThai);
 
-public class RoomService
+public class PhongService : IPhongService
 {
     private readonly QuanLyKhachSanContext _db;
-    public RoomService(QuanLyKhachSanContext db) => _db = db;
+    public PhongService(QuanLyKhachSanContext db) => _db = db;
 
     // Lấy toàn bộ phòng kèm loại phòng và trạng thái để hiển thị sơ đồ.
     public async Task<List<Phong>> LayDanhSachPhongChiTietAsync()

@@ -4,10 +4,11 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
-public class HoaDonService
+public class HoaDonService : IHoaDonService
 {
     private readonly QuanLyKhachSanContext _db;
     private readonly KhachHangService _khachHangSvc;

@@ -18,7 +18,7 @@ namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public partial class SoDoPhongViewModel : BaseViewModel
 {
-    private readonly RoomService _roomService;
+    private readonly PhongService _roomService;
     private readonly KhachHangService _khachHangService;
     private readonly DatPhongService _datPhongService;
 
@@ -108,7 +108,7 @@ public partial class SoDoPhongViewModel : BaseViewModel
     public ICommand HoanThanhDonDepCommand { get; }
 
     // ── Constructor ─────────────────────────────────────────────────────────
-    public SoDoPhongViewModel(RoomService roomService, KhachHangService khachHangService, DatPhongService datPhongService)
+    public SoDoPhongViewModel(PhongService roomService, KhachHangService khachHangService, DatPhongService datPhongService)
     {
         _roomService = roomService;
         _khachHangService = khachHangService;

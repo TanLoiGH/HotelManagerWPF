@@ -46,7 +46,7 @@ public partial class QuanTriPhongPage : Page
     private async Task LoadAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        var roomSvc = new RoomService(db);
+        var roomSvc = new PhongService(db);
         var tnSvc = new TienNghiService(db);
 
         var loaiPhongs = await roomSvc.LayLoaiPhongAsync();
@@ -146,7 +146,7 @@ public partial class QuanTriPhongPage : Page
     private async Task LoadTienNghiAsync(string maPhong)
     {
         using var db = new QuanLyKhachSanContext();
-        var roomSvc = new RoomService(db);
+        var roomSvc = new PhongService(db);
         var items = await roomSvc.LayTienNghiPhongQuanTriAsync(maPhong);
 
         _tienNghiItems.Clear();
@@ -171,7 +171,7 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var roomSvc = new RoomService(db);
+            var roomSvc = new PhongService(db);
             await roomSvc.CapNhatDanhSachTienNghiPhongAsync(_selected.MaPhong, selectedIds);
             await LoadTienNghiAsync(_selected.MaPhong);
             await LoadAsync(); // Reload danh sách phòng để cập nhật IsUsed (Có/Không)
@@ -194,7 +194,7 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var roomSvc = new RoomService(db);
+            var roomSvc = new PhongService(db);
             await roomSvc.GoTienNghiKhoiPhongAsync(_selected.MaPhong, row.MaTienNghi);
             await LoadTienNghiAsync(_selected.MaPhong);
         }
@@ -229,7 +229,7 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var roomSvc = new RoomService(db);
+            var roomSvc = new PhongService(db);
 
             if (_isNew)
             {
@@ -265,7 +265,7 @@ public partial class QuanTriPhongPage : Page
         try
         {
             using var db = new QuanLyKhachSanContext();
-            var roomSvc = new RoomService(db);
+            var roomSvc = new PhongService(db);
             await roomSvc.XoaPhongAsync(_selected.MaPhong);
 
             await LoadAsync();

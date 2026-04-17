@@ -19,7 +19,7 @@ public partial class TienNghiPage : Page
     private async Task LoadComboboxesAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        var roomSvc = new RoomService(db);
+        var roomSvc = new PhongService(db);
         var tnSvc = new TienNghiService(db);
 
         // Load CboPhong

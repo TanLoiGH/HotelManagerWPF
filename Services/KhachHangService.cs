@@ -3,10 +3,11 @@ using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
-public class KhachHangService
+public class KhachHangService : IKhachHangService
 {
     private readonly QuanLyKhachSanContext _db;
     public KhachHangService(QuanLyKhachSanContext db) => _db = db;

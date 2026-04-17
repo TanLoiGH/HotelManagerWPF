@@ -48,7 +48,7 @@ public partial class GhiChiPhiDialog : Window
     private async Task LoadPhongAsync()
     {
         using var db = new QuanLyKhachSanContext();
-        var roomSvc = new RoomService(db);
+        var roomSvc = new PhongService(db);
         var phongs = await roomSvc.LayDanhSachMaPhongAsync();
         CboPhong.ItemsSource = phongs;
     }
