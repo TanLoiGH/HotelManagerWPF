@@ -1,4 +1,3 @@
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,9 +18,9 @@ public partial class PhongPage : Page
 
         _db = new QuanLyKhachSanContext();
 
-        var roomService = new PhongService(_dbPhong);
-        var khachHangService = new KhachHangService(_dbKhachHang);
-        var datPhongService = new DatPhongService(_dbDatPhong);
+        var roomService = new PhongService(_db);
+        var khachHangService = new KhachHangService(_db);
+        var datPhongService = new DatPhongService(_db);
 
         _viewModel = new SoDoPhongViewModel(roomService, khachHangService, datPhongService);
         DataContext = _viewModel;
