@@ -101,6 +101,11 @@ public partial class SoDoPhongViewModel : BaseViewModel
     public ICommand SelectKhachCommand { get; }
     public ICommand DatPhongCommand { get; }
     public ICommand CheckInCommand { get; }
+    public ICommand DoiPhongCommand { get; }
+
+    public string SelectedMaDatPhong { get; set; } // Dùng để lưu mã đặt phòng khi chọn phòng PTT05
+    public ICommand HuyDatPhongCommand { get; }
+    public ICommand HoanThanhDonDepCommand { get; }
 
     // ── Constructor ─────────────────────────────────────────────────────────
     public SoDoPhongViewModel(RoomService roomService, KhachHangService khachHangService, DatPhongService datPhongService)
@@ -121,6 +126,10 @@ public partial class SoDoPhongViewModel : BaseViewModel
         SelectKhachCommand = new RelayCommand(p => SelectedKhach = p as KhachHang);
         DatPhongCommand = new RelayCommand(async _ => await ThucHienDatPhongAsync());
         CheckInCommand = new RelayCommand(async _ => await ThucHienNhanPhongAsync());
+        DoiPhongCommand = new RelayCommand(async _ => await ThucHienDoiPhongAsync());
+
+        HuyDatPhongCommand = new AsyncRelayCommand(async _ => await ThucHienHuyDatPhongAsync());
+        HoanThanhDonDepCommand = new AsyncRelayCommand(async _ => await ThucHienHoanThanhDonDepAsync());
     }
 
     public async Task TaiDuLieuAsync()

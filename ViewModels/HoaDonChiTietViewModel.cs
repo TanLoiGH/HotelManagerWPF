@@ -381,10 +381,32 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
         OnPropertyChanged(nameof(CoLichSu));
         decimal tongDaThu = items.Sum(t => t.SoTien);
+
+        // ConLai này đã bao gồm cả Tiền Cọc (vì TongThanhToan ở hàm trên đã trừ cọc)
         ConLai = TongThanhToan - tongDaThu;
 
-        if (CoTheChinhSua && string.IsNullOrWhiteSpace(SoTienNhap))
-            SoTienNhap = ConLai > 0 ? $"{ConLai:N0}" : "";
+        // TỐI ƯU UX: Tự động điền số tiền và loại giao dịch
+        if (CoTheChinhSua)
+        {
+            if (ConLai > 0)
+            {
+                // Khách còn nợ -> Điền số nợ và chọn Thanh toán
+                SoTienNhap = ConLai.ToString("N0");
+                LoaiGiaoDichDuocChon = "Thanh toán cuối";
+            }
+            else if (ConLai < 0)
+            {
+                // Khách dư tiền (thường do cọc lố) -> Điền số dư và tự nhảy sang Hoàn tiền
+                SoTienNhap = Math.Abs(ConLai).ToString("N0");
+                LoaiGiaoDichDuocChon = "Hoàn tiền";
+            }
+            else
+            {
+                // Đã đủ tiền
+                SoTienNhap = "0";
+                LoaiGiaoDichDuocChon = "Thanh toán cuối";
+            }
+        }
     }
 
     private async Task ThemDichVuAsync()

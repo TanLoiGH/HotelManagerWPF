@@ -94,7 +94,7 @@ public static class QuestPdfHelper
                     c.Item().Text($"Khách hàng: {tenKhachHang}").Bold();
                     if (showRentalDate) // Chỉ hiện ngày thuê khi in tiền phòng
                     {
-                        c.Item().Text($"Phòng: {hd.MaDatPhong}");
+                        c.Item().Text($"Đặt phòng: {hd.MaDatPhong}");
                         c.Item().Text($"Thời gian: {ngayDen} - {ngayDi}");
                     }
                 });

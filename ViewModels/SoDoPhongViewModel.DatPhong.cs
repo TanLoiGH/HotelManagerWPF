@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi;         // Chứa App
+using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers; // Chứa AppSession
+using QuanLyKhachSan_PhamTanLoi.Models;
+using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Views.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using QuanLyKhachSan_PhamTanLoi.Services;
-using QuanLyKhachSan_PhamTanLoi.Models;
-using QuanLyKhachSan_PhamTanLoi.Helpers; // Chứa AppSession
-using QuanLyKhachSan_PhamTanLoi;         // Chứa App
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
@@ -92,6 +95,7 @@ public partial class SoDoPhongViewModel
                         // Hiển thị tiền cọc nếu đã thu
                         decimal tienCocDaThu = booking.MaDatPhongNavigation?.TienCoc ?? 0;
                         ReservedTienCoc = tienCocDaThu > 0 ? $"{tienCocDaThu:N0} ₫" : "Chưa thu";
+                        SelectedMaDatPhong = booking.MaDatPhong; // Lưu lại mã để hủy
                     }
                 }
             }
@@ -122,7 +126,6 @@ public partial class SoDoPhongViewModel
     {
         try
         {
-
             // 1. Thu thập tất cả phòng được chọn (từ Checkbox)
             var selectedRooms = _allPhongs.Where(p => p.IsSelected && p.MaTrangThaiPhong == "PTT01").ToList();
 
@@ -130,7 +133,8 @@ public partial class SoDoPhongViewModel
             if (!selectedRooms.Any() && SelectedRoom != null && IsRoomAvailable)
                 selectedRooms.Add(SelectedRoom);
 
-            if (SelectedRoom == null)
+            // SỬA: Check mảng thay vì check cứng SelectedRoom
+            if (!selectedRooms.Any())
             {
                 MessageBox.Show("Vui lòng chọn phòng trước khi đặt.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -179,8 +183,6 @@ public partial class SoDoPhongViewModel
                 var visa = IsKhachNuocNgoai ? NewKhachVisa : null;
                 var quocTich = IsKhachNuocNgoai ? NewKhachQuocTich : (string.IsNullOrWhiteSpace(NewKhachQuocTich) ? null : NewKhachQuocTich);
 
-
-
                 _ctsTimKhach?.Cancel();
                 await _khoaKhachHang.WaitAsync();
                 try
@@ -194,11 +196,8 @@ public partial class SoDoPhongViewModel
                 }
             }
 
-
-            var danhSachPhongDat = new List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)>
-            {
-                (SelectedRoom.MaPhong, NgayNhan, NgayTra)
-            };
+            // SỬA: Chuyển toàn bộ danh sách phòng đã chọn vào mảng đặt phòng
+            var danhSachPhongDat = selectedRooms.Select(p => (p.MaPhong, NgayNhan, NgayTra)).ToList();
 
             // Lấy mã nhân viên đăng nhập để gán là nhân viên lập phiếu đặt
             var maNhanVienDat = AppSession.MaNhanVien ?? "NV001";
@@ -222,7 +221,6 @@ public partial class SoDoPhongViewModel
         }
         catch (Exception ex)
         {
-            // Bóc tách lỗi chi tiết từ Entity Framework
             string errorMessage = ex.Message;
             if (ex.InnerException != null)
             {
@@ -275,4 +273,65 @@ public partial class SoDoPhongViewModel
             MessageBox.Show($"Lỗi nhận phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    private async Task ThucHienDoiPhongAsync()
+    {
+        // Đảm bảo đang chọn một phòng có khách (Đang ở)
+        if (SelectedRoom == null || SelectedRoom.MaTrangThaiPhong != "PTT02")
+        {
+            MessageBox.Show("Vui lòng chọn một phòng đang có khách (Đang ở) để chuyển phòng.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        string maDatPhongActive = "";
+        using (var db = new QuanLyKhachSanContext())
+        {
+            // Tìm Mã Đặt Phòng của phòng đang ở hiện tại
+            var ct = await db.DatPhongChiTiets
+                .Include(c => c.MaDatPhongNavigation)
+                .FirstOrDefaultAsync(c => c.MaPhong == SelectedRoom.MaPhong
+                                       && c.MaDatPhongNavigation.TrangThai == "Đang ở");
+
+            if (ct == null)
+            {
+                MessageBox.Show("Không tìm thấy đơn đặt phòng đang ở cho phòng này.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            maDatPhongActive = ct.MaDatPhong;
+        }
+
+        // Mở Dialog
+        var dialog = new DoiPhongDialog(maDatPhongActive, SelectedRoom.MaPhong);
+        if (dialog.ShowDialog() == true)
+        {
+            // Nếu chuyển thành công, load lại danh sách phòng trên Sơ đồ
+            await TaiDuLieuAsync();
+        }
+    }
+
+    private async Task ThucHienHuyDatPhongAsync()
+    {
+        if (string.IsNullOrEmpty(SelectedMaDatPhong)) return;
+        if (!ConfirmHelper.Confirm("Xác nhận hủy đơn đặt phòng này? Tiền cọc (nếu có) sẽ được tính vào Chi phí hoàn trả.", "Hủy đặt phòng")) return;
+
+        try
+        {
+            await _datPhongService.HuyDatPhongAsync(SelectedMaDatPhong, AppSession.MaNhanVien ?? "NV001");
+            MessageBox.Show("Đã hủy đặt phòng thành công.");
+            await TaiDuLieuAsync();
+        }
+        catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+    }
+
+    private async Task ThucHienHoanThanhDonDepAsync()
+    {
+        if (SelectedRoom == null) return;
+        try
+        {
+            await _datPhongService.HoanThanhDonDepAsync(SelectedRoom.MaPhong);
+            await TaiDuLieuAsync();
+        }
+        catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+    }
+
 }

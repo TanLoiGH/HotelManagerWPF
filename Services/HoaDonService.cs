@@ -171,12 +171,12 @@ public class HoaDonService
     }
 
     public async Task<ThongTinThanhToan> ThanhToanVaTraKetQuaAsync(
-       string maHoaDon,
-       decimal soTien,
-       string maPTTT,
-       string nguoiThu,
-       string loaiGiaoDich = "Thanh toán cuối",
-       string? noiDung = null)
+           string maHoaDon,
+           decimal soTien,
+           string maPTTT,
+           string nguoiThu,
+           string loaiGiaoDich = "Thanh toán cuối",
+           string? noiDung = null)
     {
         // 1. Xử lý chuẩn hóa số tiền đầu vào
         if (loaiGiaoDich != "Hoàn tiền" && soTien < 0)
@@ -189,7 +189,12 @@ public class HoaDonService
 
         try
         {
-            var hd = await _db.HoaDons.FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
+            // Thêm Include MaDatPhongNavigation để lấy được Mã Phòng bên dưới
+            var hd = await _db.HoaDons
+                .Include(h => h.MaDatPhongNavigation)
+                    .ThenInclude(d => d!.DatPhongChiTiets)
+                .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
+
             if (hd == null)
                 return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, "Không tìm thấy hoá đơn.");
 
@@ -235,20 +240,28 @@ public class HoaDonService
                 // =======================================================================
                 if (loaiGiaoDich == "Hoàn tiền")
                 {
-                    // Tìm loại chi phí dành cho hoàn tiền (nếu không có thì lấy đại loại đầu tiên để tránh lỗi khóa ngoại)
-                    var loaiCpHoanTien = await _db.LoaiChiPhis
-                        .FirstOrDefaultAsync(l => l.TenLoaiCp.Contains("Hoàn tiền") || l.TenLoaiCp.Contains("Trả cọc"));
-
-                    string maLoaiCp = loaiCpHoanTien?.MaLoaiCp ?? await _db.LoaiChiPhis.Select(l => l.MaLoaiCp).FirstOrDefaultAsync() ?? "LCP001";
+                    // TỰ ĐỘNG KIỂM TRA VÀ SINH LOẠI CHI PHÍ LCP007 NẾU CHƯA CÓ
+                    var loaiCpHoanTien = await _db.LoaiChiPhis.FirstOrDefaultAsync(l => l.MaLoaiCp == "LCP007" || l.TenLoaiCp.Contains("Hoàn tiền"));
+                    string maLoaiCpHopLe;
+                    if (loaiCpHoanTien != null)
+                    {
+                        maLoaiCpHopLe = loaiCpHoanTien.MaLoaiCp;
+                    }
+                    else
+                    {
+                        maLoaiCpHopLe = "LCP007";
+                        _db.LoaiChiPhis.Add(new LoaiChiPhi { MaLoaiCp = maLoaiCpHopLe, TenLoaiCp = "Hoàn tiền hóa đơn" });
+                        await _db.SaveChangesAsync(); // Tự sinh vào DB
+                    }
 
                     var lastCp = await _db.ChiPhis.OrderByDescending(c => c.MaChiPhi).Select(c => c.MaChiPhi).FirstOrDefaultAsync();
 
                     _db.ChiPhis.Add(new ChiPhi
                     {
                         MaChiPhi = MaHelper.Next("CP", lastCp),
-                        MaLoaiCp = maLoaiCp,
+                        MaLoaiCp = maLoaiCpHopLe,
                         MaNhanVien = nguoiThu,
-                        MaPhong = hd.MaDatPhongNavigation?.DatPhongChiTiets.FirstOrDefault()?.MaPhong, // Gắn mã phòng liên quan nếu có
+                        MaPhong = hd.MaDatPhongNavigation?.DatPhongChiTiets.FirstOrDefault()?.MaPhong,
                         TenChiPhi = $"Hoàn tiền thừa/cọc cho khách (Hóa đơn: {maHoaDon})",
                         SoTien = Math.Abs(soTien), // Bảng Chi Phí luôn ghi nhận số DƯƠNG
                         NgayChiPhi = TimeHelper.GetVietnamTime(),
@@ -353,7 +366,16 @@ public class HoaDonService
         catch (Exception ex)
         {
             await tx.RollbackAsync();
-            return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, $"Lỗi cập nhật tổng tiền: {ex.Message}");
+
+            // Moi chi tiết lỗi thực sự từ Database (InnerException)
+            string chiTietLoi = ex.Message;
+            if (ex.InnerException != null)
+            {
+                chiTietLoi += "\nChi tiết từ DB: " + ex.InnerException.Message;
+            }
+
+            return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, $"Lỗi cập nhật tổng tiền: {chiTietLoi}");
+        
         }
     }
 
@@ -381,35 +403,43 @@ public class HoaDonService
                 return;
             }
 
+            // 1. Tính toán lại bill chốt hạ lần cuối trước khi trả phòng
             await CapNhatTienPhongTheoThoiDiemTraPhongAsync(hd, thoiDiem ?? TimeHelper.GetVietnamTime());
 
             var tongDaThu = await _db.ThanhToans
                 .Where(t => t.MaHoaDon == maHoaDon)
                 .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
-            if (tongDaThu < (hd.TongThanhToan ?? 0))
-                throw new InvalidOperationException("Chưa thanh toán đủ, không thể trả phòng.");
+            var tongThanhToan = hd.TongThanhToan ?? 0;
 
+            // 2. CHECK LOGIC: Bắt buộc nhân viên phải giải quyết tiền dư/nợ qua UI trước
+            if (tongDaThu < tongThanhToan)
+                throw new InvalidOperationException($"Chưa thanh toán đủ (còn nợ {tongThanhToan - tongDaThu:N0}đ). Vui lòng thanh toán trước khi trả phòng.");
+
+            if (tongDaThu > tongThanhToan)
+                throw new InvalidOperationException($"Khách đang dư {tongDaThu - tongThanhToan:N0}đ. Vui lòng nhấn nút Thanh Toán, chọn 'Hoàn tiền' ở ComboBox để trả lại khách trước khi trả phòng.");
+
+            // 3. Nếu mọi thứ đã khớp (TongDaThu == TongThanhToan), tiến hành trả phòng
             hd.TrangThai = "Đã thanh toán";
 
             foreach (var ct in dp.DatPhongChiTiets ?? [])
             {
                 var p = await _db.Phongs.FindAsync(ct.MaPhong);
-                if (p != null) p.MaTrangThaiPhong = "PTT03";
+                if (p != null) p.MaTrangThaiPhong = "PTT03"; // Chuyển sang dọn dẹp
             }
 
             dp.TrangThai = "Đã trả phòng";
 
             if (!string.IsNullOrWhiteSpace(dp.MaKhachHang))
-                await _khachHangSvc.NangHangAsync(dp.MaKhachHang, hd.TongThanhToan ?? 0);
+                await _khachHangSvc.NangHangAsync(dp.MaKhachHang, tongThanhToan);
 
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await tx.RollbackAsync();
-            throw;
+            throw new Exception(ex.Message);
         }
     }
 

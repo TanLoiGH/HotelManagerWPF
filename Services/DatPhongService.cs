@@ -70,6 +70,7 @@ public class DatPhongService
             _db.HoaDonChiTiets.Add(new HoaDonChiTiet
             {
                 MaHoaDon = hd.MaHoaDon,
+                MaDatPhong = ct.MaDatPhong,
                 MaPhong = ct.MaPhong,
                 SoDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra)
             });
@@ -212,7 +213,7 @@ public class DatPhongService
 
             await tx.CommitAsync();
         }
-        catch { await tx.RollbackAsync(); throw; }
+        catch { await tx.RollbackAsync(); _db.ChangeTracker.Clear(); throw; }
     }
 
     public async Task HuyDatPhongAsync(string maDatPhong, string lyDo, decimal tienHoanTra = 0)
@@ -284,7 +285,9 @@ public class DatPhongService
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
         try
         {
-            var ctCu = await _db.DatPhongChiTiets.FirstOrDefaultAsync(x => x.MaDatPhong == maDatPhong && x.MaPhong == maPhongCu)
+            var ctCu = await _db.DatPhongChiTiets
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.MaDatPhong == maDatPhong && x.MaPhong == maPhongCu)
                 ?? throw new KeyNotFoundException("Không tìm thấy phòng cũ trong đơn đặt.");
 
             // 1. Kiểm tra phòng mới có trống không
@@ -297,19 +300,104 @@ public class DatPhongService
             if (phongCu != null) phongCu.MaTrangThaiPhong = "PTT03"; // Chuyển sang Dọn dẹp
             phongMoi.MaTrangThaiPhong = "PTT02"; // Đang ở
 
-            // 3. Thay đổi thông tin trong Chi tiết đặt phòng
-            // (Lưu ý: Bạn có thể chọn tạo dòng mới hoặc update dòng cũ tùy nghiệp vụ báo cáo)
-            ctCu.MaPhong = maPhongMoi;
-            ctCu.DonGia = phongMoi.MaLoaiPhongNavigation.GiaPhong;
+            await _db.SaveChangesAsync(); // Lưu trạng thái vật lý xuống DB trước
 
-            // 4. Cập nhật đồng bộ sang HoaDonChiTiet nếu đã có hóa đơn
-            var hdct = await _db.HoaDonChiTiets.FirstOrDefaultAsync(x => x.MaPhong == maPhongCu);
-            if (hdct != null) hdct.MaPhong = maPhongMoi;
+            decimal donGiaMoi = phongMoi.MaLoaiPhongNavigation.GiaPhong;
 
+            // 3. RAW SQL SEQUENCE (Khắc phục lỗi Foreign Key)
+
+            // Bước 3.1: Tạo dòng Đặt Phòng mới (Nhân bản dòng cũ nhưng đổi Tên phòng & Giá mới)
+            await _db.Database.ExecuteSqlRawAsync(
+                @"INSERT INTO DAT_PHONG_CHI_TIET (MaDatPhong, MaPhong, NgayNhan, NgayTra, DonGia, MaNhanVien) 
+                  SELECT MaDatPhong, {0}, NgayNhan, NgayTra, {1}, MaNhanVien 
+                  FROM DAT_PHONG_CHI_TIET 
+                  WHERE MaDatPhong = {2} AND MaPhong = {3}",
+                maPhongMoi, donGiaMoi, maDatPhong, maPhongCu);
+
+            // Bước 3.2: Dời các Dịch vụ khách đã gọi (nếu có) sang phòng mới
+            await _db.Database.ExecuteSqlRawAsync(
+                "UPDATE DICH_VU_CHI_TIET SET MaPhong = {0} WHERE MaDatPhong = {1} AND MaPhong = {2}",
+                maPhongMoi, maDatPhong, maPhongCu);
+
+            // Bước 3.3: Dời Hóa đơn nháp sang phòng mới
+            await _db.Database.ExecuteSqlRawAsync(
+                "UPDATE HOA_DON_CHI_TIET SET MaPhong = {0} WHERE MaDatPhong = {1} AND MaPhong = {2}",
+                maPhongMoi, maDatPhong, maPhongCu);
+
+            // Bước 3.4: Xóa dòng Đặt Phòng cũ (Lúc này không còn ai trỏ vào nên xóa thoải mái)
+            await _db.Database.ExecuteSqlRawAsync(
+                "DELETE FROM DAT_PHONG_CHI_TIET WHERE MaDatPhong = {0} AND MaPhong = {1}",
+                maDatPhong, maPhongCu);
+
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+    }
+
+
+    // 1. Hủy đặt phòng
+    public async Task HuyDatPhongAsync(string maDatPhong, string maNhanVien)
+    {
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        try
+        {
+            var dp = await _db.DatPhongs.Include(d => d.DatPhongChiTiets).FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong);
+            if (dp == null) throw new KeyNotFoundException("Không tìm thấy đơn đặt phòng.");
+
+            // Ghi nhận chi phí nếu có tiền cọc (Hoàn trả tiền cọc)
+            if (dp.TienCoc > 0)
+            {
+                var loaiCp = await _db.LoaiChiPhis.FirstOrDefaultAsync(l => l.MaLoaiCp == "LCP007" || l.TenLoaiCp.Contains("Hoàn tiền"));
+                string maLoaiCp = loaiCp?.MaLoaiCp ?? "LCP007";
+                if (loaiCp == null)
+                {
+                    _db.LoaiChiPhis.Add(new LoaiChiPhi { MaLoaiCp = "LCP007", TenLoaiCp = "Hoàn tiền hóa đơn" });
+                    await _db.SaveChangesAsync();
+                }
+
+                var lastCp = await _db.ChiPhis.OrderByDescending(c => c.MaChiPhi).Select(c => c.MaChiPhi).FirstOrDefaultAsync();
+                _db.ChiPhis.Add(new ChiPhi
+                {
+                    MaChiPhi = MaHelper.Next("CP", lastCp),
+                    MaLoaiCp = maLoaiCp,
+                    MaNhanVien = maNhanVien,
+                    TenChiPhi = $"Hoàn tiền cọc do hủy đơn (Đơn: {maDatPhong})",
+                    SoTien = dp.TienCoc ?? 0,
+                    NgayChiPhi = TimeHelper.GetVietnamTime(),
+                    GhiChu = $"Hủy đặt phòng. Khách: {dp.MaKhachHang}"
+                });
+            }
+
+            // Cập nhật trạng thái các phòng liên quan về Trống (PTT01)
+            foreach (var ct in dp.DatPhongChiTiets)
+            {
+                var p = await _db.Phongs.FindAsync(ct.MaPhong);
+                if (p != null) p.MaTrangThaiPhong = "PTT01";
+            }
+
+            dp.TrangThai = "Đã hủy";
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
         }
         catch { await tx.RollbackAsync(); throw; }
     }
+
+    // 2. Hoàn tất dọn dẹp
+    public async Task HoanThanhDonDepAsync(string maPhong)
+    {
+        var p = await _db.Phongs.FindAsync(maPhong);
+        if (p != null)
+        {
+            p.MaTrangThaiPhong = "PTT01"; // Chuyển về Trống
+            await _db.SaveChangesAsync();
+        }
+    }
+
+
+
     #endregion
 }

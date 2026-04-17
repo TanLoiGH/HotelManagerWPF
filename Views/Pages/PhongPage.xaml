@@ -206,7 +206,7 @@
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
                     <StackPanel Margin="20">
 
-                        <StackPanel x:Name="PanelDetail" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        <StackPanel x:Name="PanelDetail" VerticalAlignment="Center" HorizontalAlignment="Center" 
                                     Visibility="{Binding IsRoomSelected, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
                             <TextBlock Text="🏠" FontSize="50" HorizontalAlignment="Center" Margin="0,40,0,12"/>
                             <TextBlock Text="Chọn một phòng để xem chi tiết và đặt phòng"
@@ -322,6 +322,12 @@
                                 <Button Command="{Binding CheckInCommand}" Height="44" FontSize="16" FontWeight="SemiBold" Cursor="Hand" Style="{DynamicResource MacFluent.ButtonPrimary}">
                                     <TextBlock Text="✅  Khách đã nhận phòng" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
                                 </Button>
+
+
+                                <Button Command="{Binding HuyDatPhongCommand}" Margin="100,18,100,0"
+                                        Background="Transparent" BorderBrush="{DynamicResource Brush.Error}" BorderThickness="1">
+                                    <TextBlock Text="❌  Hủy đặt phòng" Foreground="{DynamicResource Brush.Error}"/>
+                                </Button>
                             </StackPanel>
 
                             <StackPanel x:Name="PanelDatPhong" Visibility="{Binding IsRoomAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -417,10 +423,29 @@
                                 </Button>
                             </StackPanel>
 
-                            <Border x:Name="PanelKhongTrong" Visibility="{Binding IsRoomOccupied, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    CornerRadius="10" Padding="14,10" Background="{DynamicResource Brush.WarningSurface}">
-                                <TextBlock Text="{Binding SelectedRoom.TenTrangThai, StringFormat='Trạng thái: {0}'}" FontSize="15" Foreground="{DynamicResource Brush.WarningText}" TextWrapping="Wrap" TextAlignment="Center"/>
-                            </Border>
+                            <StackPanel x:Name="PanelKhongTrong" Visibility="{Binding IsRoomOccupied, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Border CornerRadius="10" Padding="14,10" Background="{DynamicResource Brush.WarningSurface}" Margin="0,0,0,12">
+                                    <TextBlock Text="{Binding SelectedRoom.TenTrangThai, StringFormat='Trạng thái: {0}'}" FontSize="15" Foreground="{DynamicResource Brush.WarningText}" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Border>
+
+                                <Button Command="{Binding DoiPhongCommand}" 
+                                        Visibility="{Binding SelectedRoom.MaTrangThaiPhong, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='PTT02'}"
+                                        Height="44" Cursor="Hand" Background="Transparent" BorderBrush="{DynamicResource Brush.BrandPrimary}" BorderThickness="1.5">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="8"/>
+                                        </Style>
+                                    </Button.Resources>
+                                    <TextBlock Text="🔀  Chuyển sang phòng khác" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
+                                </Button>
+
+                                <Button Command="{Binding HoanThanhDonDepCommand}" Margin="0,8,0,0"
+                                       Visibility="{Binding SelectedRoom.MaTrangThaiPhong, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='PTT03'}"
+                                       Style="{DynamicResource MacFluent.ButtonPrimary}" Background="#FF47C31C">
+                                    <TextBlock Text="🧹  Đã dọn dẹp sạch" Foreground="White"/>
+                                </Button>
+                            </StackPanel>
+
 
                         </StackPanel>
                     </StackPanel>

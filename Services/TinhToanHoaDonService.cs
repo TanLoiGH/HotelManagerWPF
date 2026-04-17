@@ -27,7 +27,11 @@ public static class TinhToanHoaDonService
         if (tongTruocVat < 0) tongTruocVat = 0;
 
         decimal tienVat = tongTruocVat * (vatPercent / 100m);
-        return (tongTruocVat + tienVat) - tienCoc;
+
+        // SỬA Ở ĐÂY: Nếu cọc lớn hơn tổng bill thì Tổng cần thanh toán là 0đ (phần dư sẽ trả bằng Phiếu Hoàn Tiền)
+        decimal tongThanhToan = (tongTruocVat + tienVat) - tienCoc;
+
+        return tongThanhToan < 0 ? 0 : tongThanhToan;
     }
 
     public static decimal TinhTienPhongTheoNgayTra(
