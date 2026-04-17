@@ -11,6 +11,7 @@ using QuanLyKhachSan_PhamTanLoi;         // Chứa App
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
+//Đặt phòng
 public partial class SoDoPhongViewModel
 {
     private DateTime _ngayNhan = DateTime.Today;
@@ -38,11 +39,23 @@ public partial class SoDoPhongViewModel
 
     private void CapNhatTienTamTinh()
     {
-        if (SelectedRoom == null) return;
+        // Lấy danh sách các phòng đang được tích chọn
+        var selectedRooms = _allPhongs.Where(p => p.IsSelected && p.MaTrangThaiPhong == "PTT01").ToList();
+
+        // Nếu không có phòng nào được tích, nhưng có SelectedRoom đang được click, thì tính cho 1 phòng đó
+        if (!selectedRooms.Any() && SelectedRoom != null && IsRoomAvailable)
+            selectedRooms.Add(SelectedRoom);
+
         int soDem = (NgayTra - NgayNhan).Days;
         if (soDem < 1) soDem = 1;
-        decimal tongTien = SelectedRoom.GiaPhong * soDem;
-        TotalPriceText = $"{tongTien:N0} ₫";
+
+        // Tổng tiền = Tổng giá các phòng được chọn * số đêm
+        decimal tongTien = selectedRooms.Sum(r => r.GiaPhong) * soDem;
+
+        if (selectedRooms.Count > 1)
+            TotalPriceText = $"{tongTien:N0} ₫ ({selectedRooms.Count} phòng)";
+        else
+            TotalPriceText = $"{tongTien:N0} ₫";
     }
 
     private void BatDauXuLyKhiChonPhong(PhongCardViewModel vm)
@@ -109,6 +122,14 @@ public partial class SoDoPhongViewModel
     {
         try
         {
+
+            // 1. Thu thập tất cả phòng được chọn (từ Checkbox)
+            var selectedRooms = _allPhongs.Where(p => p.IsSelected && p.MaTrangThaiPhong == "PTT01").ToList();
+
+            // 2. Fallback: Nếu không tích cái nào, lấy phòng đang chọn ở Detail Panel
+            if (!selectedRooms.Any() && SelectedRoom != null && IsRoomAvailable)
+                selectedRooms.Add(SelectedRoom);
+
             if (SelectedRoom == null)
             {
                 MessageBox.Show("Vui lòng chọn phòng trước khi đặt.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -158,6 +179,8 @@ public partial class SoDoPhongViewModel
                 var visa = IsKhachNuocNgoai ? NewKhachVisa : null;
                 var quocTich = IsKhachNuocNgoai ? NewKhachQuocTich : (string.IsNullOrWhiteSpace(NewKhachQuocTich) ? null : NewKhachQuocTich);
 
+
+
                 _ctsTimKhach?.Cancel();
                 await _khoaKhachHang.WaitAsync();
                 try
@@ -170,6 +193,7 @@ public partial class SoDoPhongViewModel
                     _khoaKhachHang.Release();
                 }
             }
+
 
             var danhSachPhongDat = new List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)>
             {
@@ -191,6 +215,7 @@ public partial class SoDoPhongViewModel
 
             MessageBox.Show("Đặt phòng thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
 
+            foreach (var p in _allPhongs) p.IsSelected = false;
             SelectedRoom = null;
             TienCoc = 0; // Reset tiền cọc
             await TaiDuLieuAsync();

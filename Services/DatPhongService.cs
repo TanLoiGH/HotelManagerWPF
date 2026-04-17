@@ -11,23 +11,27 @@ public class DatPhongService
     private readonly QuanLyKhachSanContext _db;
     public DatPhongService(QuanLyKhachSanContext db) => _db = db;
 
+    #region LOGIC TẠO HÓA ĐƠN
     private async Task TaoHoaDonNeuChuaCoAsync(string maDatPhong, string maNhanVien)
     {
+        // 1. Kiểm tra hóa đơn đã tồn tại cho mã đặt phòng này chưa
         bool hdExist = await _db.HoaDons
             .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đã hủy");
 
         if (hdExist) return;
 
+        // 2. Lấy toàn bộ danh sách phòng trong đoàn
         var chiTiets = await _db.DatPhongChiTiets
             .Where(c => c.MaDatPhong == maDatPhong)
             .ToListAsync();
 
         if (chiTiets.Count == 0)
-            throw new InvalidOperationException("Không có phòng nào trong đặt phòng.");
+            throw new InvalidOperationException("Không có phòng nào trong bản đăng ký đặt phòng.");
 
         var dp = await _db.DatPhongs.FindAsync(maDatPhong);
         decimal tienCoc = dp?.TienCoc ?? 0;
 
+        // 3. Tính toán tổng tiền phòng cho cả đoàn
         decimal tienPhong = 0;
         foreach (var ct in chiTiets)
         {
@@ -35,6 +39,7 @@ public class DatPhongService
             tienPhong += ct.DonGia * soDem;
         }
 
+        // 4. Sinh mã hóa đơn mới
         var lastMa = await _db.HoaDons
             .OrderByDescending(h => h.MaHoaDon)
             .Select(h => h.MaHoaDon)
@@ -43,28 +48,28 @@ public class DatPhongService
         var newMaHd = MaHelper.Next("HD", lastMa);
         decimal vatPercent = SystemSettingsService.Load().VatPercent;
 
+        // 5. Tạo vỏ bọc hóa đơn tổng
         var hd = new HoaDon
         {
             MaHoaDon = newMaHd,
             MaDatPhong = maDatPhong,
             MaNhanVien = maNhanVien,
-            NgayLap = DateTime.Now,
+            NgayLap = TimeHelper.GetVietnamTime(),
             TienPhong = tienPhong,
             TienDichVu = 0,
             Vat = vatPercent,
-            MaKhuyenMai = null,
             TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, 0, vatPercent, tienCoc, 0),
             TrangThai = "Chưa thanh toán"
         };
 
         _db.HoaDons.Add(hd);
 
+        // 6. Thêm chi tiết hóa đơn cho từng phòng trong đoàn
         foreach (var ct in chiTiets)
         {
             _db.HoaDonChiTiets.Add(new HoaDonChiTiet
             {
                 MaHoaDon = hd.MaHoaDon,
-                MaDatPhong = maDatPhong,
                 MaPhong = ct.MaPhong,
                 SoDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra)
             });
@@ -72,7 +77,9 @@ public class DatPhongService
 
         await _db.SaveChangesAsync();
     }
+    #endregion
 
+    #region LOGIC ĐẶT PHÒNG (MULTI-ROOM)
     private async Task EnsurePhongAvailableAsync(string maPhong, DateTime ngayNhan, DateTime ngayTra, string? excludeMaDatPhong = null)
     {
         bool conflict = await _db.DatPhongChiTiets
@@ -88,8 +95,7 @@ public class DatPhongService
                 x.c.NgayTra > ngayNhan);
 
         if (conflict)
-            throw new InvalidOperationException(
-                $"Phòng {maPhong} đã có đặt phòng trong khoảng thời gian này.");
+            throw new InvalidOperationException($"Phòng {maPhong} đã có lịch đặt trùng trong khoảng thời gian này.");
     }
 
     public async Task<DatPhong> TaoDatPhongAsync(
@@ -99,118 +105,114 @@ public class DatPhongService
         decimal tienCoc = 0,
         int soNguoi = 1)
     {
+        // Kiểm tra hợp lệ ngày tháng của tất cả các phòng
         foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
         {
             if (ngayNhan.Date < DateTime.Today)
-                throw new InvalidOperationException($"Ngay nhan cua phong {maPhong} khong duoc o qua khu.");
-
+                throw new InvalidOperationException($"Ngày nhận phòng {maPhong} không được ở quá khứ.");
             if (ngayTra.Date < ngayNhan.Date)
-                throw new InvalidOperationException($"Ngay tra cua phong {maPhong} phai sau hoac bang ngay nhan.");
+                throw new InvalidOperationException($"Ngày trả phòng {maPhong} phải sau hoặc bằng ngày nhận.");
         }
 
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-
-        int tongSucChua = 0;
-        foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
+        try
         {
-            await EnsurePhongAvailableAsync(maPhong, ngayNhan, ngayTra);
-
-            var phong = await _db.Phongs
-                .Include(p => p.MaLoaiPhongNavigation)
-                .FirstAsync(p => p.MaPhong == maPhong);
-
-            tongSucChua += phong.MaLoaiPhongNavigation.SoNguoiToiDa ?? 0;
-        }
-
-        if (soNguoi > tongSucChua)
-            throw new InvalidOperationException(
-                $"Tổng sức chứa các phòng ({tongSucChua} người) không đủ cho {soNguoi} người.");
-
-
-        var lastMa = await _db.DatPhongs
-            .OrderByDescending(d => d.MaDatPhong)
-            .Select(d => d.MaDatPhong)
-            .FirstOrDefaultAsync();
-
-        var ngayNhanDuKien = rooms.Min(r => r.NgayNhan);
-        var ngayTraDuKien = rooms.Max(r => r.NgayTra);
-        var dp = new DatPhong
-        {
-            MaDatPhong = MaHelper.Next("DP", lastMa),
-            MaKhachHang = maKhachHang,
-            MaNhanVien = maNhanVien,
-            NgayDat = TimeHelper.GetVietnamTime(),
-            TienCoc = tienCoc,
-            TrangThai = "Chờ nhận phòng",
-            NgayNhanDuKien = ngayNhanDuKien, // 2. GÁN VÀO ĐÂY
-            NgayTraDuKien = ngayTraDuKien    // 3. GÁN VÀO ĐÂY
-        };
-        _db.DatPhongs.Add(dp);
-
-        foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
-        {
-            var phong = await _db.Phongs
-                .Include(p => p.MaLoaiPhongNavigation)
-                .FirstAsync(p => p.MaPhong == maPhong);
-
-            _db.DatPhongChiTiets.Add(new DatPhongChiTiet
+            int tongSucChua = 0;
+            foreach (var (maPhong, _, _) in rooms)
             {
-                MaDatPhong = dp.MaDatPhong,
-                MaPhong = maPhong,
-                NgayNhan = ngayNhan,
-                NgayTra = ngayTra,
-                DonGia = phong.MaLoaiPhongNavigation.GiaPhong
-            });
+                var phong = await _db.Phongs
+                    .Include(p => p.MaLoaiPhongNavigation)
+                    .FirstOrDefaultAsync(p => p.MaPhong == maPhong)
+                    ?? throw new Exception($"Không tìm thấy phòng {maPhong}");
 
-            phong.MaTrangThaiPhong = "PTT05";
-        }
+                tongSucChua += phong.MaLoaiPhongNavigation.SoNguoiToiDa ?? 0;
+            }
 
-        await _db.SaveChangesAsync();
-        await tx.CommitAsync();
-        return dp;
-    }
+            if (soNguoi > tongSucChua)
+                throw new InvalidOperationException($"Tổng sức chứa ({tongSucChua} người) không đủ cho đoàn {soNguoi} người.");
 
-    private async Task CapNhatNgayDuKienDatPhongAsync(string maDatPhong)
-    {
-        var dp = await _db.DatPhongs
-            .Include(d => d.DatPhongChiTiets)
-            .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong);
+            // Sinh mã đặt phòng
+            var lastMa = await _db.DatPhongs
+                .OrderByDescending(d => d.MaDatPhong)
+                .Select(d => d.MaDatPhong)
+                .FirstOrDefaultAsync();
 
-        if (dp != null && dp.DatPhongChiTiets.Any())
-        {
-            dp.NgayNhanDuKien = dp.DatPhongChiTiets.Min(c => c.NgayNhan);
-            dp.NgayTraDuKien = dp.DatPhongChiTiets.Max(c => c.NgayTra);
+            var dp = new DatPhong
+            {
+                MaDatPhong = MaHelper.Next("DP", lastMa),
+                MaKhachHang = maKhachHang,
+                MaNhanVien = maNhanVien,
+                NgayDat = TimeHelper.GetVietnamTime(),
+                TienCoc = tienCoc,
+                TrangThai = "Chờ nhận phòng",
+                NgayNhanDuKien = rooms.Min(r => r.NgayNhan),
+                NgayTraDuKien = rooms.Max(r => r.NgayTra)
+            };
+            _db.DatPhongs.Add(dp);
+
+            // Thêm từng phòng vào chi tiết đặt
+            foreach (var (maPhong, ngayNhan, ngayTra) in rooms)
+            {
+                await EnsurePhongAvailableAsync(maPhong, ngayNhan, ngayTra);
+
+                var phong = await _db.Phongs
+                    .Include(p => p.MaLoaiPhongNavigation)
+                    .FirstAsync(p => p.MaPhong == maPhong);
+
+                _db.DatPhongChiTiets.Add(new DatPhongChiTiet
+                {
+                    MaDatPhong = dp.MaDatPhong,
+                    MaPhong = maPhong,
+                    NgayNhan = ngayNhan,
+                    NgayTra = ngayTra,
+                    DonGia = phong.MaLoaiPhongNavigation.GiaPhong
+                });
+
+                phong.MaTrangThaiPhong = "PTT05"; // Đã đặt
+            }
+
             await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+            return dp;
         }
+        catch { await tx.RollbackAsync(); throw; }
     }
+    #endregion
 
+    #region CHECK-IN & HỦY PHÒNG
     public async Task CheckInAsync(string maDatPhong, string maNhanVienLeTan)
     {
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-
-        var dp = await _db.DatPhongs
-            .Include(d => d.DatPhongChiTiets)
-            .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
-            ?? throw new KeyNotFoundException("Không tìm thấy đặt phòng");
-
-        if (dp.TrangThai != "Chờ nhận phòng")
-            throw new InvalidOperationException($"Trạng thái hiện tại: {dp.TrangThai}");
-
-        dp.TrangThai = "Đang ở";
-
-        foreach (var ct in dp.DatPhongChiTiets)
+        try
         {
-            ct.MaNhanVien = maNhanVienLeTan;
+            var dp = await _db.DatPhongs
+                .Include(d => d.DatPhongChiTiets)
+                .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
+                ?? throw new KeyNotFoundException("Không tìm thấy thông tin đặt phòng.");
 
-            var phong = await _db.Phongs.FindAsync(ct.MaPhong);
-            if (phong != null) phong.MaTrangThaiPhong = "PTT02";
+            if (dp.TrangThai != "Chờ nhận phòng")
+                throw new InvalidOperationException($"Không thể nhận phòng. Trạng thái hiện tại: {dp.TrangThai}");
+
+            dp.TrangThai = "Đang ở";
+
+            // Cập nhật trạng thái từng phòng trong đoàn sang "Đang ở"
+            foreach (var ct in dp.DatPhongChiTiets)
+            {
+                var phong = await _db.Phongs.FindAsync(ct.MaPhong);
+                if (phong != null) phong.MaTrangThaiPhong = "PTT02"; // Đang có khách
+
+                // Cập nhật lại ngày nhận thực tế là lúc Check-in
+                ct.NgayNhan = TimeHelper.GetVietnamTime();
+            }
+
+            await _db.SaveChangesAsync();
+
+            // Tự động tạo hóa đơn nháp (Chưa thanh toán) cho đoàn
+            await TaoHoaDonNeuChuaCoAsync(maDatPhong, maNhanVienLeTan);
+
+            await tx.CommitAsync();
         }
-
-        await _db.SaveChangesAsync();
-
-        await TaoHoaDonNeuChuaCoAsync(maDatPhong, maNhanVienLeTan);
-
-        await tx.CommitAsync();
+        catch { await tx.RollbackAsync(); throw; }
     }
 
     public async Task HuyDatPhongAsync(string maDatPhong, string lyDo, decimal tienHoanTra = 0)
@@ -219,115 +221,95 @@ public class DatPhongService
         try
         {
             var dp = await _db.DatPhongs
-            .Include(d => d.DatPhongChiTiets)
-            .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
-            ?? throw new KeyNotFoundException("Không tìm thấy đặt phòng");
+                .Include(d => d.DatPhongChiTiets)
+                .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
+                ?? throw new KeyNotFoundException("Không tìm thấy đặt phòng");
 
-        // Xác định trạng thái hủy cụ thể dựa trên tiền hoàn trả
-        if (dp.TienCoc > 0)
-        {
-            if (tienHoanTra >= dp.TienCoc)
-                dp.TrangThai = "Đã hủy - Hoàn cọc";
-            else if (tienHoanTra > 0)
-                dp.TrangThai = $"Đã hủy - Hoàn cọc {tienHoanTra:N0}";
-            else
-                dp.TrangThai = "Đã hủy - Mất cọc";
-        }
-        else
-        {
-            dp.TrangThai = "Đã hủy";
-        }
+            // Cập nhật trạng thái hủy
+            if (dp.TienCoc > 0)
+            {
+                if (tienHoanTra >= dp.TienCoc) dp.TrangThai = "Đã hủy - Hoàn cọc";
+                else if (tienHoanTra > 0) dp.TrangThai = $"Đã hủy - Hoàn cọc {tienHoanTra:N0}";
+                else dp.TrangThai = "Đã hủy - Mất cọc";
+            }
+            else dp.TrangThai = "Đã hủy";
 
+            // Giải phóng các phòng trong đoàn
             foreach (var ct in dp.DatPhongChiTiets)
             {
                 var phong = await _db.Phongs.FindAsync(ct.MaPhong);
                 if (phong != null)
                 {
-                    // Tránh việc truy vấn lồng nhau phức tạp, chỉ cần Set về PTT01 nếu phòng không có ai khác đang ở.
-                    // Lưu ý: Cần xử lý cẩn thận nếu 1 phòng được gán cho nhiều hóa đơn (Overbooking).
-                    bool isOccupied = await _db.DatPhongChiTiets
+                    bool isOccupiedElsewhere = await _db.DatPhongChiTiets
                         .AnyAsync(c => c.MaPhong == ct.MaPhong && c.MaDatPhong != maDatPhong &&
                                       c.MaDatPhongNavigation!.TrangThai == "Đang ở");
 
-                    if (!isOccupied)
-                    {
-                        phong.MaTrangThaiPhong = "PTT01"; // Trống
-                    }
+                    if (!isOccupiedElsewhere) phong.MaTrangThaiPhong = "PTT01"; // Trống
                 }
             }
+
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
         }
-        catch
-        {
-            await tx.RollbackAsync();
-            throw;
-        }
+        catch { await tx.RollbackAsync(); throw; }
     }
+    #endregion
 
+    #region GIA HẠN & ĐỔI PHÒNG (SẴN SÀNG CHO CHUYỂN PHÒNG)
     public async Task GiaHanAsync(string maDatPhong, string maPhong, DateTime ngayTraMoi)
     {
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
-        var ct = await _db.DatPhongChiTiets.FindAsync(maDatPhong, maPhong)
-            ?? throw new KeyNotFoundException("Không tìm thấy chi tiết đặt phòng");
+        var ct = await _db.DatPhongChiTiets.FirstOrDefaultAsync(x => x.MaDatPhong == maDatPhong && x.MaPhong == maPhong)
+            ?? throw new KeyNotFoundException("Không tìm thấy chi tiết phòng cần gia hạn.");
 
         if (ngayTraMoi <= ct.NgayNhan)
-            throw new ArgumentException("Ngày trả mới phải sau ngày nhận");
+            throw new ArgumentException("Ngày trả mới phải sau ngày nhận.");
 
         await EnsurePhongAvailableAsync(maPhong, ct.NgayNhan, ngayTraMoi, maDatPhong);
 
         ct.NgayTra = ngayTraMoi;
-        
         await _db.SaveChangesAsync();
-        await CapNhatNgayDuKienDatPhongAsync(maDatPhong);
+
+        // Cập nhật lại ngày trả dự kiến của Header Đặt phòng
+        var dp = await _db.DatPhongs.Include(d => d.DatPhongChiTiets).FirstAsync(d => d.MaDatPhong == maDatPhong);
+        dp.NgayTraDuKien = dp.DatPhongChiTiets.Max(c => c.NgayTra);
+
+        await _db.SaveChangesAsync();
         await tx.CommitAsync();
     }
 
-    public async Task DoiPhongAsync(
-        string maDatPhong, string maPhongCu, string maPhongMoi,
-        DateTime ngayNhan, DateTime ngayTra)
+    public async Task DoiPhongAsync(string maDatPhong, string maPhongCu, string maPhongMoi)
     {
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-
-        var ctCu = await _db.DatPhongChiTiets.FindAsync(maDatPhong, maPhongCu)
-            ?? throw new KeyNotFoundException("Không tìm thấy phòng cũ");
-
-        await EnsurePhongAvailableAsync(maPhongMoi, ngayNhan, ngayTra, maDatPhong);
-
-        var phongMoi = await _db.Phongs
-            .Include(p => p.MaLoaiPhongNavigation)
-            .FirstAsync(p => p.MaPhong == maPhongMoi);
-
-        var phongCu = await _db.Phongs.FindAsync(maPhongCu);
-        if (phongCu != null) phongCu.MaTrangThaiPhong = "PTT03";
-
-        _db.DatPhongChiTiets.Remove(ctCu);
-        _db.DatPhongChiTiets.Add(new DatPhongChiTiet
+        try
         {
-            MaDatPhong = maDatPhong,
-            MaPhong = maPhongMoi,
-            NgayNhan = ngayNhan,
-            NgayTra = ngayTra,
-            DonGia = phongMoi.MaLoaiPhongNavigation.GiaPhong,
-            MaNhanVien = ctCu.MaNhanVien
-        });
+            var ctCu = await _db.DatPhongChiTiets.FirstOrDefaultAsync(x => x.MaDatPhong == maDatPhong && x.MaPhong == maPhongCu)
+                ?? throw new KeyNotFoundException("Không tìm thấy phòng cũ trong đơn đặt.");
 
-        phongMoi.MaTrangThaiPhong = "PTT02";
-        await _db.SaveChangesAsync();
-        await CapNhatNgayDuKienDatPhongAsync(maDatPhong);
-        await tx.CommitAsync();
-    }
+            // 1. Kiểm tra phòng mới có trống không
+            await EnsurePhongAvailableAsync(maPhongMoi, ctCu.NgayNhan, ctCu.NgayTra, maDatPhong);
 
-    public async Task<object> GetDepositSummaryAsync()
-    {
-        var all = await _db.DatPhongs.ToListAsync();
-        return new
-        {
-            TongCocHienTai = all.Where(d => d.TrangThai == "Chờ nhận phòng").Sum(d => d.TienCoc ?? 0),
-            TongCocDaKhauTru = all.Where(d => d.TrangThai == "Đã trả phòng").Sum(d => d.TienCoc ?? 0),
-            TongCocBiMat = all.Where(d => d.TrangThai == "Đã hủy - Mất cọc").Sum(d => d.TienCoc ?? 0),
-            SoLuongDatPhongCoCoc = all.Count(d => d.TienCoc > 0)
-        };
+            var phongMoi = await _db.Phongs.Include(p => p.MaLoaiPhongNavigation).FirstAsync(p => p.MaPhong == maPhongMoi);
+            var phongCu = await _db.Phongs.FindAsync(maPhongCu);
+
+            // 2. Cập nhật trạng thái vật lý của phòng
+            if (phongCu != null) phongCu.MaTrangThaiPhong = "PTT03"; // Chuyển sang Dọn dẹp
+            phongMoi.MaTrangThaiPhong = "PTT02"; // Đang ở
+
+            // 3. Thay đổi thông tin trong Chi tiết đặt phòng
+            // (Lưu ý: Bạn có thể chọn tạo dòng mới hoặc update dòng cũ tùy nghiệp vụ báo cáo)
+            ctCu.MaPhong = maPhongMoi;
+            ctCu.DonGia = phongMoi.MaLoaiPhongNavigation.GiaPhong;
+
+            // 4. Cập nhật đồng bộ sang HoaDonChiTiet nếu đã có hóa đơn
+            var hdct = await _db.HoaDonChiTiets.FirstOrDefaultAsync(x => x.MaPhong == maPhongCu);
+            if (hdct != null) hdct.MaPhong = maPhongMoi;
+
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+        catch { await tx.RollbackAsync(); throw; }
     }
+    #endregion
 }

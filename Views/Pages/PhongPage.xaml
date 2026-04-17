@@ -5,7 +5,9 @@
       xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
       Background="Transparent" Title="Quản lý Phòng">
 
-
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
 
     <Grid Margin="28,20">
         <Grid.RowDefinitions>
@@ -14,7 +16,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Toolbar -->
         <ContentControl Grid.Row="0"
                         Background="{DynamicResource Brush.SurfaceTranslucent}"
                         Padding="16,12"
@@ -66,13 +67,10 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-
-                    <Border Height="34" Width="200" Padding="10,0"
-                            Style="{DynamicResource MacFluent.InputFrame}">
+                    <Border Height="34" Width="200" Padding="10,0" Style="{DynamicResource MacFluent.InputFrame}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔍" FontSize="15" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBox x:Name="TxtSearch" BorderThickness="0"
-                                     Background="Transparent" VerticalAlignment="Center"
+                            <TextBox x:Name="TxtSearch" BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
                                      FontSize="15" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                         </StackPanel>
                     </Border>
@@ -80,7 +78,6 @@
             </Grid>
         </ContentControl>
 
-        <!-- Main layout -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -88,11 +85,9 @@
                 <ColumnDefinition Width="360"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Room cards -->
             <ContentControl Grid.Column="0"
                             Background="{DynamicResource Brush.Surface}" Padding="20"
-                            BorderThickness="0"
-                            Style="{DynamicResource MacFluent.ShadowCard}"
+                            BorderThickness="0" Style="{DynamicResource MacFluent.ShadowCard}"
                             helpers:ThemeProperties.CornerRadius="16"
                             helpers:ThemeProperties.ShadowColor="{DynamicResource Color.BrandPrimary}" Grid.ColumnSpan="2" Margin="0,0,10,0">
                 <Grid>
@@ -103,38 +98,22 @@
                     <TextBlock x:Name="TxtRoomCount" Grid.Row="0"
                                Text="{Binding RoomCountText}"
                                FontSize="15" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,12"/>
-                    
-                    <!-- List Room (grouped by floor) -->
-                    <ScrollViewer Grid.Row="1"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  CanContentScroll="False">
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
                         <ItemsControl x:Name="PhongList" ItemsSource="{Binding FilteredRooms}">
-                            
-                            <!-- Group Style: Header cho mỗi tầng -->
                             <ItemsControl.GroupStyle>
                                 <GroupStyle>
                                     <GroupStyle.HeaderTemplate>
                                         <DataTemplate>
-                                            <!-- Tầng + Tổng phòng-->
                                             <Border Background="{DynamicResource Brush.SurfaceTranslucent}"
-                                                    BorderBrush="{DynamicResource Brush.Border}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="14"
-                                                    Padding="12,8"
-                                                    Margin="0,0,0,12">
+                                                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                                                    CornerRadius="14" Padding="12,8" Margin="0,0,0,12">
                                                 <DockPanel LastChildFill="False">
-                                                    <TextBlock DockPanel.Dock="Left"
-                                                        FontSize="16"
-                                                        FontWeight="Bold"
-                                                        Foreground="{DynamicResource Brush.Heading}">
-                                                <Run Text="Tầng "/>
-                                                <Run Text="{Binding Name, Mode=OneWay}"/>
+                                                    <TextBlock DockPanel.Dock="Left" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}">
+                                                        <Run Text="Tầng "/>
+                                                        <Run Text="{Binding Name, Mode=OneWay}"/>
                                                     </TextBlock>
-                                                    <TextBlock DockPanel.Dock="Right"
-                                                               FontSize="13"
-                                                               Foreground="{DynamicResource Brush.TextPlaceholder}"
-                                                               VerticalAlignment="Center">
+                                                    <TextBlock DockPanel.Dock="Right" FontSize="13" Foreground="{DynamicResource Brush.TextPlaceholder}" VerticalAlignment="Center">
                                                         <Run Text="{Binding ItemCount, Mode=OneWay}"/>
                                                         <Run Text=" phòng"/>
                                                     </TextBlock>
@@ -150,31 +129,26 @@
                                 </GroupStyle>
                             </ItemsControl.GroupStyle>
 
-                            <!-- Panel Layout: WrapPanel để tự động xuống hàng -->
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Margin="20,0" Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
 
-                            <!--Phòng Card-->
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <ContentControl 
-                                        Background="{Binding CardBackground}"
-                                        MouseLeftButtonDown="PhongCard_Click" Tag="{Binding}"
-                                        Style="{DynamicResource MacFluent.RoomCard}"
-                                        Width="200"
-                                        Height="180"
-                                        helpers:ThemeProperties.ShadowColor="{Binding ShadowColor}"
-                                        helpers:ThemeProperties.ShadowOpacity="0.3"
-                                        helpers:ThemeProperties.ShadowBlurRadius="20">
+                                    <ContentControl Background="{Binding CardBackground}"
+                                                    MouseLeftButtonDown="PhongCard_Click" Tag="{Binding}"
+                                                    Style="{DynamicResource MacFluent.RoomCard}"
+                                                    Width="200" Height="180"
+                                                    helpers:ThemeProperties.ShadowColor="{Binding ShadowColor}"
+                                                    helpers:ThemeProperties.ShadowOpacity="0.3"
+                                                    helpers:ThemeProperties.ShadowBlurRadius="20">
                                         <Grid Margin="12">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
-
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
@@ -185,225 +159,188 @@
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
-
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <!-- Mã phòng -->
                                                 <TextBlock Grid.Row="0" Grid.Column="0"
-                                                           Text="{Binding MaPhong}"
-                                                           FontSize="28"
-                                                           FontWeight="ExtraBold"
+                                                           Text="{Binding MaPhong}" FontSize="28" FontWeight="ExtraBold"
                                                            Foreground="{DynamicResource Brush.TextHeading}"/>
 
-                                                <!-- Badge trạng thái -->
-                                                <Border Grid.Row="0" Grid.Column="1"
-                                                        CornerRadius="10"
-                                                        Margin="0,3,0,2"
-                                                        Padding="8,5"
-                                                        Background="{Binding BadgeBackground}"
-                                                        VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding TenTrangThai}"
-                                                               FontSize="13"
-                                                               FontWeight="Bold" 
-                                                               Foreground="{Binding BadgeForeground}"/>
+                                                <Border Grid.Row="0" Grid.Column="1" CornerRadius="10" Margin="0,3,0,2" Padding="8,5"
+                                                        Background="{Binding BadgeBackground}" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding TenTrangThai}" FontSize="13" FontWeight="Bold" Foreground="{Binding BadgeForeground}"/>
                                                 </Border>
 
-                                                <!-- Thông tin phòng -->
-                                                <StackPanel Grid.Row="1"
-                                                            Grid.Column="0"
-                                                            Grid.ColumnSpan="2"
-                                                            Orientation="Horizontal"
-                                                            Margin="0,4,0,0">
-
-                                                    <TextBlock Text="{Binding CaptionText}"
-                                                               FontSize="13" 
-                                                               FontStyle="Italic"  FontWeight="Bold"
+                                                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,4,0,0">
+                                                    <TextBlock Text="{Binding CaptionText}" FontSize="13" FontStyle="Italic" FontWeight="Bold"
                                                                Foreground="{DynamicResource Brush.TextSecondary}"/>
                                                 </StackPanel>
                                             </Grid>
 
-                                            <Separator Grid.Row="1" Background="{DynamicResource Brush.Border}" 
-                                                       Margin="0,5,0,70" Height="1" Opacity="0.9"/>
+                                            <Separator Grid.Row="1" Background="{DynamicResource Brush.Border}" Margin="0,5,0,70" Height="1" Opacity="0.9"/>
 
                                             <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <TextBlock Text="{Binding StatusIcon}" 
-                                                           FontSize="32" HorizontalAlignment="Center" Margin="0,20,0,2"
-                                                           Opacity="0.4"/>
-                                                <TextBlock Text="{Binding InfoText}"
-                                                           FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.TextMuted}"
-                                                           HorizontalAlignment="Center" TextAlignment="Center"
-                                                           TextWrapping="WrapWithOverflow" MaxHeight="34"/>
+                                                <TextBlock Text="{Binding StatusIcon}" FontSize="32" HorizontalAlignment="Center" Margin="0,20,0,2" Opacity="0.4"/>
+                                                <TextBlock Text="{Binding InfoText}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.TextMuted}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="WrapWithOverflow" MaxHeight="34"/>
                                             </StackPanel>
+
+                                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                                                      HorizontalAlignment="Right" VerticalAlignment="Bottom" Panel.ZIndex="10"
+                                                      Style="{DynamicResource {x:Type CheckBox}}"
+                                                      Visibility="{Binding MaTrangThaiPhong, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='PTT01'}"/>
                                         </Grid>
                                     </ContentControl>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        
                     </ScrollViewer>
                 </Grid>
             </ContentControl>
 
-            <!-- Right panel: Chi tiết + Form đặt phòng -->
-            <ContentControl Grid.Column="2"
-                            Background="{DynamicResource Brush.Surface}"
-                            BorderThickness="0"
-                            Style="{DynamicResource MacFluent.ShadowCard}"
-                            helpers:ThemeProperties.CornerRadius="16"
+            <ContentControl Grid.Column="2" Background="{DynamicResource Brush.Surface}" BorderThickness="0"
+                            Style="{DynamicResource MacFluent.ShadowCard}" helpers:ThemeProperties.CornerRadius="16"
                             helpers:ThemeProperties.ShadowColor="{DynamicResource Color.BrandPrimary}">
-
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
                     <StackPanel Margin="20">
 
-                        <!-- PanelDetail (Empty state - Hiển thị khi chưa chọn phòng) -->
                         <StackPanel x:Name="PanelDetail" VerticalAlignment="Center" HorizontalAlignment="Center"
                                     Visibility="{Binding IsRoomSelected, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
                             <TextBlock Text="🏠" FontSize="50" HorizontalAlignment="Center" Margin="0,40,0,12"/>
                             <TextBlock Text="Chọn một phòng để xem chi tiết và đặt phòng"
-                                       FontSize="15" Foreground="{DynamicResource Brush.TextMuted}" HorizontalAlignment="Center"
-                                       TextAlignment="Center" TextWrapping="Wrap"/>
+                                       FontSize="15" Foreground="{DynamicResource Brush.TextMuted}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
                         </StackPanel>
 
-                        <!-- PanelBooking (Form & Details - Hiển thị khi đã chọn phòng) -->
                         <StackPanel x:Name="PanelBooking" Visibility="{Binding IsRoomSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                            <!-- DetailHeader -->
-                            <Border x:Name="DetailHeader" CornerRadius="12" Padding="16" Margin="0,0,0,16"
-                                    Background="{Binding SelectedRoom.BadgeForeground}">
-                                <Grid>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding SelectedRoom.MaPhong}" FontSize="30"
-                                                   FontWeight="Bold" Foreground="White"/>
-                                        <TextBlock Text="{Binding SelectedRoom.TenLoaiPhong}" FontSize="15" Foreground="White" Opacity="0.9"/>
-                                    </StackPanel>
-                                    <Border HorizontalAlignment="Right" VerticalAlignment="Top"
-                                            CornerRadius="8" Padding="8,4" Background="{DynamicResource Brush.OverlayWhite20}">
-                                        <TextBlock Text="{Binding SelectedRoom.TenTrangThai}" FontSize="13"
-                                                   Foreground="White" FontWeight="SemiBold"/>
-                                    </Border>
-                                </Grid>
+                            <Border CornerRadius="12" Padding="16" Margin="0,0,0,16">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{Binding SelectedRoom.BadgeForeground}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMultiSelectMode}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.BrandPrimary}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectionTitle}" FontSize="14" FontWeight="Bold" Foreground="White" Opacity="0.8"/>
+                                    <TextBlock Text="{Binding SelectedRoom.MaPhong}" FontSize="30" FontWeight="Bold" Foreground="White">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMultiSelectMode}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <ItemsControl ItemsSource="{Binding SelectedRooms}" Margin="0,8,0,0"
+                                                  Visibility="{Binding IsMultiSelectMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="White" CornerRadius="6" Padding="6,2" Margin="0,0,4,4">
+                                                    <TextBlock Text="{Binding MaPhong}" Foreground="{DynamicResource Brush.BrandPrimary}" FontWeight="Bold" FontSize="12"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                             </Border>
 
-                            <!-- Thông tin phòng -->
-                            <Grid Margin="0,0,0,8">
-                                <TextBlock Text="Sức chứa" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                <TextBlock Text="{Binding SelectedRoom.SoNguoiToiDa, StringFormat='{}{0} người'}" HorizontalAlignment="Right"
-                                           FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextHeading}"/>
-                            </Grid>
-                            <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
-                            <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Giá/đêm" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                <TextBlock Text="{Binding SelectedRoom.GiaPhongText}" HorizontalAlignment="Right"
-                                           FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
-                            </Grid>
-
-                            <!-- Tiện nghi -->
-                            <TextBlock Text="Tiện nghi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextHeading}" Margin="0,8,0,8"/>
-                            <ItemsControl ItemsSource="{Binding RoomAmenities}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="8" Padding="8,4" Margin="0,0,0,4"
-                                                Background="{DynamicResource Brush.SurfaceSoft}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="✓ " Foreground="{DynamicResource Brush.BrandPrimary}" FontWeight="Bold"/>
-                                                <TextBlock Text="{Binding TenTienNghi}" FontSize="14" Foreground="{DynamicResource Brush.TextPrimary}"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="Chưa có tiện nghi"
-                                       Visibility="{Binding RoomAmenities.Count, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=0}"
-                                       FontSize="14" Foreground="{DynamicResource Brush.TextDisabled}" Margin="0,0,0,12"/>
-
-                            <!-- Divider -->
-                            <Separator Background="{DynamicResource Brush.Border}" Margin="0,4,0,16"/>
-
-                            <!-- ══ PANEL ĐÃ ĐẶT TRƯỚC (PTT05) ══ -->
-                            <StackPanel x:Name="PanelDaDatTruoc" Visibility="{Binding IsRoomReserved, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,12">
-
-                                <TextBlock Text="📋  Thông tin đặt trước"
-               FontSize="16" FontWeight="Bold"
-               Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
-
-                                <!-- Tên khách -->
+                            <StackPanel Visibility="{Binding IsMultiSelectMode, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
                                 <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="Khách hàng"
-                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock Text="{Binding ReservedGuestName}"
-                   HorizontalAlignment="Right"
-                   FontSize="15" FontWeight="SemiBold"
-                   Foreground="{DynamicResource Brush.Heading}"/>
+                                    <TextBlock Text="Sức chứa" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock Text="{Binding SelectedRoom.SoNguoiToiDa, StringFormat='{}{0} người'}" HorizontalAlignment="Right"
+                                               FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextHeading}"/>
                                 </Grid>
                                 <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
-
-                                <!-- Ngày nhận / trả -->
-                                <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="Ngày nhận"
-                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock Text="{Binding ReservedNgayNhan}"
-                   HorizontalAlignment="Right"
-                   FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
-                                </Grid>
-                                <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="Ngày trả"
-                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock Text="{Binding ReservedNgayTra}"
-                   HorizontalAlignment="Right"
-                   FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
-                                </Grid>
-                                <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
-
-                                <!-- Tiền cọc -->
-                                <Grid Margin="0,0,0,16">
-                                    <TextBlock Text="Tiền đặt cọc"
-                   FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                                    <TextBlock Text="{Binding ReservedTienCoc}"
-                   HorizontalAlignment="Right"
-                   FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
+                                <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="Giá/đêm" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock Text="{Binding SelectedRoom.GiaPhongText}" HorizontalAlignment="Right"
+                                               FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
                                 </Grid>
 
-                                <!-- Nút xác nhận nhận phòng -->
-                                <Button Command="{Binding CheckInCommand}" Height="44"
-            FontSize="16" FontWeight="SemiBold" Cursor="Hand"
-            Style="{DynamicResource MacFluent.ButtonPrimary}">
-                                    <TextBlock Text="✅  Khách đã nhận phòng"
-                   FontSize="16" FontWeight="SemiBold" Foreground="White"/>
-                                </Button>
-
+                                <TextBlock Text="Tiện nghi" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextHeading}" Margin="0,8,0,8"/>
+                                <ItemsControl ItemsSource="{Binding RoomAmenities}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="8" Padding="8,4" Margin="0,0,0,4" Background="{DynamicResource Brush.SurfaceSoft}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="✓ " Foreground="{DynamicResource Brush.BrandPrimary}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding TenTienNghi}" FontSize="14" Foreground="{DynamicResource Brush.TextPrimary}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="Chưa có tiện nghi"
+                                           Visibility="{Binding RoomAmenities.Count, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=0}"
+                                           FontSize="14" Foreground="{DynamicResource Brush.TextDisabled}" Margin="0,0,0,12"/>
                             </StackPanel>
 
-                            <!-- ══ FORM ĐẶT PHÒNG ══ -->
+                            <Border Background="{DynamicResource Brush.SurfaceSoft}" CornerRadius="10" Padding="12" Margin="0,0,0,12"
+                                    Visibility="{Binding IsMultiSelectMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="💡 Bạn đang thực hiện đặt phòng nhanh cho một nhóm. Các phòng này sẽ có chung thông tin khách hàng và thời gian lưu trú." 
+                                               FontStyle="Italic" FontSize="13" TextWrapping="Wrap" Foreground="{DynamicResource Brush.TextMuted}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Separator Background="{DynamicResource Brush.Border}" Margin="0,4,0,16"/>
+
+                            <StackPanel x:Name="PanelDaDatTruoc" Visibility="{Binding IsRoomReserved, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,12">
+                                <TextBlock Text="📋  Thông tin đặt trước" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Khách hàng" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock Text="{Binding ReservedGuestName}" HorizontalAlignment="Right" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Heading}"/>
+                                </Grid>
+                                <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Ngày nhận" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock Text="{Binding ReservedNgayNhan}" HorizontalAlignment="Right" FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Ngày trả" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock Text="{Binding ReservedNgayTra}" HorizontalAlignment="Right" FontSize="14" Foreground="{DynamicResource Brush.Heading}"/>
+                                </Grid>
+                                <Separator Background="{DynamicResource Brush.Border}" Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,16">
+                                    <TextBlock Text="Tiền đặt cọc" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
+                                    <TextBlock Text="{Binding ReservedTienCoc}" HorizontalAlignment="Right" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.BrandPrimary}"/>
+                                </Grid>
+                                <Button Command="{Binding CheckInCommand}" Height="44" FontSize="16" FontWeight="SemiBold" Cursor="Hand" Style="{DynamicResource MacFluent.ButtonPrimary}">
+                                    <TextBlock Text="✅  Khách đã nhận phòng" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
+                                </Button>
+                            </StackPanel>
+
                             <StackPanel x:Name="PanelDatPhong" Visibility="{Binding IsRoomAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="📅  Đặt phòng" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
 
-                                <TextBlock Text="📅  Đặt phòng" FontSize="16" FontWeight="Bold"
-                                           Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,14"/>
-
-                                <!-- Tìm khách hàng -->
-                                <TextBlock Text="Search" FontSize="15" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                                <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
-                                        Height="36" Margin="0,0,0,4">
-                                    <TextBox BorderThickness="0" Padding="10,0"
-                                             VerticalAlignment="Center" FontSize="15"
-                                             Text="{Binding KhachHangSearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Search" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="36" Margin="0,0,0,4">
+                                    <TextBox BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15" Text="{Binding KhachHangSearchText, UpdateSourceTrigger=PropertyChanged}"/>
                                 </Border>
                                 <ListBox ItemsSource="{Binding KhachHangResults}" MaxHeight="100" 
                                          Visibility="{Binding KhachHangResults.Count, Converter={StaticResource StringToVisibilityConverter}}"
-                                         SelectedItem="{Binding SelectedKhach}"
-                                         DisplayMemberPath="TenKhachHang"
+                                         SelectedItem="{Binding SelectedKhach}" DisplayMemberPath="TenKhachHang"
                                          BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" Margin="0,0,0,4"/>
-                                
+
                                 <TextBlock Text="{Binding SelectedKhach.TenKhachHang}" FontSize="13" Foreground="{DynamicResource Brush.BrandPrimary}"
                                            Visibility="{Binding SelectedKhach, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,8" TextWrapping="Wrap"/>
 
-                                <!-- Khách mới -->
                                 <Expander Header="➕ Khách mới" Margin="0,0,0,10" IsExpanded="False">
                                     <StackPanel Margin="0,8,0,0">
-
                                         <TextBlock Text="Quốc tịch (Mặc định: Việt Nam)" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"  />
                                         <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34" Margin="0,0,0,12" Background="{DynamicResource Brush.SurfaceTranslucent}">
                                             <TextBox Text="{Binding NewKhachQuocTich, UpdateSourceTrigger=PropertyChanged}" 
@@ -438,17 +375,14 @@
                                             <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.WarningText}" BorderThickness="1.5" Height="34" Margin="0,0,0,8">
                                                 <TextBox Text="{Binding NewKhachPassport, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
                                             </Border>
-
                                             <TextBlock Text="Số Visa (Nếu có)" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                             <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="34" Margin="0,0,0,8">
                                                 <TextBox Text="{Binding NewKhachVisa, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,0" VerticalAlignment="Center" FontSize="15"/>
                                             </Border>
                                         </StackPanel>
-
                                     </StackPanel>
                                 </Expander>
 
-                                <!-- Ngày nhận / trả -->
                                 <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -456,52 +390,36 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Ngày nhận" FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Ngày nhận" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                         <DatePicker SelectedDate="{Binding NgayNhan}" Height="34" FontSize="14"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Ngày trả" FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Ngày trả" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
                                         <DatePicker SelectedDate="{Binding NgayTra}" Height="34" FontSize="14"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <Border CornerRadius="8" Padding="12,8" Margin="0,0,0,10"
-                                        Background="{DynamicResource Brush.WarningSurface}">
-                                    <TextBlock Text="Khuyến mãi sẽ được chọn khi xuất hóa đơn."
-                                               FontSize="13"
-                                               Foreground="{DynamicResource Brush.WarningText}"
-                                               TextWrapping="Wrap"/>
+                                <Border CornerRadius="8" Padding="12,8" Margin="0,0,0,10" Background="{DynamicResource Brush.WarningSurface}">
+                                    <TextBlock Text="Khuyến mãi sẽ được chọn khi xuất hóa đơn." FontSize="13" Foreground="{DynamicResource Brush.WarningText}" TextWrapping="Wrap"/>
                                 </Border>
 
                                 <StackPanel Margin="0,10,0,0">
                                     <TextBlock Text="Tiền cọc trước (VNĐ):" FontWeight="SemiBold" Foreground="Gray"/>
-                                    <TextBox Text="{Binding TienCoc, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" 
-             Height="35" VerticalContentAlignment="Center" Margin="0,5,0,0"/>
-                                </StackPanel>  
+                                    <TextBox Text="{Binding TienCoc, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" Height="35" VerticalContentAlignment="Center" Margin="0,5,0,0"/>
+                                </StackPanel>
 
-                                <!-- Tính giá -->
                                 <Border CornerRadius="8" Padding="12,8" Background="{DynamicResource Brush.SurfaceSoft}" Margin="0,0,0,14">
-                                    <TextBlock Text="{Binding TotalPriceText, StringFormat='{}Tổng tiền tạm tính: {0}'}" FontSize="14" Foreground="{DynamicResource Brush.Heading}"
-                                               TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding TotalPriceText, StringFormat='{}Tổng tiền tạm tính: {0}'}" FontSize="14" Foreground="{DynamicResource Brush.Heading}" TextWrapping="Wrap"/>
                                 </Border>
 
-                                <!-- Nút xác nhận -->
-                                <Button Command="{Binding DatPhongCommand}" Height="44"
-                                        FontSize="16" FontWeight="SemiBold" Cursor="Hand"
-                                        Style="{DynamicResource MacFluent.ButtonPrimary}">
-                                    <TextBlock Text="📅  Xác nhận đặt phòng"
-                                               FontSize="16" FontWeight="SemiBold" Foreground="White"/>
+                                <Button Command="{Binding DatPhongCommand}" Height="44" FontSize="16" FontWeight="SemiBold" Cursor="Hand" Style="{DynamicResource MacFluent.ButtonPrimary}">
+                                    <TextBlock Text="📅  Xác nhận đặt phòng" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
                                 </Button>
-
                             </StackPanel>
 
-                            <!-- Thông báo phòng không trống -->
                             <Border x:Name="PanelKhongTrong" Visibility="{Binding IsRoomOccupied, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     CornerRadius="10" Padding="14,10" Background="{DynamicResource Brush.WarningSurface}">
-                                <TextBlock Text="{Binding SelectedRoom.TenTrangThai, StringFormat='Trạng thái: {0}'}" FontSize="15" Foreground="{DynamicResource Brush.WarningText}"
-                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                                <TextBlock Text="{Binding SelectedRoom.TenTrangThai, StringFormat='Trạng thái: {0}'}" FontSize="15" Foreground="{DynamicResource Brush.WarningText}" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Border>
 
                         </StackPanel>
@@ -511,7 +429,3 @@
         </Grid>
     </Grid>
 </Page>
-
-
-
-

@@ -11,22 +11,17 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 public partial class PhongPage : Page
 {
     private readonly SoDoPhongViewModel _viewModel;
-    private readonly QuanLyKhachSanContext _dbPhong;
-    private readonly QuanLyKhachSanContext _dbKhachHang;
-    private readonly QuanLyKhachSanContext _dbDatPhong;
+    private readonly QuanLyKhachSanContext _db;
 
     public PhongPage()
     {
         InitializeComponent();
 
-        // Manual DI for now, since we don't have a full DI container set up yet
-        _dbPhong = new QuanLyKhachSanContext();
-        _dbKhachHang = new QuanLyKhachSanContext();
-        _dbDatPhong = new QuanLyKhachSanContext();
+        _db = new QuanLyKhachSanContext();
 
-        var roomService = new RoomService(_dbPhong);
-        var khachHangService = new KhachHangService(_dbKhachHang);
-        var datPhongService = new DatPhongService(_dbDatPhong);
+        var roomService = new RoomService(_db);
+        var khachHangService = new KhachHangService(_db);
+        var datPhongService = new DatPhongService(_db);
 
         _viewModel = new SoDoPhongViewModel(roomService, khachHangService, datPhongService);
         DataContext = _viewModel;
@@ -34,9 +29,9 @@ public partial class PhongPage : Page
         Loaded += async (_, _) => await _viewModel.TaiDuLieuAsync();
         Unloaded += (_, _) =>
         {
-            _dbPhong.Dispose();
-            _dbKhachHang.Dispose();
-            _dbDatPhong.Dispose();
+            _db.Dispose();
+            _db.Dispose();
+            _db.Dispose();
         };
     }
 
@@ -45,6 +40,7 @@ public partial class PhongPage : Page
         if (sender is FrameworkElement element && element.DataContext is PhongCardViewModel vm)
         {
             _viewModel.SelectedRoom = vm;
+            if (!vm.IsSelected) vm.IsSelected = true;
         }
     }
 }

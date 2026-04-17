@@ -82,6 +82,11 @@ public partial class SoDoPhongViewModel : BaseViewModel
 
     public string RoomCountText => $"{_allPhongs.Count} phòng";
 
+    // ── Multi-select properties ─────────────────────────────────────────────
+    public List<PhongCardViewModel> SelectedRooms => _allPhongs.Where(p => p.IsSelected).ToList();
+    public bool IsMultiSelectMode => SelectedRooms.Count > 1;
+    public string SelectionTitle => IsMultiSelectMode ? $"ĐANG CHỌN {SelectedRooms.Count} PHÒNG" : "THÔNG TIN PHÒNG";
+
     // ── Loading state ───────────────────────────────────────────────────────
     private bool _isLoading;
     public bool IsLoading
@@ -130,10 +135,13 @@ public partial class SoDoPhongViewModel : BaseViewModel
                 var activeBookings = await _roomService.LayChiTietDatPhongDangHoatDongAsync();
 
                 _allPhongs.Clear();
+
+                // Sửa lỗi ở đây: Bao bọc bằng ngoặc nhọn để code chạy đúng vòng lặp
                 foreach (var p in rooms)
                 {
                     var booking = activeBookings.FirstOrDefault(b => b.MaPhong == p.MaPhong);
-                    _allPhongs.Add(new PhongCardViewModel
+
+                    var vm = new PhongCardViewModel
                     {
                         MaPhong = p.MaPhong,
                         TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
@@ -143,8 +151,20 @@ public partial class SoDoPhongViewModel : BaseViewModel
                         GiaPhong = p.MaLoaiPhongNavigation.GiaPhong,
                         Tang = LayTangTuMaPhong(p.MaPhong),
                         GuestName = booking?.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang
-                    });
+                    };
+
+                    // Cập nhật UI khi Checkbox trên thẻ bị tick/bỏ tick
+                    vm.OnSelectedChanged = () =>
+                    {
+                        OnPropertyChanged(nameof(SelectedRooms));
+                        OnPropertyChanged(nameof(IsMultiSelectMode));
+                        OnPropertyChanged(nameof(SelectionTitle));
+                        CapNhatTienTamTinh();
+                    };
+
+                    _allPhongs.Add(vm);
                 }
+
                 _filteredRooms.Refresh();
                 OnPropertyChanged(nameof(RoomCountText));
             }
@@ -189,9 +209,20 @@ public partial class SoDoPhongViewModel : BaseViewModel
 // Giữ nguyên 2 class phụ trợ này ở file gốc
 public class TienNghiItem { public string TenTienNghi { get; set; } = ""; }
 
-public class PhongCardViewModel
+public class PhongCardViewModel : BaseViewModel
 {
-    // ... (Giữ nguyên toàn bộ code của PhongCardViewModel như bạn đã viết) ...
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (SetProperty(ref _isSelected, value))
+                OnSelectedChanged?.Invoke(); // Gọi ngược lên ViewModel cha khi tick
+        }
+    }
+    public Action? OnSelectedChanged { get; set; }
+
     public string MaPhong { get; set; } = "";
     public string TenLoaiPhong { get; set; } = "";
     public string TenTrangThai { get; set; } = "";
@@ -211,7 +242,7 @@ public class PhongCardViewModel
         }
     }
 
-    public SolidColorBrush CardBackground => new SolidColorBrush(Color.FromRgb(255, 255, 255));
+    public static SolidColorBrush CardBackground => new(Color.FromRgb(255, 255, 255));
     public SolidColorBrush BadgeBackground => MaTrangThaiPhong switch { "PTT01" => new SolidColorBrush(Color.FromRgb(209, 250, 229)), "PTT02" => new SolidColorBrush(Color.FromRgb(255, 228, 230)), "PTT03" => new SolidColorBrush(Color.FromRgb(254, 243, 199)), "PTT04" => new SolidColorBrush(Color.FromRgb(241, 245, 249)), "PTT05" => new SolidColorBrush(Color.FromRgb(224, 231, 255)), _ => new SolidColorBrush(Color.FromRgb(241, 245, 249)), };
     public SolidColorBrush BadgeForeground => MaTrangThaiPhong switch { "PTT01" => new SolidColorBrush(Color.FromRgb(16, 185, 129)), "PTT02" => new SolidColorBrush(Color.FromRgb(225, 29, 72)), "PTT03" => new SolidColorBrush(Color.FromRgb(245, 158, 11)), "PTT04" => new SolidColorBrush(Color.FromRgb(100, 116, 139)), "PTT05" => new SolidColorBrush(Color.FromRgb(99, 102, 241)), _ => new SolidColorBrush(Color.FromRgb(100, 116, 139)), };
     public Color ShadowColor => MaTrangThaiPhong switch { "PTT01" => Color.FromRgb(16, 185, 129), "PTT02" => Color.FromRgb(225, 29, 72), "PTT03" => Color.FromRgb(245, 158, 11), "PTT05" => Color.FromRgb(99, 102, 241), _ => Color.FromRgb(37, 99, 235), };
