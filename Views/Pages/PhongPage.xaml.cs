@@ -19,7 +19,7 @@ public partial class PhongPage : Page
 
         _db = new QuanLyKhachSanContext();
 
-        var roomService = new RoomService(_dbPhong);
+        var roomService = new PhongService(_dbPhong);
         var khachHangService = new KhachHangService(_dbKhachHang);
         var datPhongService = new DatPhongService(_dbDatPhong);
 
