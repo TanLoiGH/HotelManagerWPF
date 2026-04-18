@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -101,6 +102,7 @@ public class HoaDonPageViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi tải hóa đơn: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }

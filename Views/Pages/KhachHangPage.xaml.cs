@@ -136,6 +136,7 @@ public partial class KhachHangPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex); 
             MessageBox.Show($"Lỗi lưu: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -166,6 +167,7 @@ public partial class KhachHangPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             ConfirmHelper.ShowError($"Lỗi: {ex.Message}");
         }
     }

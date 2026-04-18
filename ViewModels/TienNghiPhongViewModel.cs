@@ -7,6 +7,7 @@ public class TienNghiPhongViewModel
     public string MaTienNghi { get; set; } = "";
     public string TenTienNghi { get; set; } = "";
     public DateOnly? HanBaoHanh { get; set; }
+    public string? MaNcc { get; set; }
     public string TenNCC { get; set; } = "";
     public string TenTrangThai { get; set; } = "";
     public string MaTrangThai { get; set; } = "TNTT01";
@@ -14,5 +15,3 @@ public class TienNghiPhongViewModel
     public string HanBaoHanhText => HanBaoHanh.HasValue
         ? HanBaoHanh.Value.ToString("dd/MM/yyyy") : "—";
 }
-
-

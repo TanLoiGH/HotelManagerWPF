@@ -95,36 +95,39 @@ public class KhachHangService : IKhachHangService
         await _db.SaveChangesAsync();
     }
 
-    // Tìm khách theo CCCD/SĐT, nếu chưa có thì tạo mới và gán hạng mặc định.
     public async Task<KhachHang> TimHoacTaoAsync(
-        string tenKhachHang,
-        string? dienThoai,
-        string? cccd,
-        string? email = null,
-        string? diaChi = null,
-        string? passport = null,
-        string? visa = null,
-        string? quocTich = null)
+        string tenKhachHang, string? dienThoai, string? cccd, string? email,
+        string? maLoaiKhachMacDinh, string? diaChi = null, string? passport = null,
+        string? visa = null, string? quocTich = null)
     {
-        KhachHang? khachDaCo = null;
+        // Tránh lỗi tràn độ dài cột DB
+        if (!string.IsNullOrWhiteSpace(dienThoai) && dienThoai.Length > 15) dienThoai = dienThoai.Substring(0, 15);
+        if (!string.IsNullOrWhiteSpace(cccd) && cccd.Length > 12) cccd = cccd.Substring(0, 12);
 
+        // Dùng AsNoTracking để tránh EF khóa object
+        KhachHang? kh = null;
         if (!string.IsNullOrWhiteSpace(cccd))
-            khachDaCo = await _db.KhachHangs.FirstOrDefaultAsync(k => k.Cccd == cccd);
+            kh = await _db.KhachHangs.AsNoTracking().FirstOrDefaultAsync(k => k.Cccd == cccd);
         else if (!string.IsNullOrWhiteSpace(dienThoai))
-            khachDaCo = await _db.KhachHangs.FirstOrDefaultAsync(k => k.DienThoai == dienThoai);
+            kh = await _db.KhachHangs.AsNoTracking().FirstOrDefaultAsync(k => k.DienThoai == dienThoai);
 
-        if (khachDaCo != null)
-            return khachDaCo;
+        if (kh != null) return kh;
 
-        var maKhachCuoi = await _db.KhachHangs
+        var maKhachCuoi = await _db.KhachHangs.AsNoTracking()
             .OrderByDescending(k => k.MaKhachHang)
-            .Select(k => k.MaKhachHang)
-            .FirstOrDefaultAsync();
+            .Select(k => k.MaKhachHang).FirstOrDefaultAsync();
 
         var tongTichLuyBanDau = 0m;
-        var maLoaiKhach = await TinhHangAsync(_db, tongTichLuyBanDau);
+        var maLoaiKhach = await TinhHangAsync(_db, tongTichLuyBanDau) ?? maLoaiKhachMacDinh;
 
-        var kh = new KhachHang
+        bool loaiKhachTonTai = await _db.LoaiKhaches.AnyAsync(l => l.MaLoaiKhach == maLoaiKhach);
+        if (!loaiKhachTonTai)
+        {
+            // Nếu mã không tồn tại, tự động lấy mã loại khách đầu tiên có trong bảng
+            maLoaiKhach = await _db.LoaiKhaches.Select(l => l.MaLoaiKhach).FirstOrDefaultAsync();
+        }
+
+        kh = new KhachHang
         {
             MaKhachHang = MaHelper.Next("KH", maKhachCuoi),
             TenKhachHang = tenKhachHang,
@@ -141,6 +144,7 @@ public class KhachHangService : IKhachHangService
 
         _db.KhachHangs.Add(kh);
         await _db.SaveChangesAsync();
+        _db.Entry(kh).State = EntityState.Detached; // Nhả tracking ngay sau khi save
 
         return kh;
     }

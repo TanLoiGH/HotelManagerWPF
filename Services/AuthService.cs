@@ -40,6 +40,8 @@ public class AuthService
                 }
                 catch (Exception ex)
                 {
+                    Logger.LogError("Lỗi", ex);
+
                     System.Diagnostics.Debug.WriteLine($"HASH_VERIFY_ERROR: {ex.Message}");
                     return null;
                 }
@@ -91,6 +93,7 @@ public class AuthService
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             System.Diagnostics.Debug.WriteLine($"LOGIN_EXCEPTION: {ex}");
             throw;
         }

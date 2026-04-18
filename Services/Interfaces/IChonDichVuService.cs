@@ -6,14 +6,16 @@ namespace QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 public interface IChonDichVuService
 {
-    (string MaDichVu, int SoLuong)? ChonDichVu(Window? owner, List<DichVuViewModel> danhSachDichVu);
+    // Thêm tham số danhSachMaPhong
+    (string MaDichVu, int SoLuong, string MaPhong)? ChonDichVu(Window? owner, List<DichVuViewModel> danhSachDichVu, List<string> danhSachMaPhong);
 }
 
 public sealed class ChonDichVuServiceWpf : IChonDichVuService
 {
-    public (string MaDichVu, int SoLuong)? ChonDichVu(Window? owner, List<DichVuViewModel> danhSachDichVu)
+    public (string MaDichVu, int SoLuong, string MaPhong)? ChonDichVu(Window? owner, List<DichVuViewModel> danhSachDichVu, List<string> danhSachMaPhong)
     {
-        var dialog = new ThemDichVuDialog(danhSachDichVu) { Owner = owner };
+        // Truyền danh sách phòng vào Constructor của Dialog
+        var dialog = new ThemDichVuDialog(danhSachDichVu, danhSachMaPhong) { Owner = owner };
         if (dialog.ShowDialog() == true && dialog.SelectedResult.HasValue)
             return dialog.SelectedResult.Value;
         return null;

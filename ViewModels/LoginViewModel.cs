@@ -81,6 +81,7 @@ public class LoginViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             ErrorMessage = $"Lỗi kết nối: {ex.Message}";
         }
         finally

@@ -167,7 +167,8 @@ public class DatPhongService : IDatPhongService
                     MaPhong = maPhong,
                     NgayNhan = ngayNhan,
                     NgayTra = ngayTra,
-                    DonGia = phong.MaLoaiPhongNavigation.GiaPhong
+                    DonGia = phong.MaLoaiPhongNavigation.GiaPhong,
+                    MaNhanVien = maNhanVien
                 });
 
                 phong.MaTrangThaiPhong = "PTT05"; // Đã đặt

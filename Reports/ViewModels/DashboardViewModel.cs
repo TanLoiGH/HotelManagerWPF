@@ -34,6 +34,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
             }
             catch (Exception ex)
             {
+                Logger.LogError("Lỗi", ex);
                 System.Diagnostics.Debug.WriteLine("Lỗi xuất báo cáo: " + ex.Message);
             }
         }

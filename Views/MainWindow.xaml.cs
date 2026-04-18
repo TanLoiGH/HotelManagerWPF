@@ -101,7 +101,7 @@ public partial class MainWindow : Window
         => NavigateTo(new DashboardPage(), "Dashboard", BtnDashboard);
 
     private void Nav_Phong(object sender, MouseButtonEventArgs e)
-        => NavigateTo(new PhongPage(), "Quản lý Phòng", sender as Border);
+        => NavigateTo(new SoDoPhongPage(), "Quản lý Phòng", sender as Border);
 
     private void Nav_QuanTriPhong(object sender, MouseButtonEventArgs e)
     => NavigateTo(new QuanTriPhongPage(), "Quản lý Phòng", sender as Border);
@@ -136,9 +136,9 @@ public partial class MainWindow : Window
     private void Nav_LoaiKhach(object sender, MouseButtonEventArgs e)
         => NavigateTo(new LoaiKhachPage(), "Hạng Khách Hàng", sender as Border);
     // ── Nav events — Dialog popup (cần tham số, không navigate trực tiếp) ───
-    // Các menu này mở PhongPage trước, user chọn phòng rồi dialog tự mở
+    // Các menu này mở SoDoPhongPage trước, user chọn phòng rồi dialog tự mở
     private void Nav_DatPhong(object sender, MouseButtonEventArgs e)
-        => NavigateTo(new PhongPage(), "Quản lý Phòng — Chọn phòng để đặt", sender as Border);
+        => NavigateTo(new SoDoPhongPage(), "Quản lý Phòng — Chọn phòng để đặt", sender as Border);
 
     private void Nav_ThanhToan(object sender, MouseButtonEventArgs e)
         => NavigateTo(new HoaDonPage(), "Hoá Đơn — Chọn hóa đơn để thanh toán", sender as Border);

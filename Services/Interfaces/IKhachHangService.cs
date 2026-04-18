@@ -12,7 +12,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Services.Interfaces
         Task<KhachHang?> LayTheoMaAsync(string maKhachHang);
         Task<List<KhachHang>> SearchKhachHangAsync(string keyword, int limit = 8);
         Task TaoMoiAsync(string tenKhachHang, string? dienThoai, string? cccd, string? email, string? diaChi, string? maLoaiKhach);
-        Task<KhachHang> TimHoacTaoAsync(string tenKhachHang, string? dienThoai, string? cccd, string? email = null, string? diaChi = null, string? passport = null, string? visa = null, string? quocTich = null);
+        Task<KhachHang> TimHoacTaoAsync(string tenKhachHang, string? dienThoai, string? cccd, string? email, string? maLoaiKhachMacDinh, string? diaChi = null, string? passport = null, string? visa = null, string? quocTich = null);
         Task XoaAsync(string maKhachHang);
     }
 }

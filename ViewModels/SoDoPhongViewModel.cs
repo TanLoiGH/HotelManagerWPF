@@ -28,7 +28,7 @@ public partial class SoDoPhongViewModel : BaseViewModel
 
     private CancellationTokenSource? _ctsChonPhong;
     private int _phienChonPhong;
-
+        
     // ── Collections ────────────────────────────────────────────────────────
     private List<PhongCardViewModel> _allPhongs = new();
     private readonly ListCollectionView _filteredRooms;
@@ -64,6 +64,12 @@ public partial class SoDoPhongViewModel : BaseViewModel
         get => _selectedRoom;
         set
         {
+            // Nếu đang có phòng được check và người dùng chọn phòng khác -> hỏi hoặc tự động clear
+            if (value != null && IsMultiSelectMode)
+            {
+                ClearAllSelectedRooms();
+            }
+
             if (SetProperty(ref _selectedRoom, value))
             {
                 OnPropertyChanged(nameof(IsRoomSelected));
@@ -132,6 +138,17 @@ public partial class SoDoPhongViewModel : BaseViewModel
         HoanThanhDonDepCommand = new AsyncRelayCommand(async _ => await ThucHienHoanThanhDonDepAsync());
     }
 
+    public void ClearAllSelectedRooms()
+    {
+        foreach (var p in _allPhongs)
+        {
+            if (p.IsSelected)
+                p.IsSelected = false;
+        }
+        OnPropertyChanged(nameof(SelectedRooms));
+        OnPropertyChanged(nameof(IsMultiSelectMode));
+    }
+
     public async Task TaiDuLieuAsync()
     {
         IsLoading = true;
@@ -184,6 +201,7 @@ public partial class SoDoPhongViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi tải phòng: {ex.Message}", "Lỗi");
         }
         finally

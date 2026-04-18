@@ -7,12 +7,12 @@ using QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
-public partial class PhongPage : Page
+public partial class SoDoPhongPage : Page
 {
     private readonly SoDoPhongViewModel _viewModel;
     private readonly QuanLyKhachSanContext _db;
 
-    public PhongPage()
+    public SoDoPhongPage()
     {
         InitializeComponent();
 
@@ -29,17 +29,37 @@ public partial class PhongPage : Page
         Unloaded += (_, _) =>
         {
             _db.Dispose();
-            _db.Dispose();
-            _db.Dispose();
         };
     }
 
     private void PhongCard_Click(object sender, MouseButtonEventArgs e)
     {
-        if (sender is FrameworkElement element && element.DataContext is PhongCardViewModel vm)
+        var card = sender as FrameworkElement;
+        var vm = card?.Tag as PhongCardViewModel;
+        if (vm != null)
         {
+            // Nếu đang có phòng được check -> clear hết
+            if (_viewModel.IsMultiSelectMode)
+                _viewModel.ClearAllSelectedRooms();
             _viewModel.SelectedRoom = vm;
-            if (!vm.IsSelected) vm.IsSelected = true;
         }
     }
+
+    private void FilterButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button clickedBtn && FilterPanel != null)
+        {
+            foreach (var child in FilterPanel.Children)
+            {
+                if (child is Button btn)
+                {
+                    // Nút được click sẽ sáng lên và viền dày hơn, các nút khác mờ đi
+                    btn.Opacity = (btn == clickedBtn) ? 1.0 : 0.4;
+                    btn.BorderThickness = (btn == clickedBtn) ? new Thickness(2) : new Thickness(1);
+                }
+            }
+        }
+    }
+
+
 }

@@ -8,74 +8,87 @@
     <Grid Margin="28,20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="16"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Toolbar -->
         <ContentControl Grid.Row="0"
-                        Background="{DynamicResource Brush.Surface}" Padding="16,12"
+                        Background="{DynamicResource Brush.Surface}" Padding="20"
                         BorderThickness="0"
                         Style="{DynamicResource MacFluent.ShadowCard}"
-                        helpers:ThemeProperties.CornerRadius="14"
-                        helpers:ThemeProperties.ShadowBlurRadius="10">
+                        helpers:ThemeProperties.CornerRadius="16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Phòng" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CboPhong" Height="34" FontSize="15"
-                              SelectionChanged="CboPhong_SelectionChanged"/>
+                <StackPanel Grid.Column="0" Margin="0,0,24,0" VerticalAlignment="Center">
+                    <TextBlock Text="Chọn phòng kiểm tra" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,8"/>
+                    <ComboBox x:Name="CboPhong" Height="38" FontSize="15" SelectionChanged="CboPhong_SelectionChanged"/>
+                    <TextBlock x:Name="TxtAlert" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource Brush.WarningText}" Margin="0,12,0,0" TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="Cập nhật trạng thái" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CboTrangThai" Height="34" FontSize="15"/>
-                </StackPanel>
+                <Border Grid.Column="1" Background="{DynamicResource Brush.Border}" Margin="0,4"/>
 
-                <TextBlock x:Name="TxtAlert" Grid.Column="3" FontSize="15"
-                           Foreground="{DynamicResource Brush.WarningText}" VerticalAlignment="Center"
-                           Margin="16,0" Visibility="Collapsed"/>
+                <Grid Grid.Column="2" Margin="24,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="16"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="4" Orientation="Horizontal">
-                    <Button Content="Cập nhật" Height="34" Padding="16,0" FontSize="15"
-                            Style="{DynamicResource MacFluent.ButtonAction.Edit}"
-                            Click="BtnCapNhat_Click" Margin="0,0,8,0"/>
-                    <StackPanel>
-                        <TextBlock Text="Chi phí sửa chữa (₫)" FontSize="13" Foreground="{DynamicResource Brush.TextPlaceholder}" Margin="0,0,0,2"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Border CornerRadius="6" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5">
-                                <TextBox x:Name="TxtChiPhiSuaChua" BorderThickness="0" Padding="8,0"
-                                         VerticalAlignment="Center" FontSize="15" Height="30"/>
-                            </Border>
-                            <Button Grid.Column="2" Content="Ghi" Height="30" Padding="10,0"
-                                    FontSize="15"
-                                    Style="{DynamicResource MacFluent.ButtonAction.Edit}"
-                                    Click="BtnGhiSuaChua_Click"/>
-                        </Grid>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Đổi trạng thái:" FontSize="15" FontWeight="Medium" Foreground="{DynamicResource Brush.TextPlaceholder}" VerticalAlignment="Center" Width="110"/>
+                        <ComboBox x:Name="CboTrangThai" Height="36" Width="220" FontSize="15" Margin="0,0,12,0"/>
+                        <Button Content="Lưu cập nhật" Height="36" Padding="16,0" FontSize="14"
+                                Style="{DynamicResource MacFluent.ButtonAction.Edit}"
+                                Click="BtnCapNhat_Click"/>
                     </StackPanel>
-                </StackPanel>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Ghi chi phí:" FontSize="15" FontWeight="Medium" Foreground="{DynamicResource Brush.TextPlaceholder}" VerticalAlignment="Center" Width="110"/>
+                        <ComboBox x:Name="CboLoaiXuLy" Height="36" Width="110" FontSize="15" Margin="0,0,12,0">
+                            <ComboBoxItem Content="Sửa chữa" IsSelected="True"/>
+                            <ComboBoxItem Content="Thay mới"/>
+                        </ComboBox>
+
+                        <Border CornerRadius="6" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5" Height="36" Margin="0,0,12,0" Background="{DynamicResource Brush.Control}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBox x:Name="TxtChiPhi" Width="120" BorderThickness="0" Background="Transparent" Padding="12,0" FontSize="15" VerticalAlignment="Center" ToolTip="Nhập chi phí (VNĐ)"/>
+                                <TextBlock Text="VNĐ" Margin="0,0,12,0" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextPlaceholder}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="Ghi &amp; Hoàn tất" Height="36" Padding="16,0" FontSize="14"
+                                Style="{DynamicResource MacFluent.ButtonAction.Save}"
+                                Click="BtnGhiXuLy_Click"/>
+                    </StackPanel>
+                </Grid>
             </Grid>
         </ContentControl>
 
-        <!-- DataGrid tiện nghi -->
-        <ContentControl Grid.Row="2"
+        <Border Grid.Row="2" Background="#1DF5F5F5" CornerRadius="10" Padding="16,12" BorderThickness="1" BorderBrush="{DynamicResource Brush.Border}">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="💡 Mẹo thao tác nhanh:" FontWeight="SemiBold" FontSize="15" FontStyle="Italic" Margin="0,0,0,6"/>
+                <TextBlock FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}" TextWrapping="Wrap" LineHeight="22">
+                    <Run Text="1." FontWeight="Bold"/> <Run Text="Báo hỏng siêu tốc: "/> <Run Text="Click đúp chuột (Double-click)" FontWeight="SemiBold"/> <Run Text=" vào dòng tiện nghi đang 'Hoạt động tốt' để chuyển ngay sang 'Cần bảo trì'."/> <LineBreak/>
+                    <Run Text="2." FontWeight="Bold"/> <Run Text="Xử lý &amp; Ghi chi phí: "/> <Run Text="Click chọn 1 dòng tiện nghi bị hỏng bên dưới, con trỏ chuột sẽ tự động đưa vào ô nhập "/> <Run Text="Chi phí" FontWeight="SemiBold"/> <Run Text=" -> Nhập số tiền và bấm Ghi (Tiện nghi sẽ tự động phục hồi về Hoạt động tốt)."/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <ContentControl Grid.Row="4"
                         Background="{DynamicResource Brush.Surface}"
                         BorderThickness="0"
                         Style="{DynamicResource MacFluent.ShadowCard}"
                         helpers:ThemeProperties.CornerRadius="16">
             <DataGrid x:Name="TienNghiGrid"
+                      SelectionChanged="TienNghiGrid_SelectionChanged"
+                      MouseDoubleClick="TienNghiGrid_MouseDoubleClick"
                       AutoGenerateColumns="False" IsReadOnly="True"
                       SelectionMode="Single" HeadersVisibility="Column"
                       GridLinesVisibility="Horizontal" FontSize="15"
@@ -84,8 +97,8 @@
                     <DataGridTextColumn Header="Tên tiện nghi" Binding="{Binding TenTienNghi}" Width="*"/>
                     <DataGridTextColumn Header="Nhà cung cấp" Binding="{Binding TenNCC}" Width="160"/>
                     <DataGridTextColumn Header="Hạn bảo hành" Binding="{Binding HanBaoHanhText}" Width="120"/>
-                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding TenTrangThai}" Width="130"/>
-                    <DataGridCheckBoxColumn Header="Cần bảo trì" Binding="{Binding CanBaoTri}" Width="90"/>
+                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding TenTrangThai}" Width="150"/>
+                    <DataGridCheckBoxColumn Header="Cảnh báo" Binding="{Binding CanBaoTri}" Width="90"/>
                 </DataGrid.Columns>
 
                 <DataGrid.RowStyle>
@@ -101,8 +114,3 @@
         </ContentControl>
     </Grid>
 </Page>
-
-
-
-
-

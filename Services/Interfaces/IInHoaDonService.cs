@@ -25,8 +25,9 @@ public sealed class InHoaDonServiceWpf : IInHoaDonService
             QuestPdfHelper.XuatVaMoHoaDonPdf(hoaDon, tenKhachHang, tenNhanVien, tempFile, kieuIn, false);
             return true;
         }
-        catch (Exception ex)
+            catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             ConfirmHelper.ShowError($"Lỗi khi tạo PDF: {ex.Message}");
             return false;
         }
@@ -44,6 +45,7 @@ public sealed class InHoaDonServiceWpf : IInHoaDonService
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             ConfirmHelper.ShowError($"Lỗi khi tạo PDF tạm tính: {ex.Message}");
             return false;
         }

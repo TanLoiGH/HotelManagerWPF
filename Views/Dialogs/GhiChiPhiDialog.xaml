@@ -1,61 +1,228 @@
-<Window x:Class="QuanLyKhachSan_PhamTanLoi.Views.GhiChiPhiDialog"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Ghi Chi Phí" Width="460" Height="460"
-        WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize" WindowStyle="ToolWindow">
+<Window
+    x:Class="QuanLyKhachSan_PhamTanLoi.Views.GhiChiPhiDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Ghi Chi Phí"
+    Width="480"
+    Background="{DynamicResource Brush.Background}"
+    ResizeMode="NoResize"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    WindowStyle="ToolWindow">
 
-    <StackPanel Margin="24">
+    <Grid>
 
-        <TextBlock Text="Loại chi phí" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-        <ComboBox x:Name="CboLoaiCP" Height="34" FontSize="15" Margin="0,0,0,12"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <TextBlock Text="Mô tả chi phí" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="36" Margin="0,0,0,12">
-            <TextBox x:Name="TxtTenChiPhi" BorderThickness="0" Padding="10,0"
-                     VerticalAlignment="Center" FontSize="15"
-                     />
+        <!--  HEADER  -->
+        <Border
+            Padding="20,16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderBrush="{DynamicResource Brush.Border}"
+            BorderThickness="0,0,0,1">
+
+            <StackPanel Orientation="Horizontal">
+
+                <TextBlock
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource Brush.TextHeading}"
+                    Text="Ghi Chi Phí" />
+
+            </StackPanel>
+
         </Border>
 
-        <TextBlock Text="Số tiền (₫)" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Height="36" Margin="0,0,0,12">
-            <TextBox x:Name="TxtSoTien" BorderThickness="0" Padding="10,0"
-                     VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold"
-                     TextAlignment="Right"/>
-        </Border>
+        <!--  FORM  -->
+        <ScrollViewer Grid.Row="1">
 
-        <TextBlock Text="Nhà cung cấp (nếu có)" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-        <ComboBox x:Name="CboNCC" Height="34" FontSize="15" Margin="0,0,0,12"/>
+            <Grid Margin="24">
 
-        <TextBlock Text="Phòng liên quan (nếu sửa chữa)" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-        <ComboBox x:Name="CboPhong" Height="34" FontSize="15" Margin="0,0,0,12"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-        <TextBlock Text="Ghi chú" FontSize="14" Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-        <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}" Margin="0,0,0,20">
-            <TextBox x:Name="TxtGhiChu" BorderThickness="0" Padding="10,6"
-                     FontSize="15" Height="52" AcceptsReturn="True" TextWrapping="Wrap"/>
-        </Border>
+                <!--  LOAI CHI PHI  -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,16">
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Hủy" Height="38" FontSize="15"
-                    Click="BtnHuy_Click" Background="{DynamicResource Brush.SurfaceSecondary}" BorderThickness="0"/>
-            <Button Grid.Column="2" Content="Lưu chi phí" Height="38" FontSize="15"
+                    <TextBlock
+                        Margin="0,0,0,4"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Loại chi phí" />
+                    <ComboBox
+                        x:Name="CboLoaiCP"
+                        Height="34"
+                        Margin="0,0,0,12"
+                        FontSize="15" />
+
+                </StackPanel>
+
+                <!--  TEN CHI PHI  -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,16">
+
+                    <TextBlock
+                        Margin="0,0,0,6"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Mô tả chi phí" />
+
+                    <Border
+                        Height="38"
+                        CornerRadius="8"
+                        Style="{DynamicResource MacFluent.InputFrame}">
+
+                        <TextBox
+                            x:Name="TxtTenChiPhi"
+                            Padding="10,0"
+                            VerticalAlignment="Center"
+                            BorderThickness="0"
+                            FontSize="15" />
+
+                    </Border>
+
+                </StackPanel>
+
+                <!--  SO TIEN  -->
+                <StackPanel Grid.Row="2" Margin="0,0,0,16">
+
+                    <TextBlock
+                        Margin="0,0,0,6"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Số tiền (₫)" />
+
+                    <Border
+                        Height="38"
+                        CornerRadius="8"
+                        Style="{DynamicResource MacFluent.InputFrame}">
+
+                        <TextBox
+                            x:Name="TxtSoTien"
+                            Padding="10,0"
+                            VerticalAlignment="Center"
+                            BorderThickness="0"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            TextAlignment="Right" />
+
+                    </Border>
+
+                </StackPanel>
+
+                <!--  NCC  -->
+                <StackPanel Grid.Row="3" Margin="0,0,0,16">
+
+                    <TextBlock
+                        Margin="0,0,0,6"
+                        FontSize="14"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Nhà cung cấp (nếu có)" />
+
+                    <ComboBox
+                        x:Name="CboNCC"
+                        Height="36"
+                        FontSize="15" />
+
+                </StackPanel>
+
+                <!--  PHONG  -->
+                <StackPanel Grid.Row="4" Margin="0,0,0,16">
+
+                    <TextBlock
+                        Margin="0,0,0,6"
+                        FontSize="14"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Phòng liên quan (nếu sửa chữa)" />
+
+                    <ComboBox
+                        x:Name="CboPhong"
+                        Height="36"
+                        FontSize="15" />
+
+                </StackPanel>
+
+                <!--  GHI CHU  -->
+                <StackPanel Grid.Row="5">
+
+                    <TextBlock
+                        Margin="0,0,0,6"
+                        FontSize="14"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Ghi chú" />
+
+                    <Border CornerRadius="8" Style="{DynamicResource MacFluent.InputFrame}">
+
+                        <TextBox
+                            x:Name="TxtGhiChu"
+                            Height="60"
+                            Padding="10,6"
+                            AcceptsReturn="True"
+                            BorderThickness="0"
+                            FontSize="15"
+                            TextWrapping="Wrap" />
+
+                    </Border>
+
+                </StackPanel>
+
+            </Grid>
+
+        </ScrollViewer>
+
+        <!--  FOOTER BUTTONS  -->
+        <Border
+            Grid.Row="2"
+            Padding="20"
+            Background="{DynamicResource Brush.Surface}"
+            BorderBrush="{DynamicResource Brush.Border}"
+            BorderThickness="1,0,0,0">
+
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button
+                    Grid.Column="1"
+                    Width="110"
+                    Height="38"
+                    Background="{DynamicResource Brush.SurfaceSecondary}"
+                    BorderThickness="0"
+                    Click="BtnHuy_Click"
+                    Content="Hủy"
+                    FontSize="15" />
+
+                <Button
+                    Grid.Column="3"
+                    Width="140"
+                    Height="38"
+                    Click="BtnLuu_Click"
+                    Content="Lưu chi phí"
+                    FontSize="15"
                     FontWeight="SemiBold"
-                    Style="{DynamicResource MacFluent.ButtonAction.Edit}"
-                    Click="BtnLuu_Click"/>
-        </Grid>
-    </StackPanel>
+                    Style="{DynamicResource MacFluent.ButtonAction.Edit}" />
+
+            </Grid>
+
+        </Border>
+
+    </Grid>
+
 </Window>
-
-
-
-
-

@@ -199,10 +199,14 @@ public class HoaDonService : IHoaDonService
             if (hd == null)
                 return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, "Không tìm thấy hoá đơn.");
 
-            var tongThanhToan = hd.TongThanhToan ?? 0;
-            var tongDaThuHienTai = await _db.ThanhToans
+            var tienCoc = hd.MaDatPhongNavigation?.TienCoc ?? 0;
+            var tongThanhToanThuc = (hd.TongThanhToan ?? 0) + tienCoc;
+
+            var tongDaThuLichSu = await _db.ThanhToans
                 .Where(t => t.MaHoaDon == maHoaDon)
                 .SumAsync(t => (decimal?)t.SoTien) ?? 0;
+
+            var tongDaThuHienTai = tongDaThuLichSu + tienCoc;
 
             // Bắt lỗi logic dòng tiền (Chống "Hoàn tiền" lố hoặc chốt sổ 0đ khi còn nợ)
             if (loaiGiaoDich == "Hoàn tiền" && (tongDaThuHienTai + soTien) < 0)
@@ -212,7 +216,8 @@ public class HoaDonService : IHoaDonService
                     "Từ chối: Số tiền hoàn lại vượt quá tổng số tiền khách đã thanh toán!");
             }
 
-            var soTienConLai = tongThanhToan - tongDaThuHienTai;
+            var soTienConLai = tongThanhToanThuc - tongDaThuHienTai;
+            
             if (soTien == 0 && soTienConLai > 0 && loaiGiaoDich == "Thanh toán cuối")
             {
                 await tx.RollbackAsync();
@@ -273,7 +278,7 @@ public class HoaDonService : IHoaDonService
 
             // 4. CẬP NHẬT TRẠNG THÁI HÓA ĐƠN
             decimal tongDaThuMoi = tongDaThuHienTai + soTien;
-            bool daThuDu = tongDaThuMoi >= tongThanhToan;
+            bool daThuDu = tongDaThuMoi >= tongThanhToanThuc;
 
             if (daThuDu)
                 hd.TrangThai = "Đã thanh toán";
@@ -281,14 +286,16 @@ public class HoaDonService : IHoaDonService
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
 
-            var conLaiCuoiCung = tongThanhToan - tongDaThuMoi;
+            var conLaiCuoiCung = tongThanhToanThuc - tongDaThuMoi;
+
             return daThuDu
-                ? new ThongTinThanhToan(KetQuaThanhToan.HoanTat, tongDaThuMoi, conLaiCuoiCung, "Thanh toán/Chốt sổ thành công!")
+                ? new ThongTinThanhToan(KetQuaThanhToan.HoanTat, tongDaThuMoi, conLaiCuoiCung, "Chốt sổ thành công!")
                 : new ThongTinThanhToan(KetQuaThanhToan.GhiNhanChuaDu, tongDaThuMoi, conLaiCuoiCung, "Đã ghi nhận thanh toán, khách chưa thanh toán đủ.");
         }
         catch (Exception ex)
         {
             await tx.RollbackAsync();
+            Logger.LogError("Lỗi", ex);
             return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, $"Lỗi thanh toán: {ex.Message}");
         }
     }
@@ -324,6 +331,7 @@ public class HoaDonService : IHoaDonService
         catch (Exception ex)
         {
             await tx.RollbackAsync();
+            Logger.LogError("Lỗi", ex);
             return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, $"Lỗi đồng bộ trạng thái: {ex.Message}");
         }
     }
@@ -367,6 +375,7 @@ public class HoaDonService : IHoaDonService
         catch (Exception ex)
         {
             await tx.RollbackAsync();
+            Logger.LogError("Lỗi", ex);
 
             // Moi chi tiết lỗi thực sự từ Database (InnerException)
             string chiTietLoi = ex.Message;
@@ -407,18 +416,21 @@ public class HoaDonService : IHoaDonService
             // 1. Tính toán lại bill chốt hạ lần cuối trước khi trả phòng
             await CapNhatTienPhongTheoThoiDiemTraPhongAsync(hd, thoiDiem ?? TimeHelper.GetVietnamTime());
 
-            var tongDaThu = await _db.ThanhToans
+            // 2. TÍNH LẠI CÔNG NỢ: Cộng thêm Tiền Cọc vào Tổng Đã Thu
+            var tongThuTrongLichSu = await _db.ThanhToans
                 .Where(t => t.MaHoaDon == maHoaDon)
                 .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
-            var tongThanhToan = hd.TongThanhToan ?? 0;
+            var tienCoc = dp.TienCoc ?? 0;
+            var tongDaThu = tongThuTrongLichSu + tienCoc;
+
+            var tongThanhToanThuc = (hd.TongThanhToan ?? 0) + tienCoc;
 
             // 2. CHECK LOGIC: Bắt buộc nhân viên phải giải quyết tiền dư/nợ qua UI trước
-            if (tongDaThu < tongThanhToan)
-                throw new InvalidOperationException($"Chưa thanh toán đủ (còn nợ {tongThanhToan - tongDaThu:N0}đ). Vui lòng thanh toán trước khi trả phòng.");
-
-            if (tongDaThu > tongThanhToan)
-                throw new InvalidOperationException($"Khách đang dư {tongDaThu - tongThanhToan:N0}đ. Vui lòng nhấn nút Thanh Toán, chọn 'Hoàn tiền' ở ComboBox để trả lại khách trước khi trả phòng.");
+            if (tongDaThu < tongThanhToanThuc)
+                throw new InvalidOperationException($"Chưa thanh toán đủ (còn nợ {tongThanhToanThuc - tongDaThu:N0}đ). Vui lòng thanh toán trước khi trả phòng.");  
+            if (tongDaThu > tongThanhToanThuc)
+                throw new InvalidOperationException($"Khách đang dư {tongDaThu - tongThanhToanThuc:N0}đ. Vui lòng nhấn nút Thanh Toán, chọn 'Hoàn tiền' ở ComboBox để trả lại khách trước khi trả phòng.");
 
             // 3. Nếu mọi thứ đã khớp (TongDaThu == TongThanhToan), tiến hành trả phòng
             hd.TrangThai = "Đã thanh toán";
@@ -432,7 +444,7 @@ public class HoaDonService : IHoaDonService
             dp.TrangThai = "Đã trả phòng";
 
             if (!string.IsNullOrWhiteSpace(dp.MaKhachHang))
-                await _khachHangSvc.NangHangAsync(dp.MaKhachHang, tongThanhToan);
+                await _khachHangSvc.NangHangAsync(dp.MaKhachHang, tongThanhToanThuc);
 
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
@@ -440,6 +452,7 @@ public class HoaDonService : IHoaDonService
         catch (Exception ex)
         {
             await tx.RollbackAsync();
+            Logger.LogError("Lỗi", ex);
             throw new Exception(ex.Message);
         }
     }

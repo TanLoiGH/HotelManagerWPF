@@ -178,6 +178,8 @@ public partial class QuanTriPhongPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
+
             ConfirmHelper.ShowError($"Lỗi cập nhật tiện nghi: {ex.Message}");
         }
     }
@@ -200,6 +202,8 @@ public partial class QuanTriPhongPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
+
             MessageBox.Show($"Lỗi gỡ tiện nghi: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -251,6 +255,8 @@ public partial class QuanTriPhongPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
+
             MessageBox.Show($"Lỗi lưu: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -274,10 +280,14 @@ public partial class QuanTriPhongPage : Page
         }
         catch (InvalidOperationException ex)
         {
+            Logger.LogError("Lỗi", ex);
+
             ConfirmHelper.ShowWarning(ex.Message);
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
+
             ConfirmHelper.ShowError($"Lỗi xóa: {ex.Message}");
         }
     }

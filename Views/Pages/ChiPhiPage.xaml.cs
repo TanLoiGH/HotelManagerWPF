@@ -77,6 +77,7 @@ public partial class ChiPhiPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }

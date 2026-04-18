@@ -26,7 +26,18 @@ public partial class SoDoPhongViewModel
     public DateTime NgayNhan { get => _ngayNhan; set { if (SetProperty(ref _ngayNhan, value)) CapNhatTienTamTinh(); } }
     public DateTime NgayTra { get => _ngayTra; set { if (SetProperty(ref _ngayTra, value)) CapNhatTienTamTinh(); } }
     public string TotalPriceText { get => _totalPriceText; set => SetProperty(ref _totalPriceText, value); }
-    public decimal TienCoc { get => _tienCoc; set => SetProperty(ref _tienCoc, value); } // Property Tiền Cọc
+    public decimal TienCoc
+    {
+        get => _tienCoc;
+        set
+        {
+            if (value < 0) value = 0;
+            var total = TinhTongTienPhongTamThoi(); // Cần viết thêm phương thức này
+            if (value > total) value = total;
+            if (SetProperty(ref _tienCoc, value))
+                CapNhatTienTamTinh();
+        }
+    }
     public List<TienNghiItem> RoomAmenities { get => _roomAmenities; set => SetProperty(ref _roomAmenities, value); }
 
     // PTT05 (Reserved) properties
@@ -40,25 +51,48 @@ public partial class SoDoPhongViewModel
     public string ReservedNgayTra { get => _reservedNgayTra; set => SetProperty(ref _reservedNgayTra, value); }
     public string ReservedTienCoc { get => _reservedTienCoc; set => SetProperty(ref _reservedTienCoc, value); }
 
+    private decimal TinhTongTienPhongTamThoi()
+    {
+        var selectedRooms = _allPhongs.Where(p => p.IsSelected && p.MaTrangThaiPhong == "PTT01").ToList();
+        if (!selectedRooms.Any() && SelectedRoom != null && IsRoomAvailable)
+            selectedRooms.Add(SelectedRoom);
+        int soDem = (NgayTra - NgayNhan).Days;
+        if (soDem < 1) soDem = 1;
+        return selectedRooms.Sum(r => r.GiaPhong) * soDem;
+    }
+
     private void CapNhatTienTamTinh()
     {
-        // Lấy danh sách các phòng đang được tích chọn
+        // 1. Lấy danh sách phòng
         var selectedRooms = _allPhongs.Where(p => p.IsSelected && p.MaTrangThaiPhong == "PTT01").ToList();
-
-        // Nếu không có phòng nào được tích, nhưng có SelectedRoom đang được click, thì tính cho 1 phòng đó
         if (!selectedRooms.Any() && SelectedRoom != null && IsRoomAvailable)
             selectedRooms.Add(SelectedRoom);
 
+        // PHÁT TÍN HIỆU CẬP NHẬT TRẠNG THÁI CHO UI
+        OnPropertyChanged(nameof(SelectedRooms));
+        OnPropertyChanged(nameof(IsMultiSelectMode));
+        OnPropertyChanged(nameof(SelectionTitle));
+
+        // 2. Tính số đêm
         int soDem = (NgayTra - NgayNhan).Days;
         if (soDem < 1) soDem = 1;
 
-        // Tổng tiền = Tổng giá các phòng được chọn * số đêm
-        decimal tongTien = selectedRooms.Sum(r => r.GiaPhong) * soDem;
+        // 3. Tính toán tiền nong
+        decimal tongTienPhong = selectedRooms.Sum(r => r.GiaPhong) * soDem;
+        decimal conLai = tongTienPhong - TienCoc; // TienCoc là property bạn đã có
 
-        if (selectedRooms.Count > 1)
-            TotalPriceText = $"{tongTien:N0} ₫ ({selectedRooms.Count} phòng)";
+        // 4. Định dạng hiển thị
+        string suffix = selectedRooms.Count > 1 ? $" ({selectedRooms.Count} phòng)" : "";
+
+        if (TienCoc > 0)
+        {
+            // Hiển thị dạng: 1.000.000 - Cọc: 200.000 = Còn: 800.000
+            TotalPriceText = $"{tongTienPhong:N0} ₫ - Cọc: {TienCoc:N0} ₫ = Còn: {conLai:N0} ₫{suffix}";
+        }
         else
-            TotalPriceText = $"{tongTien:N0} ₫";
+        {
+            TotalPriceText = $"{tongTienPhong:N0} ₫{suffix}";
+        }
     }
 
     private void BatDauXuLyKhiChonPhong(PhongCardViewModel vm)
@@ -107,6 +141,7 @@ public partial class SoDoPhongViewModel
         catch (OperationCanceledException) { return; }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi tải chi tiết phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
@@ -126,29 +161,25 @@ public partial class SoDoPhongViewModel
     {
         try
         {
-            // 1. Thu thập tất cả phòng được chọn (từ Checkbox)
+            // Gom phòng: Đảm bảo không bị trùng lặp khi vừa tick vừa chọn Detail
             var selectedRooms = _allPhongs.Where(p => p.IsSelected && p.MaTrangThaiPhong == "PTT01").ToList();
-
-            // 2. Fallback: Nếu không tích cái nào, lấy phòng đang chọn ở Detail Panel
             if (!selectedRooms.Any() && SelectedRoom != null && IsRoomAvailable)
                 selectedRooms.Add(SelectedRoom);
 
-            // SỬA: Check mảng thay vì check cứng SelectedRoom
-            if (!selectedRooms.Any())
+            // Dọn dẹp List (loại bỏ phòng trùng mã)
+            var danhSachPhongDat = selectedRooms
+                .GroupBy(p => p.MaPhong).Select(g => g.First())
+                .Select(p => (p.MaPhong, NgayNhan, NgayTra)).ToList();
+
+            if (!danhSachPhongDat.Any())
             {
                 MessageBox.Show("Vui lòng chọn phòng trước khi đặt.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (NgayNhan.Date < DateTime.Today)
+            if (NgayNhan.Date < DateTime.Today || NgayTra.Date < NgayNhan.Date)
             {
-                MessageBox.Show("Ngày nhận không được ở quá khứ.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (NgayTra.Date < NgayNhan.Date)
-            {
-                MessageBox.Show("Ngày trả phải sau hoặc bằng ngày nhận.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Ngày nhận/trả không hợp lệ.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -159,74 +190,39 @@ public partial class SoDoPhongViewModel
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(KhachHangSearchText))
-                {
-                    MessageBox.Show("Vui lòng chọn hoặc nhập tên khách hàng.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (IsKhachNuocNgoai)
-                {
-                    if (string.IsNullOrWhiteSpace(NewKhachQuocTich))
-                    {
-                        MessageBox.Show("Vui lòng nhập quốc tịch cho khách nước ngoài.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                    if (string.IsNullOrWhiteSpace(NewKhachPassport) && string.IsNullOrWhiteSpace(NewKhachVisa))
-                    {
-                        MessageBox.Show("Khách nước ngoài cần nhập Passport hoặc Visa.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                }
-
+                if (string.IsNullOrWhiteSpace(KhachHangSearchText)) return;
                 var passport = IsKhachNuocNgoai ? NewKhachPassport : null;
                 var visa = IsKhachNuocNgoai ? NewKhachVisa : null;
-                var quocTich = IsKhachNuocNgoai ? NewKhachQuocTich : (string.IsNullOrWhiteSpace(NewKhachQuocTich) ? null : NewKhachQuocTich);
+                var quocTich = IsKhachNuocNgoai ? NewKhachQuocTich : null;
 
-                _ctsTimKhach?.Cancel();
                 await _khoaKhachHang.WaitAsync();
                 try
                 {
                     khachMucTieu = await _khachHangService.TimHoacTaoAsync(
-                        KhachHangSearchText, NewKhachSdt, NewKhachCccd, null, NewKhachDiaChi, passport, visa, quocTich);
+                        KhachHangSearchText, NewKhachSdt, NewKhachCccd, null, "LKH01", NewKhachDiaChi, passport, visa, quocTich);
                 }
-                finally
-                {
-                    _khoaKhachHang.Release();
-                }
+                finally { _khoaKhachHang.Release(); }
             }
 
-            // SỬA: Chuyển toàn bộ danh sách phòng đã chọn vào mảng đặt phòng
-            var danhSachPhongDat = selectedRooms.Select(p => (p.MaPhong, NgayNhan, NgayTra)).ToList();
-
-            // Lấy mã nhân viên đăng nhập để gán là nhân viên lập phiếu đặt
-            var maNhanVienDat = AppSession.MaNhanVien ?? "NV001";
+            var maNhanVienDat = AppSession.MaNhanVien ?? "NV001"; // LƯU Ý: Phải đảm bảo DB có nhân viên mã này!
             await _khoaDatPhong.WaitAsync();
             try
             {
-                // GỌI SERVICE TRUYỀN VÀO MÃ NHÂN VIÊN VÀ TIỀN CỌC
                 await _datPhongService.TaoDatPhongAsync(khachMucTieu.MaKhachHang, danhSachPhongDat, maNhanVienDat, TienCoc, 1);
             }
-            finally
-            {
-                _khoaDatPhong.Release();
-            }
+            finally { _khoaDatPhong.Release(); }
 
             MessageBox.Show("Đặt phòng thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            foreach (var p in _allPhongs) p.IsSelected = false;
-            SelectedRoom = null;
-            TienCoc = 0; // Reset tiền cọc
+            ClearAllSelectedRooms(); SelectedRoom = null; TienCoc = 0;
             await TaiDuLieuAsync();
         }
         catch (Exception ex)
         {
-            string errorMessage = ex.Message;
-            if (ex.InnerException != null)
-            {
-                errorMessage += "\n\nChi tiết từ DB:\n" + ex.InnerException.Message;
-            }
-            MessageBox.Show($"Lỗi đặt phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            Logger.LogError("Lỗi Đặt Phòng", ex);
+            // Đào sâu lấy InnerException cuối cùng để xem chính xác lỗi do cột nào
+            Exception realEx = ex;
+            while (realEx.InnerException != null) realEx = realEx.InnerException;
+            MessageBox.Show($"Lỗi DB: {realEx.Message}", "Lỗi Đặt Phòng", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -270,6 +266,7 @@ public partial class SoDoPhongViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi nhận phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -320,7 +317,11 @@ public partial class SoDoPhongViewModel
             MessageBox.Show("Đã hủy đặt phòng thành công.");
             await TaiDuLieuAsync();
         }
-        catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+        catch (Exception ex)
+        {
+            Logger.LogError("Lỗi", ex);
+            MessageBox.Show("Lỗi: " + ex.Message);
+        }
     }
 
     private async Task ThucHienHoanThanhDonDepAsync()
@@ -331,7 +332,10 @@ public partial class SoDoPhongViewModel
             await _datPhongService.HoanThanhDonDepAsync(SelectedRoom.MaPhong);
             await TaiDuLieuAsync();
         }
-        catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+        catch (Exception ex)
+        {
+            Logger.LogError("Lỗi", ex); MessageBox.Show("Lỗi: " + ex.Message);
+        }
     }
 
 }

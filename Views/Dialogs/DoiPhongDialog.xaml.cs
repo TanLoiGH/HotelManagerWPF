@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views.Dialogs
 {
@@ -75,6 +76,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Dialogs
             }
             catch (Exception ex)
             {
+                Logger.LogError("Lỗi", ex); 
                 MessageBox.Show($"Lỗi đổi phòng:\n{ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 BtnXacNhan.IsEnabled = true;
             }

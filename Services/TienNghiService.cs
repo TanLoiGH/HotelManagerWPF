@@ -120,10 +120,9 @@ public class TienNghiService
         else
         {
             // Nếu trạng thái cũ là bình thường mà trạng thái mới là hỏng/mất/thanh lý
-            // (Giả sử TNTT04 là "Đã thanh lý/Mất")
             if (item.MaTrangThai != maTrangThai && maTrangThai == "TNTT04")
             {
-                // Không cộng lại kho vì đã hỏng/mất, nhưng có thể cần logic khác
+                // Logic xử lý khi thanh lý (nếu có)
             }
 
             item.MaTrangThai = maTrangThai;
@@ -143,6 +142,7 @@ public class TienNghiService
                 MaTienNghi = t.MaTienNghi,
                 TenTienNghi = t.MaTienNghiNavigation.TenTienNghi,
                 HanBaoHanh = t.MaTienNghiNavigation.HanBaoHanh,
+                MaNcc = t.MaTienNghiNavigation.MaNcc,
                 TenNCC = t.MaTienNghiNavigation.MaNccNavigation != null
                          ? t.MaTienNghiNavigation.MaNccNavigation.TenNcc : "—",
                 TenTrangThai = t.MaTrangThaiNavigation != null
@@ -158,6 +158,3 @@ public class TienNghiService
             .Where(t => t.IsActive == true)
             .ToListAsync();
 }
-
-
-

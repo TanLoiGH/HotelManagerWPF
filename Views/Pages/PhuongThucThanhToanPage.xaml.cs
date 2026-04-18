@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
@@ -112,6 +113,8 @@ public partial class PhuongThucThanhToanPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
+
             MessageBox.Show($"Lỗi lưu: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -137,6 +140,8 @@ public partial class PhuongThucThanhToanPage : Page
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
+
             MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }

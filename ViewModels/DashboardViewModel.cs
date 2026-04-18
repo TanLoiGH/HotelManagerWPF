@@ -142,6 +142,7 @@ public class DashboardViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi tải dashboard: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }

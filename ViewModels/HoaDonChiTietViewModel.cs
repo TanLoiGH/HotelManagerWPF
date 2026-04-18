@@ -116,9 +116,9 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    public bool CoTheChinhSua => TrangThai == "Chưa thanh toán";
+    public bool CoTheChinhSua => TrangThai == "Chưa thanh toán" || ConLai != 0;
     public bool CoTheTraPhong => TrangThai == "Đã thanh toán" && TrangThaiDatPhong != "Đã trả phòng" && !string.IsNullOrWhiteSpace(MaDatPhong);
-    public bool CoTheCapNhatTraSom => CoTheChinhSua && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != "Đã trả phòng";
+    public bool CoTheCapNhatTraSom => CoTheChinhSua && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != "Đã trả phòng" ;
 
     // --- TIỀN BẠC (ĐÃ SỬA LOGIC VAT) ---
     public decimal TienPhong { get => _tienPhong; private set { if (SetProperty(ref _tienPhong, value)) OnPropertyChanged(nameof(VatAmount)); } }
@@ -149,7 +149,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     public ObservableCollection<DichVuItemVm> DichVus { get; } = new();
     public ObservableCollection<ThanhToanItemVm> LichSuThanhToan { get; } = new();
     public ObservableCollection<PhuongThucThanhToanDto> DanhSachPhuongThucThanhToan { get; } = new();
-    public ObservableCollection<string> DanhSachLoaiGiaoDich { get; } = ["Thanh toán cuối", "Thanh toán trước", "Đặt cọc", "Hoàn tiền"];
+    public ObservableCollection<string> DanhSachLoaiGiaoDich { get; } = ["Thanh toán cuối", "Thanh toán trước", "Đặt cọc", "Tiền dịch vụ","Hoàn tiền"];
 
     public PhongItemVm? SelectedPhong { get => _selectedPhong; set => SetProperty(ref _selectedPhong, value); }
     public PhuongThucThanhToanDto? PhuongThucThanhToanDuocChon { get => _phuongThucThanhToanDuocChon; set => SetProperty(ref _phuongThucThanhToanDuocChon, value); }
@@ -235,6 +235,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             _hopThoai.BaoLoi($"Loi in hoa don: {ex.Message}");
             return false;
         }
@@ -329,6 +330,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             _hopThoai.BaoLoi($"Loi tai chi tiet hoa don: {ex.Message}");
         }
     }
@@ -429,9 +431,9 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 IsActive = d.IsActive ?? false
             }).ToList();
 
-            var chon = _chonDichVu.ChonDichVu(owner, dichVus);
+            var chon = _chonDichVu.ChonDichVu(owner, dichVus, Phongs.Select(p => p.MaPhong).ToList());
             if (!chon.HasValue) return;
-            var (maDichVu, soLuong) = chon.Value;
+            var (maDichVu, soLuong, maPhong) = chon.Value;
 
             var phong = SelectedPhong?.MaPhong ?? Phongs.FirstOrDefault()?.MaPhong;
             if (string.IsNullOrWhiteSpace(MaDatPhong) || string.IsNullOrWhiteSpace(phong))
@@ -446,6 +448,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             _hopThoai.BaoLoi($"Loi them dich vu: {ex.Message}");
         }
     }
@@ -502,7 +505,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             // 4. XỬ LÝ UI: Hiển thị kết quả & In hóa đơn
             if (thongTin.KetQua is KetQuaThanhToan.HoanTat or KetQuaThanhToan.DaHoanTat)
             {
-                if (LoaiGiaoDichDuocChon == "Thanh toán cuối" || ConLai <= 0)
+                if (LoaiGiaoDichDuocChon == "Thanh toán cuối" || ConLai == 0)
                 {
                     await _hoaDon.DongBoTrangThaiThanhToanAsync(_maHoaDon);
                 }
@@ -530,6 +533,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             _hopThoai.BaoLoi($"Lỗi thanh toán: {ex.Message}");
         }
         finally
@@ -556,6 +560,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             _hopThoai.BaoLoi($"Loi tra phong: {ex.Message}");
         }
         finally
@@ -589,6 +594,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             _hopThoai.BaoLoi($"Loi cap nhat tra som: {ex.Message}");
         }
         finally

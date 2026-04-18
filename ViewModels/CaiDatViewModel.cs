@@ -221,6 +221,7 @@ public class CaiDatViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Không thể tải cài đặt hệ thống: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -266,6 +267,7 @@ public class CaiDatViewModel : BaseViewModel
                 }
                 catch (Exception ex)
                 {
+                    Logger.LogError("Lỗi", ex);
                     MessageBox.Show($"Đã lưu cài đặt nhưng không thể cập nhật VAT cho hóa đơn đang mở: {ex.Message}", "Lỗi",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -281,6 +283,7 @@ public class CaiDatViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi khi lưu cài đặt hệ thống: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -324,6 +327,7 @@ public class CaiDatViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi khi tải thông tin: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -352,6 +356,7 @@ public class CaiDatViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi khi cập nhật thông tin: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -394,6 +399,7 @@ public class CaiDatViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             MessageBox.Show($"Lỗi khi đổi mật khẩu: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }

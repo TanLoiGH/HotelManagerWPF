@@ -1,12 +1,12 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers">
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <!-- macOS (soft, spacious, glassy) + Fluent (clear layers, responsive states) -->
+    <!--  macOS (soft, spacious, glassy) + Fluent (clear layers, responsive states)  -->
 
-    <!-- Typography -->
+    <!--  Typography  -->
     <FontFamily x:Key="Font.Primary">Segoe UI Variable Text, Segoe UI</FontFamily>
 
     <sys:Double x:Key="Font.Size.Caption">13</sys:Double>
@@ -16,33 +16,36 @@
     <sys:Double x:Key="Font.Size.Title">24</sys:Double>
     <sys:Double x:Key="Font.Size.Hero">30</sys:Double>
 
-    <!-- Radii -->
+    <!--  Radii  -->
     <CornerRadius x:Key="Radius.S">8</CornerRadius>
     <CornerRadius x:Key="Radius.M">12</CornerRadius>
     <CornerRadius x:Key="Radius.L">16</CornerRadius>
     <CornerRadius x:Key="Radius.XL">20</CornerRadius>
 
-    <!-- Spacing -->
+    <!--  Spacing  -->
     <Thickness x:Key="Pad.S">10,6</Thickness>
     <Thickness x:Key="Pad.M">14,8</Thickness>
     <Thickness x:Key="Pad.L">16,10</Thickness>
 
-    <!-- Shared room grid sizing (system-wide alignment) -->
+    <!--  Shared room grid sizing (system-wide alignment)  -->
     <sys:Double x:Key="RoomCard.Width">160</sys:Double>
     <sys:Double x:Key="RoomCard.Height">140</sys:Double>
     <Thickness x:Key="RoomCard.Margin">10</Thickness>
     <Thickness x:Key="RoomGrid.Padding">24,0,24,0</Thickness>
 
-    <!-- Layer / material brushes -->
+    <!--  Layer / material brushes  -->
     <LinearGradientBrush x:Key="Brush.MicaLike" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#FAFFFFFF" Offset="0" />
-        <GradientStop Color="#F2FFFFFF" Offset="0.35" />
-        <GradientStop Color="#E8FFFFFF" Offset="1" />
+        <GradientStop Offset="0" Color="#FAFFFFFF" />
+        <GradientStop Offset="0.35" Color="#F2FFFFFF" />
+        <GradientStop Offset="1" Color="#E8FFFFFF" />
     </LinearGradientBrush>
 
-    <SolidColorBrush x:Key="Brush.SurfaceTranslucent" Color="{StaticResource Color.Surface}" Opacity="0.92" />
+    <SolidColorBrush
+        x:Key="Brush.SurfaceTranslucent"
+        Opacity="0.92"
+        Color="{StaticResource Color.Surface}" />
 
-    <!-- Reduce subpixel layout fuzz across the app -->
+    <!--  Reduce subpixel layout fuzz across the app  -->
     <Style TargetType="{x:Type Window}">
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -65,7 +68,7 @@
         <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
     </Style>
 
-    <!-- Text defaults -->
+    <!--  Text defaults  -->
     <Style TargetType="{x:Type TextBlock}">
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
         <Setter Property="FontFamily" Value="{StaticResource Font.Primary}" />
@@ -76,7 +79,7 @@
         <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled" />
     </Style>
 
-    <!-- Card-like border -->
+    <!--  Card-like border  -->
     <Style x:Key="MacFluent.Card" TargetType="{x:Type Border}">
         <Setter Property="CornerRadius" Value="{StaticResource Radius.L}" />
         <Setter Property="Background" Value="{DynamicResource Brush.SurfaceTranslucent}" />
@@ -85,22 +88,33 @@
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="22" ShadowDepth="2" Opacity="0.10" Color="#000000" />
+                <DropShadowEffect
+                    BlurRadius="22"
+                    Opacity="0.10"
+                    ShadowDepth="2"
+                    Color="#000000" />
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style x:Key="MacFluent.Toolbar" TargetType="{x:Type Border}" BasedOn="{StaticResource MacFluent.Card}">
+    <Style
+        x:Key="MacFluent.Toolbar"
+        BasedOn="{StaticResource MacFluent.Card}"
+        TargetType="{x:Type Border}">
         <Setter Property="CornerRadius" Value="{StaticResource Radius.XL}" />
         <Setter Property="Padding" Value="16,12" />
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="18" ShadowDepth="1" Opacity="0.08" Color="#000000" />
+                <DropShadowEffect
+                    BlurRadius="18"
+                    Opacity="0.08"
+                    ShadowDepth="1"
+                    Color="#000000" />
             </Setter.Value>
         </Setter>
     </Style>
 
-    <!-- Shadow host for crisp text (shadow is rendered behind content) -->
+    <!--  Shadow host for crisp text (shadow is rendered behind content)  -->
     <Style x:Key="MacFluent.ShadowCard" TargetType="{x:Type ContentControl}">
         <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
@@ -116,22 +130,25 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContentControl}">
                     <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
-                        <Border CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}">
                             <Border.Effect>
-                                <DropShadowEffect Color="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowColor)}"
-                                                  BlurRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowBlurRadius)}"
-                                                  ShadowDepth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowDepth)}"
-                                                  Opacity="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowOpacity)}" />
+                                <DropShadowEffect
+                                    BlurRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowBlurRadius)}"
+                                    Opacity="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowOpacity)}"
+                                    ShadowDepth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowDepth)}"
+                                    Color="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.ShadowColor)}" />
                             </Border.Effect>
                         </Border>
-                        <Border CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}">
                             <ContentPresenter />
                         </Border>
                     </Grid>
@@ -140,8 +157,11 @@
         </Setter>
     </Style>
 
-    <!-- Room card: consistent sizing + hover animation -->
-    <Style x:Key="MacFluent.RoomCard" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource MacFluent.ShadowCard}">
+    <!--  Room card: consistent sizing + hover animation  -->
+    <Style
+        x:Key="MacFluent.RoomCard"
+        BasedOn="{StaticResource MacFluent.ShadowCard}"
+        TargetType="{x:Type ContentControl}">
         <Setter Property="Width" Value="{StaticResource RoomCard.Width}" />
         <Setter Property="Height" Value="{StaticResource RoomCard.Height}" />
         <Setter Property="Margin" Value="{StaticResource RoomCard.Margin}" />
@@ -161,27 +181,35 @@
             <EventTrigger RoutedEvent="MouseEnter">
                 <BeginStoryboard>
                     <Storyboard>
-                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
-                                         To="1.04" Duration="0:0:0.12" />
-                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
-                                         To="1.04" Duration="0:0:0.12" />
+                        <DoubleAnimation
+                            Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                            To="1.04"
+                            Duration="0:0:0.12" />
+                        <DoubleAnimation
+                            Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                            To="1.04"
+                            Duration="0:0:0.12" />
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
             <EventTrigger RoutedEvent="MouseLeave">
                 <BeginStoryboard>
                     <Storyboard>
-                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
-                                         To="1" Duration="0:0:0.14" />
-                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
-                                         To="1" Duration="0:0:0.14" />
+                        <DoubleAnimation
+                            Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                            To="1"
+                            Duration="0:0:0.14" />
+                        <DoubleAnimation
+                            Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                            To="1"
+                            Duration="0:0:0.14" />
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
         </Style.Triggers>
     </Style>
 
-    <!-- Input frame: keep the view's internal TextBox/PasswordBox, but unify the border -->
+    <!--  Input frame: keep the view's internal TextBox/PasswordBox, but unify the border  -->
     <Style x:Key="MacFluent.InputFrame" TargetType="{x:Type Border}">
         <Setter Property="CornerRadius" Value="{StaticResource Radius.M}" />
         <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}" />
@@ -307,7 +335,7 @@
         </Style.Triggers>
     </Style>
 
-    <!-- Buttons -->
+    <!--  Buttons  -->
     <Style x:Key="MacFluent.ButtonBase" TargetType="{x:Type Button}">
         <Setter Property="Padding" Value="{StaticResource Pad.M}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
@@ -327,28 +355,26 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <Border x:Name="Bd"
-                            CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <ContentPresenter Margin="{TemplateBinding Padding}"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          RecognizesAccessKey="True" />
+                    <Border
+                        x:Name="Bd"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}">
+                        <ContentPresenter
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
-                            <Setter TargetName="Bd" Property="BorderBrush"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBorderBrush)}" />
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBorderBrush)}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
-                            <Setter TargetName="Bd" Property="BorderBrush"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBorderBrush)}" />
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBorderBrush)}" />
                             <Setter TargetName="Bd" Property="RenderTransform">
                                 <Setter.Value>
                                     <TranslateTransform Y="1" />
@@ -356,8 +382,7 @@
                             </Setter>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bd" Property="Opacity"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.DisabledOpacity)}" />
+                            <Setter TargetName="Bd" Property="Opacity" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.DisabledOpacity)}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -366,49 +391,48 @@
     </Style>
 
     <Style x:Key="MacFluent.ButtonGhost" TargetType="{x:Type Button}">
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="{StaticResource Radius.M}"/>
-        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Hover}"/>
-        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.SurfaceSoft}"/>
-        <Setter Property="helpers:ThemeProperties.DisabledOpacity" Value="0.55"/>
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="helpers:ThemeProperties.CornerRadius" Value="{StaticResource Radius.M}" />
+        <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Hover}" />
+        <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.SurfaceSoft}" />
+        <Setter Property="helpers:ThemeProperties.DisabledOpacity" Value="0.55" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <Border x:Name="Bd"
-                        CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}"
+                    <Border
+                        x:Name="Bd"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
-                        <ContentPresenter Margin="{TemplateBinding Padding}"
-                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      RecognizesAccessKey="True"/>
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.CornerRadius)}">
+                        <ContentPresenter
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
                             <Setter TargetName="Bd" Property="RenderTransform">
                                 <Setter.Value>
-                                    <TranslateTransform Y="1"/>
+                                    <TranslateTransform Y="1" />
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bd" Property="Opacity"
-                                Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.DisabledOpacity)}"/>
+                            <Setter TargetName="Bd" Property="Opacity" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.DisabledOpacity)}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -417,7 +441,10 @@
     </Style>
 
 
-    <Style x:Key="MacFluent.ButtonPrimary" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <Style
+        x:Key="MacFluent.ButtonPrimary"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.BrandPrimary}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Foreground" Value="White" />
@@ -426,33 +453,37 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <!-- NOTE: Không đặt Effect lên border chứa text (ClearType sẽ bị tắt -> chữ mờ). -->
+                    <!--  NOTE: Không đặt Effect lên border chứa text (ClearType sẽ bị tắt -> chữ mờ).  -->
                     <Grid x:Name="Root" RenderTransformOrigin="0.5,0.5">
-                        <Border x:Name="Shadow"
-                                CornerRadius="{StaticResource Radius.M}"
-                                Background="{TemplateBinding Background}">
+                        <Border
+                            x:Name="Shadow"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{StaticResource Radius.M}">
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" Color="{DynamicResource Color.BrandPrimary}" />
+                                <DropShadowEffect
+                                    BlurRadius="12"
+                                    Opacity="0.12"
+                                    ShadowDepth="1"
+                                    Color="{DynamicResource Color.BrandPrimary}" />
                             </Border.Effect>
                         </Border>
-                        <Border x:Name="Bd"
-                                CornerRadius="{StaticResource Radius.M}"
-                                Background="{TemplateBinding Background}">
+                        <Border
+                            x:Name="Bd"
+                            Margin="0,20,0,20"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{StaticResource Radius.M}">
+
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
-                            <Setter TargetName="Shadow" Property="Background"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
+                            <Setter TargetName="Shadow" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.HoverBackground)}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
-                            <Setter TargetName="Shadow" Property="Background"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
+                            <Setter TargetName="Shadow" Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(helpers:ThemeProperties.PressedBackground)}" />
                             <Setter TargetName="Root" Property="RenderTransform">
                                 <Setter.Value>
                                     <TranslateTransform Y="1" />
@@ -469,7 +500,10 @@
         </Setter>
     </Style>
 
-    <Style x:Key="MacFluent.ButtonSecondary" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <Style
+        x:Key="MacFluent.ButtonSecondary"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSecondary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
@@ -479,8 +513,11 @@
         <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.BorderStrong}" />
     </Style>
 
-    <!-- Action buttons (semantic tokens) -->
-    <Style x:Key="MacFluent.ButtonAction.Add" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <!--  Action buttons (semantic tokens)  -->
+    <Style
+        x:Key="MacFluent.ButtonAction.Add"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Action.Add}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.Add}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -491,7 +528,10 @@
         <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.AddPressed}" />
     </Style>
 
-    <Style x:Key="MacFluent.ButtonAction.Edit" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <Style
+        x:Key="MacFluent.ButtonAction.Edit"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Action.Edit}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.Edit}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -502,7 +542,10 @@
         <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.EditPressed}" />
     </Style>
 
-    <Style x:Key="MacFluent.ButtonAction.Delete" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <Style
+        x:Key="MacFluent.ButtonAction.Delete"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Action.Delete}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.Delete}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -513,7 +556,10 @@
         <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.DeletePressed}" />
     </Style>
 
-    <Style x:Key="MacFluent.ButtonAction.DeleteSoft" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <Style
+        x:Key="MacFluent.ButtonAction.DeleteSoft"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Action.DeleteSoft}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Action.DeleteSoft}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -524,8 +570,11 @@
         <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Action.DeleteSoftPressed}" />
     </Style>
 
-    <!-- Filter buttons -->
-    <Style x:Key="MacFluent.FilterButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <!--  Filter buttons  -->
+    <Style
+        x:Key="MacFluent.FilterButton"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Padding" Value="14,0" />
         <Setter Property="Height" Value="34" />
         <Setter Property="FontSize" Value="13" />
@@ -541,7 +590,10 @@
         <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Filter.Border}" />
     </Style>
 
-    <Style x:Key="MacFluent.FilterButton.Active" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.FilterButton}">
+    <Style
+        x:Key="MacFluent.FilterButton.Active"
+        BasedOn="{StaticResource MacFluent.FilterButton}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Filter.Active}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Filter.Active}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Filter.ActiveText}" />
@@ -551,8 +603,11 @@
         <Setter Property="helpers:ThemeProperties.PressedBorderBrush" Value="{DynamicResource Brush.Filter.ActiveHover}" />
     </Style>
 
-    <!-- Icon buttons -->
-    <Style x:Key="MacFluent.IconButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.ButtonBase}">
+    <!--  Icon buttons  -->
+    <Style
+        x:Key="MacFluent.IconButton"
+        BasedOn="{StaticResource MacFluent.ButtonBase}"
+        TargetType="{x:Type Button}">
         <Setter Property="Width" Value="35" />
         <Setter Property="Height" Value="32" />
         <Setter Property="Padding" Value="5" />
@@ -566,7 +621,10 @@
         <Setter Property="helpers:ThemeProperties.PressedBackground" Value="{DynamicResource Brush.SurfaceAlt}" />
     </Style>
 
-    <Style x:Key="MacFluent.IconButton.Danger" TargetType="{x:Type Button}" BasedOn="{StaticResource MacFluent.IconButton}">
+    <Style
+        x:Key="MacFluent.IconButton.Danger"
+        BasedOn="{StaticResource MacFluent.IconButton}"
+        TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Action.DeleteSoft}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Action.Delete}" />
         <Setter Property="helpers:ThemeProperties.HoverBackground" Value="{DynamicResource Brush.Action.DeleteSoftHover}" />

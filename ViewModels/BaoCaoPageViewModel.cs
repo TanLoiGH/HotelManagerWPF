@@ -125,6 +125,7 @@ public class BaoCaoPageViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             ErrorMessage = $"Không tải được danh sách báo cáo: {ex.Message}";
         }
     }
@@ -146,6 +147,7 @@ public class BaoCaoPageViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
+            Logger.LogError("Lỗi", ex);
             ErrorMessage = $"Lỗi chạy báo cáo: {ex.Message}";
         }
         finally
