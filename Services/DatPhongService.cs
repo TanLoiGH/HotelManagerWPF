@@ -1,4 +1,5 @@
 using System.Data;
+using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
@@ -437,6 +438,8 @@ public class DatPhongService : IDatPhongService
             }
 
             await _db.SaveChangesAsync();
+            //Thông báo thành công
+            MessageBox .Show($"Đổi phòng thành công từ {maPhongCu} sang {maPhongMoi}. \n Thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             await tx.CommitAsync();
         }
         catch (Exception ex)

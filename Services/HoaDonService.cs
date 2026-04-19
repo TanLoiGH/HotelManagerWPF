@@ -409,38 +409,39 @@ public class HoaDonService : IHoaDonService
         var chiTiets = hd.MaDatPhongNavigation.DatPhongChiTiets.ToList();
 
         decimal tienPhong = 0;
-
-        // Cài đặt giờ checkout chuẩn của khách sạn (Ví dụ 12:00 trưa)
-        var gioQuyDinh = new TimeSpan(12, 0, 0);
+        var gioQuyDinh = new TimeSpan(12, 0, 0); // Giờ checkout chuẩn
 
         foreach (var ct in chiTiets)
         {
-            // 1. Tính tiền những đêm khách ở bình thường
-            int soDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra);
+            // BẢO VỆ ĐỔI PHÒNG: Nếu khách rời phòng từ hôm qua thì giữ nguyên ngày hôm qua.
+            DateTime thoiDiemTinhTien = thoiDiem < ct.NgayTra ? thoiDiem : ct.NgayTra;
+
+            int soDem = TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, thoiDiemTinhTien);
             decimal tienCuaPhong = ct.DonGia * soDem;
 
-            // 2. LOGIC TÍNH PHỤ THU QUÁ HẠN (LATE CHECK-OUT)
-            // Chỉ phạt khi khách trả phòng đúng vào ngày Checkout nhưng lại ra trễ giờ
+            // ========================================================
+            // 🔥 CHÍNH LÀ ĐOẠN NÀY ĐANG BỊ THIẾU TRONG CODE CỦA BẠN 🔥
+            // GỌT NGÀY: Nếu ra sớm, ép Ngày Trả trong CSDL về hiện tại
+            // ========================================================
+            if (thoiDiem < ct.NgayTra)
+            {
+                ct.NgayTra = thoiDiem;
+            }
+
+            // PHỤ THU LATE CHECKOUT: Phạt nếu ra khỏi phòng sau 12h
             if (thoiDiem.Date == ct.NgayTra.Date && thoiDiem.TimeOfDay > gioQuyDinh)
             {
                 double soGioTre = (thoiDiem.TimeOfDay - gioQuyDinh).TotalHours;
-                decimal phuThu = 0;
-
-                if (soGioTre <= 3)
-                    phuThu = ct.DonGia * 0.3m; // Phạt 30%
-                else if (soGioTre <= 6)
-                    phuThu = ct.DonGia * 0.5m; // Phạt 50%
-                else
-                    phuThu = ct.DonGia;        // Phạt 100%
-
-                tienCuaPhong += phuThu;
+                if (soGioTre <= 3) tienCuaPhong += ct.DonGia * 0.3m;
+                else if (soGioTre <= 6) tienCuaPhong += ct.DonGia * 0.5m;
+                else tienCuaPhong += ct.DonGia;
             }
 
-            // Cộng dồn vào tổng tiền phòng của hóa đơn
             tienPhong += tienCuaPhong;
 
+            // Đồng bộ Hóa đơn chi tiết
             var hdct = hd.HoaDonChiTiets.FirstOrDefault(x => x.MaPhong == ct.MaPhong);
-            if (hdct != null) hdct.SoDem = soDem; // Bạn có thể lưu thêm thuộc tính PhuThu vào bảng HoaDonChiTiet nếu DB có cột này
+            if (hdct != null) hdct.SoDem = soDem;
         }
 
         hd.TienPhong = tienPhong;
@@ -448,8 +449,13 @@ public class HoaDonService : IHoaDonService
         decimal tienDv = hd.TienDichVu ?? 0;
         decimal tienCoc = hd.MaDatPhongNavigation.TienCoc ?? 0;
 
-        // CÔNG THỨC: VAT chỉ tính trên tiền phòng
-        hd.TongThanhToan = (tienPhong * (1 + vatPercent / 100)) + tienDv - tienCoc;
+        // BẢO VỆ CHỐNG ÂM TIỀN BẰNG HÀM CHUẨN
+        decimal giamGia = 0;
+        var km = !string.IsNullOrWhiteSpace(hd.MaKhuyenMai) ? await _db.KhuyenMais.FindAsync(hd.MaKhuyenMai) : null;
+        if (km != null && km.IsActive == true)
+            giamGia = TinhToanHoaDonService.TinhGiamGia(tienPhong, tienDv, km.LoaiKhuyenMai ?? "", km.GiaTriKm ?? 0);
+
+        hd.TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, tienDv, vatPercent, tienCoc, giamGia);
 
         await _db.SaveChangesAsync();
     }
