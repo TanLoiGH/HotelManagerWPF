@@ -175,13 +175,14 @@ public static class QuestPdfHelper
             col.Item().PaddingTop(15).Row(row =>
             {
                 row.RelativeItem(); // Tạo một khoảng trống đẩy bảng sang phải
-                row.ConstantItem(350).Table(t =>
+                row.ConstantItem(350).Table(t =>
                 {
                     t.ColumnsDefinition(c =>
                     {
-                        c.RelativeColumn();      // Cột chứa chữ (Tự co giãn)
-                        c.ConstantColumn(120);   // Cột chứa tiền (Cố định chiều rộng 120)
-                    });
+                        c.RelativeColumn();      // Cột chứa chữ (Tự co giãn)
+                        c.ConstantColumn(120);   // Cột chứa tiền (Cố định chiều rộng 120)
+                    });
+
                     t.Cell().PaddingBottom(6).AlignRight().Text("Tổng tiền phòng & dịch vụ: ");
                     t.Cell().PaddingBottom(6).AlignRight().Text($"{subTotal:N0} VNĐ").Bold();
 
@@ -194,11 +195,35 @@ public static class QuestPdfHelper
                     if (tienCoc > 0)
                     {
                         t.Cell().PaddingBottom(6).AlignRight().Text("Đã thanh toán cọc: ").FontColor(Colors.Red.Medium);
-                        t.Cell().PaddingBottom(6).AlignRight().Text($" {tienCoc:N0} VNĐ").FontColor(Colors.Red.Medium).Bold();
+                        t.Cell().PaddingBottom(6).AlignRight().Text($"- {tienCoc:N0} VNĐ").FontColor(Colors.Red.Medium).Bold();
                     }
 
                     t.Cell().PaddingTop(5).AlignRight().Text("TỔNG THANH TOÁN: ").SemiBold();
                     t.Cell().PaddingTop(5).AlignRight().Text($"{tongThanhToan:N0} VNĐ").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+
+                    // 👇 THÊM DÒNG XỬ LÝ TIỀN DƯ / THIẾU Ở ĐÂY 👇
+                    // Lưu ý: Nếu trong code in bạn có truyền biến tongDaThu (gồm cọc + thanh toán đợt 1) thì thay vào chữ tienCoc nhé
+                    decimal conLai = tongThanhToan - tienCoc;
+
+                    if (conLai < 0)
+                    {
+                        // Khách dư tiền (Cần hoàn trả) -> Chữ màu xanh lá
+                        t.Cell().PaddingTop(5).AlignRight().Text("TIỀN THỪA TRẢ KHÁCH: ").SemiBold().FontColor(Colors.Green.Darken2);
+                        t.Cell().PaddingTop(5).AlignRight().Text($"{Math.Abs(conLai):N0} VNĐ").FontSize(14).Bold().FontColor(Colors.Green.Darken2);
+                    }
+                    else if (conLai > 0)
+                    {
+                        // Khách còn nợ (Cần thu thêm) -> Chữ màu cam/đỏ
+                        t.Cell().PaddingTop(5).AlignRight().Text("KHÁCH CẦN TRẢ THÊM: ").SemiBold().FontColor(Colors.Orange.Darken2);
+                        t.Cell().PaddingTop(5).AlignRight().Text($"{conLai:N0} VNĐ").FontSize(14).Bold().FontColor(Colors.Orange.Darken2);
+                    }
+                    else
+                    {
+                        // Vừa đủ (Không nợ không dư) -> Chữ màu xám cho đỡ nổi bật
+                        t.Cell().PaddingTop(5).AlignRight().Text("TIỀN THỪA TRẢ KHÁCH: ").SemiBold().FontColor(Colors.Grey.Darken2);
+                        t.Cell().PaddingTop(5).AlignRight().Text("0 VNĐ").FontSize(14).Bold().FontColor(Colors.Grey.Darken2);
+                    }
+                    // 👆 ======================================== 👆
                 });
             });
 

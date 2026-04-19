@@ -195,7 +195,7 @@
                                 <DataGridTextColumn
                                     Width="120"
                                     Binding="{Binding Phong}"
-                                    Header="Thành tiền" />
+                                    Header="Phòng" />
                                 <DataGridTextColumn
                                     Width="70"
                                     Binding="{Binding SoLuong}"
@@ -514,11 +514,6 @@
 
                     <StackPanel Grid.Row="4" Orientation="Vertical">
 
-                        <TextBlock
-                            Margin="0,0,0,4"
-                            FontSize="14"
-                            Foreground="{DynamicResource Brush.TextDisabled}"
-                            Text="Cập nhật trả sớm hôm nay" />
                         <Button
                             Margin="0,0,0,10"
                             Command="{Binding CapNhatTraSomHomNayCommand}"

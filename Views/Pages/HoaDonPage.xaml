@@ -148,6 +148,11 @@
                         Width="100"
                         Binding="{Binding TienDichVuHienThi}"
                         Header="Tiền DV" />
+
+                    <DataGridTextColumn
+                        Width="100"
+                        Binding="{Binding TienVatHienThi}"
+                        Header="Tiền thuế" />
                     <DataGridTextColumn
                         Width="120"
                         Binding="{Binding TongThanhToanHienThi}"
