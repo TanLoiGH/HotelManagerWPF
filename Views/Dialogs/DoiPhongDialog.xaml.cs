@@ -25,7 +25,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Dialogs
         private readonly string _maDatPhong;
         private readonly string _maPhongCu;
         private readonly DatPhongService _datPhongSvc;
-        private readonly QuanLyKhachSanContext _db;
+        private readonly QuanLyKhachSanContext _db = new();
 
         public DoiPhongDialog(string maDatPhong, string maPhongCu)
         {
@@ -34,7 +34,6 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Dialogs
             _maPhongCu = maPhongCu;
             TxtPhongCu.Text = maPhongCu;
 
-            _db = new QuanLyKhachSanContext();
             _datPhongSvc = new DatPhongService(_db);
 
             LoadDanhSachPhongTrong();

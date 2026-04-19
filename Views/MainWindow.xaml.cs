@@ -1,11 +1,12 @@
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
+using Microsoft.Extensions.DependencyInjection;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using QuanLyKhachSan_PhamTanLoi.Views.Dialogs;
 using QuanLyKhachSan_PhamTanLoi.Views.Pages;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 

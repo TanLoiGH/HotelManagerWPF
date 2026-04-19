@@ -306,6 +306,67 @@ public partial class SoDoPhongViewModel
         }
     }
 
+    private async Task ThucHienGiaHanAsync()
+    {
+        // 1. Chỉ cho phép gia hạn nếu phòng đang có khách (Trạng thái "PTT02" - Đang ở)
+        if (SelectedRoom == null || SelectedRoom.MaTrangThaiPhong != "PTT02")
+        {
+            MessageBox.Show("Vui lòng chọn một phòng đang có khách (Đang ở) để gia hạn.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        string maDatPhongActive = "";
+        DateTime ngayTraHienTai = DateTime.Today;
+
+        // 2. Tìm thông tin đơn đặt phòng của phòng đang chọn
+        using (var db = new QuanLyKhachSanContext())
+        {
+            var ct = await db.DatPhongChiTiets
+                .Include(c => c.MaDatPhongNavigation)
+                .FirstOrDefaultAsync(c => c.MaPhong == SelectedRoom.MaPhong
+                                       && c.MaDatPhongNavigation.TrangThai == "Đang ở");
+
+            if (ct == null)
+            {
+                MessageBox.Show("Không tìm thấy đơn đặt phòng đang ở cho phòng này.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            maDatPhongActive = ct.MaDatPhong;
+            ngayTraHienTai = ct.NgayTra;
+        }
+
+        // 3. Mở Hộp thoại Gia hạn (truyền ngày trả cũ vào)
+        var dialog = new GiaHanDialog(ngayTraHienTai)
+        {
+            // Nếu bạn muốn form hiển thị ở giữa màn hình chính
+            Owner = Application.Current.MainWindow
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            try
+            {
+                // Lấy ngày mới từ hộp thoại
+                DateTime ngayTraMoi = dialog.NgayTraMoi;
+
+                // 4. Gọi API backend (logic tăng ngày, tính thêm tiền, cập nhật hóa đơn)
+                await _datPhongService.GiaHanAsync(maDatPhongActive, SelectedRoom.MaPhong, ngayTraMoi);
+
+                MessageBox.Show($"Đã gia hạn phòng đến ngày {ngayTraMoi:dd/MM/yyyy} thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // 5. Load lại dữ liệu sơ đồ để cập nhật UI
+                await TaiDuLieuAsync();
+            }
+            catch (Exception ex)
+            {
+                // Bóc lỗi bên trong DB nếu có (ví dụ: ngày đó đã bị khách khác đặt trước)
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                MessageBox.Show($"Không thể gia hạn: {msg}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+
     private async Task ThucHienHuyDatPhongAsync()
     {
         if (string.IsNullOrEmpty(SelectedMaDatPhong)) return;

@@ -14,12 +14,12 @@ namespace QuanLyKhachSan_PhamTanLoi.Services;
 public class AuthService : IAuthService
 {
     private readonly QuanLyKhachSanContext _db;
-    private readonly IAuditService _auditService;
 
-    public AuthService(QuanLyKhachSanContext db, IAuditService auditService)
+
+    public AuthService(QuanLyKhachSanContext db)
     {
         _db = db;
-        _auditService = auditService;
+        
     }
 
     public async Task<LoginResult?> DangNhapAsync(string tenDangNhap, string matKhau)
@@ -51,7 +51,6 @@ public class AuthService : IAuthService
                 return null;
 
             var nv = tk.MaNhanVienNavigation;
-            await _auditService.LogAsync("Đăng nhập", $"Nhân viên {nv.TenNhanVien} đăng nhập hệ thống.");
 
             return new LoginResult
             {
@@ -96,6 +95,5 @@ public class AuthService : IAuthService
 
         account.MatKhau = PasswordHasher.Hash(matKhauMoi);
         await _db.SaveChangesAsync();
-        await _auditService.LogAsync("Đổi mật khẩu", $"Nhân viên {AppSession.MaNhanVien} đã thay đổi mật khẩu.");
     }
 }

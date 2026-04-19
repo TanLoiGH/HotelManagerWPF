@@ -1,17 +1,17 @@
+using System;
+using System.Linq;
 using System.Windows.Controls;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
-using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public class LoginViewModel : BaseViewModel
 {
-    private readonly AuthService _authSvc;
+    private readonly IAuthService _authSvc;
     private string _tenDangNhap = "";
     private string _errorMessage = "";
     private bool _isLoading;
-    private IAuthService authService;
 
     public string TenDangNhap
     {
@@ -37,18 +37,13 @@ public class LoginViewModel : BaseViewModel
 
     public RelayCommand LoginCommand { get; }
 
-    // LoginWindow subscribe event này để đóng cửa sổ
     public event Action? LoginSuccess;
 
-    public LoginViewModel(AuthService authSvc)
-    {
-        _authSvc = authSvc;
-        LoginCommand = new RelayCommand(ExecuteLogin, _ => !IsLoading);
-    }
-
+    // Chỉ giữ một constructor duy nhất, nhận IAuthService (đã đăng ký trong DI)
     public LoginViewModel(IAuthService authService)
     {
-        this.authService = authService;
+        _authSvc = authService;
+        LoginCommand = new RelayCommand(ExecuteLogin, _ => !IsLoading);
     }
 
     private async void ExecuteLogin(object? parameter)
@@ -74,10 +69,8 @@ public class LoginViewModel : BaseViewModel
                 return;
             }
 
-            // Lưu session toàn cục (App.CurrentUser thay thế AppSession)
+            // Lưu session toàn cục
             App.CurrentUser = result;
-
-            // Sync sang AppSession nếu còn dùng ở chỗ khác
             AppSession.CurrentUser = result;
             AppSession.MaNhanVien = result.MaNhanVien;
             AppSession.TenNhanVien = result.TenNhanVien;
@@ -88,7 +81,7 @@ public class LoginViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            Logger.LogError("Lỗi", ex);
+            Logger.LogError("Lỗi đăng nhập", ex);
             ErrorMessage = $"Lỗi kết nối: {ex.Message}";
         }
         finally
@@ -97,7 +90,3 @@ public class LoginViewModel : BaseViewModel
         }
     }
 }
-
-
-
-

@@ -276,6 +276,7 @@
                             FontSize="14"
                             Foreground="{DynamicResource Brush.Error}"
                             Text="{Binding ErrorMessage}"
+                            TextWrapping="Wrap"
                             Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
 
                         <!--  Nút đăng nhập — ControlTemplate để có CornerRadius  -->

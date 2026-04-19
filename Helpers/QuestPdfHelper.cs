@@ -194,7 +194,7 @@ public static class QuestPdfHelper
                     if (tienCoc > 0)
                     {
                         t.Cell().PaddingBottom(6).AlignRight().Text("Đã thanh toán cọc: ").FontColor(Colors.Red.Medium);
-                        t.Cell().PaddingBottom(6).AlignRight().Text($"- {tienCoc:N0} VNĐ").FontColor(Colors.Red.Medium).Bold();
+                        t.Cell().PaddingBottom(6).AlignRight().Text($" {tienCoc:N0} VNĐ").FontColor(Colors.Red.Medium).Bold();
                     }
 
                     t.Cell().PaddingTop(5).AlignRight().Text("TỔNG THANH TOÁN: ").SemiBold();
@@ -205,7 +205,7 @@ public static class QuestPdfHelper
             // Chữ ký & Đọc số
             col.Item().PaddingTop(30).Column(c =>
             {
-                c.Item().Text($"Số tiền bằng chữ: {NumberToText((long)tongThanhToan)} đồng chẵn.").Italic();
+                c.Item().Text($"Số tiền bằng chữ: {NumberToText((long)tongThanhToan)} Việt Nam đồng chẵn.").Italic();
 
                 c.Item().PaddingTop(20).Row(row =>
                 {

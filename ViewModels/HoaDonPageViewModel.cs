@@ -13,6 +13,7 @@ using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
@@ -24,20 +25,19 @@ public class HoaDonPageViewModel : BaseViewModel
     private static string _tuKhoaTimKiemGiuLai = "";
     private static string _trangThaiLocGiuLai = "";
 
-    private readonly HoaDonService _hoaDonService;
-    private readonly DispatcherTimer _boDemTimKiem;
+    private readonly IHoaDonService _hoaDonService;
+    private readonly DispatcherTimer _boDemTimKiem = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private string _tuKhoaTimKiem = "";
     private string _trangThaiLoc = "";
     private ObservableCollection<HoaDonDongViewModel> _tatCaHoaDon = new();
     private ListCollectionView _hoaDonDaLoc;
 
-    public HoaDonPageViewModel(HoaDonService hoaDonService)
+    public HoaDonPageViewModel(IHoaDonService hoaDonService)
     {
         _hoaDonService = hoaDonService;
         _hoaDonDaLoc = (ListCollectionView)CollectionViewSource.GetDefaultView(_tatCaHoaDon);
         _hoaDonDaLoc.Filter = LocHoaDon;
 
-        _boDemTimKiem = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _boDemTimKiem.Tick += (_, _) =>
         {
             _boDemTimKiem.Stop();

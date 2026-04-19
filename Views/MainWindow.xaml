@@ -465,21 +465,6 @@
                                     Foreground="{DynamicResource Brush.SidebarTextMuted}"
                                     Opacity="0.8" />
 
-                                <Border
-                                    Margin="0,2"
-                                    Padding="14,12"
-                                    Background="Transparent"
-                                    CornerRadius="12"
-                                    Cursor="Hand"
-                                    MouseEnter="NavItem_MouseEnter"
-                                    MouseLeave="NavItem_MouseLeave"
-                                    MouseLeftButtonDown="Nav_NhanVien">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Margin="0,0,12,0" Text=" ⌚" />
-                                        <TextBlock Text="Lịch sử" />
-                                    </StackPanel>
-                                </Border>
-
                             </StackPanel>
                         </ScrollViewer>
 

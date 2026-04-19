@@ -1,7 +1,6 @@
-using QuanLyKhachSan_PhamTanLoi.Data;
-using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using System;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,14 +9,24 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class LoginWindow : Window
 {
-    private readonly QuanLyKhachSanContext _db;
-
     public LoginWindow()
     {
         InitializeComponent();
-        // Thay vì new AuthService(_db), hãy lấy từ ServiceProvider
+
+        // Lấy AuthService từ ServiceProvider
         var authService = App.ServiceProvider.GetRequiredService<IAuthService>();
-        DataContext = new LoginViewModel(authService);
+
+        // Tạo ViewModel
+        var viewModel = new LoginViewModel(authService);
+
+        // BẮT SỰ KIỆN: Khi đăng nhập thành công thì tự động đóng cửa sổ lại
+        viewModel.LoginSuccess += () =>
+        {
+            this.DialogResult = true; // Lệnh này sẽ tự động đóng ShowDialog() lại
+        };
+
+        // Gán ViewModel cho DataContext
+        DataContext = viewModel;
     }
 
     private void Window_DragMove(object sender, MouseButtonEventArgs e)
@@ -45,26 +54,16 @@ public partial class LoginWindow : Window
 
     private void TriggerLogin()
     {
-        if (DataContext is LoginViewModel vm && vm.LoginCommand.CanExecute(PbPassword))
+        if (DataContext is LoginViewModel vm && vm.LoginCommand != null && vm.LoginCommand.CanExecute(PbPassword))
+        {
             vm.LoginCommand.Execute(PbPassword);
+        }
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        if (Application.Current?.ShutdownMode == ShutdownMode.OnExplicitShutdown)
-        {
-            DialogResult = false;
-            Close();
-            return;
-        }
-        Close();
+        // Tắt cưỡng chế toàn bộ ứng dụng khi bấm nút X
+        Application.Current.Shutdown();
     }
 
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-        _db.Dispose();
-    }
 }
-
-

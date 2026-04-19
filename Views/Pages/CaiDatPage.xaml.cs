@@ -12,12 +12,12 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Pages
         {
             InitializeComponent();
 
-            // Lấy các Service đã được DI Container cấu hình sẵn
-            // Không dùng 'new' để tránh lỗi thiếu tham số auditService
+            // Lấy các Service từ DI Container
             var employeeService = App.ServiceProvider.GetRequiredService<EmployeeService>();
             var authService = App.ServiceProvider.GetRequiredService<IAuthService>();
             var hoaDonService = App.ServiceProvider.GetRequiredService<IHoaDonService>();
 
+            // Gán vào duy nhất 1 Constructor của ViewModel
             DataContext = new CaiDatViewModel(employeeService, authService, hoaDonService);
         }
     }

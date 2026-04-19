@@ -173,7 +173,7 @@ public class KhachHangService : IKhachHangService
     }
 
     // Cộng điểm tích lũy và tự động nâng hạng nếu đạt ngưỡng.
-    internal async Task NangHangAsync(string maKhachHang, decimal soTienMoi)
+    public async Task NangHangAsync(string maKhachHang, decimal soTienMoi)
     {
         var kh = await _db.KhachHangs.FindAsync(maKhachHang);
         if (kh == null) return;

@@ -12,13 +12,11 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 public partial class SoDoPhongPage : Page
 {
     private readonly SoDoPhongViewModel _viewModel;
-    private readonly QuanLyKhachSanContext _db;
+    private readonly QuanLyKhachSanContext _db = new();
 
     public SoDoPhongPage()
     {
         InitializeComponent();
-
-        _db = new QuanLyKhachSanContext();
 
         var roomService = new PhongService(_db);
         var khachHangService = new KhachHangService(_db);

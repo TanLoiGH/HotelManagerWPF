@@ -68,8 +68,6 @@ public partial class QuanLyKhachSanContext : DbContext
 
     public virtual DbSet<TrangThaiNhanVien> TrangThaiNhanViens { get; set; } = null!;
 
-    public virtual DbSet<HeThongNhatKy> HeThongNhatKys { get; set; } = null!;
-
 
     public DbSet<VwDoanhThuThang> VwDoanhThuThangs { get; set; } = null!;
     public DbSet<VwCoCauChiPhi> VwCoCauChiPhis { get; set; } = null!;
@@ -764,6 +762,7 @@ public partial class QuanLyKhachSanContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.TenTrangThai).HasMaxLength(50);
         });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

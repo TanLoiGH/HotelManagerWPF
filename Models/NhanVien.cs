@@ -30,6 +30,8 @@ public partial class NhanVien
 
     public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
 
+
+
     public virtual TrangThaiNhanVien? MaTrangThaiNavigation { get; set; }
 
     public virtual ICollection<TaiKhoan> TaiKhoans { get; set; } = new List<TaiKhoan>();

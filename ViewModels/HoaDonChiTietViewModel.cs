@@ -24,8 +24,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private static List<PhuongThucThanhToanDto>? _cachePhuongThucThanhToan;
 
     private readonly string _maHoaDon;
-    private readonly HoaDonService _hoaDon;
-    private readonly DichVuService _dichVuSvc;
+    private readonly IHoaDonService _hoaDon;
+    private readonly IDichVuService _dichVuSvc;
     private readonly Func<Window?> _layChuSoHuu;
     private readonly Action<bool?> _dong;
     private readonly IHopThoaiService _hopThoai;
@@ -150,7 +150,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     public string TienDichVuHienThi => $"{TienDichVu:N0} ₫";
     public string VatPhanTramHienThi => $"{VatPercent:N0}%";
     public string TienVatHienThi => $"{VatAmount:N0} ₫";
-    public string TienCocHienThi => $"- {TienCoc:N0} ₫";
+    public string TienCocHienThi => $" {TienCoc:N0} ₫";
     public string TongThanhToanHienThi => $"{TongThanhToan:N0} ₫";
 
     public decimal ConLai
@@ -176,7 +176,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     #region CONSTRUCTOR & COMMANDS
     public HoaDonChiTietViewModel(
-        string maHoaDon, HoaDonService hoaDonSvc, DichVuService dichVuSvc, Func<Window?> layChuSoHuu,
+        string maHoaDon, IHoaDonService hoaDonSvc, IDichVuService dichVuSvc, Func<Window?> layChuSoHuu,
         Action<bool?> dong, IHopThoaiService hopThoai, IInHoaDonService inHoaDon,
         IChonDichVuService chonDichVu, Func<Task>? taiLaiTrangHoaDonAsync = null)
     {
@@ -360,9 +360,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             return;
         }
 
-        using var db = new Data.QuanLyKhachSanContext();
-        var svc = new HoaDonService(db, new KhachHangService(db));
-        var list = await svc.LayDanhSachPhuongThucThanhToanAsync();
+        var list = await _hoaDon.LayDanhSachPhuongThucThanhToanAsync();
         _cachePhuongThucThanhToan = list;
         _thoiDiemTaiPttt = DateTime.Now;
 
@@ -383,9 +381,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     private async Task TaiLaiLichSuThanhToanAsync()
     {
-        using var db = new Data.QuanLyKhachSanContext();
-        var svc = new HoaDonService(db, new KhachHangService(db));
-        var tts = await svc.LayLichSuThanhToanAsync(_maHoaDon);
+
+        var tts = await _hoaDon.LayLichSuThanhToanAsync(_maHoaDon);
         var items = tts.Select(t => new ThanhToanItemVm
         {
             LoaiGiaoDich = t.LoaiGiaoDich ?? "",

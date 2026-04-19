@@ -11,13 +11,11 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Dialogs;
 public partial class HoaDonChiTietDialog : Window
 {
     private readonly HoaDonChiTietViewModel _vm;
-    private readonly QuanLyKhachSanContext _db;
 
     public HoaDonChiTietDialog(string maHoaDon, Func<Task>? taiLaiTrangHoaDonAsync = null)
     {
         InitializeComponent();
 
-        // ✅ Lấy toàn bộ Service từ DI thay vì 'new' thủ công
         var hdSvc = App.ServiceProvider.GetRequiredService<IHoaDonService>();
         var dvSvc = App.ServiceProvider.GetRequiredService<IDichVuService>();
         var hopThoai = App.ServiceProvider.GetRequiredService<IHopThoaiService>();
@@ -45,13 +43,15 @@ public partial class HoaDonChiTietDialog : Window
     protected override async void OnContentRendered(EventArgs e)
     {
         base.OnContentRendered(e);
-        await _vm.TaiLaiAsync();
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-        _db.Dispose();
+        try
+        {
+            await _vm.TaiLaiAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void txtSoTien_TextChanged(object sender, TextChangedEventArgs e)

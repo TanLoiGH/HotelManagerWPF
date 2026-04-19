@@ -49,7 +49,6 @@ namespace QuanLyKhachSan_PhamTanLoi
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<QuanLyKhachSanContext>();
-            services.AddScoped<IAuditService, AuditService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IHoaDonService, HoaDonService>();
             services.AddScoped<IKhachHangService, KhachHangService>();
@@ -66,7 +65,6 @@ namespace QuanLyKhachSan_PhamTanLoi
             services.AddSingleton<MainWindow>();
 
             services.AddTransient<CaiDatViewModel>();
-            services.AddTransient<NhatKyHeThongViewModel>();
             services.AddTransient<SoDoPhongViewModel>();
             services.AddTransient<HoaDonPageViewModel>();
         }

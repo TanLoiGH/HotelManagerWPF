@@ -12,15 +12,11 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Pages;
 
 public partial class HoaDonPage : Page
 {
-    private readonly HoaDonPageViewModel _viewModel;
+    private readonly HoaDonPageViewModel _viewModel = App.ServiceProvider.GetRequiredService<HoaDonPageViewModel>();
 
     public HoaDonPage()
     {
         InitializeComponent();
-
-        // ✅ ĐÚNG: Lấy trực tiếp ViewModel từ DI. 
-        // DI sẽ tự động giải quyết HoaDonService -> AuditService cho bạn.
-        _viewModel = App.ServiceProvider.GetRequiredService<HoaDonPageViewModel>();
         DataContext = _viewModel;
 
         Loaded += async (_, _) => await _viewModel.TaiDuLieuAsync();

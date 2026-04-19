@@ -9,13 +9,12 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 public partial class DashboardPage : Page
 {
     private readonly DashboardViewModel _viewModel;
-    private readonly QuanLyKhachSanContext _db;
+    private readonly QuanLyKhachSanContext _db = new();
 
     public DashboardPage()
     {
         InitializeComponent();
 
-        _db = new QuanLyKhachSanContext();
         var dashboardService = new DashboardService(_db);
 
         _viewModel = new DashboardViewModel(dashboardService);

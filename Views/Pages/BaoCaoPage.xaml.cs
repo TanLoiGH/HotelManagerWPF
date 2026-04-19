@@ -10,13 +10,12 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 public partial class BaoCaoPage : Page
 {
     private readonly BaoCaoPageViewModel _viewModel;
-    private readonly QuanLyKhachSanContext _db;
+    private readonly QuanLyKhachSanContext _db = new();
 
     public BaoCaoPage()
     {
         InitializeComponent();
 
-        _db = new QuanLyKhachSanContext();
         var reportService = new ReportService(_db);
 
         _viewModel = new BaoCaoPageViewModel(reportService);
