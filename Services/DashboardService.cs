@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 
@@ -20,7 +21,7 @@ public class DashboardService
     public async Task<decimal> GetDoanhThuAsync(DateTime tuNgay, DateTime denNgay)
     {
         return await _db.HoaDons
-            .Where(h => h.TrangThai == "Đã thanh toán" && h.NgayLap >= tuNgay && h.NgayLap <= denNgay)
+            .Where(h => h.TrangThai == HoaDonTrangThaiTexts.DaThanhToan && h.NgayLap >= tuNgay && h.NgayLap <= denNgay)
             .SumAsync(h => (decimal?)h.TongThanhToan) ?? 0;
     }
 
@@ -34,7 +35,7 @@ public class DashboardService
     public async Task<(int TongPhong, int PhongDangO)> GetRoomStatsAsync()
     {
         int tong = await _db.Phongs.CountAsync();
-        int dangO = await _db.Phongs.CountAsync(p => p.MaTrangThaiPhong == "PTT02");
+        int dangO = await _db.Phongs.CountAsync(p => p.MaTrangThaiPhong == PhongTrangThaiCodes.DangO);
         return (tong, dangO);
     }
 
@@ -46,7 +47,7 @@ public class DashboardService
         {
             var d = now.AddMonths(-i);
             var total = await _db.HoaDons
-                .Where(h => h.TrangThai == "Đã thanh toán" && h.NgayLap.HasValue && h.NgayLap.Value.Year == d.Year && h.NgayLap.Value.Month == d.Month)
+                .Where(h => h.TrangThai == HoaDonTrangThaiTexts.DaThanhToan && h.NgayLap.HasValue && h.NgayLap.Value.Year == d.Year && h.NgayLap.Value.Month == d.Month)
                 .SumAsync(h => (decimal?)h.TongThanhToan) ?? 0;
             result.Add((d.Year, d.Month, total));
         }

@@ -1,5 +1,6 @@
 using QuanLyKhachSan_PhamTanLoi.Dtos;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 using System.Collections.Generic;
@@ -117,9 +118,9 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    public bool CoTheChinhSua => TrangThai == "Chưa thanh toán" || ConLai != 0;
-    public bool CoTheTraPhong => TrangThai == "Đã thanh toán" && TrangThaiDatPhong != "Đã trả phòng" && !string.IsNullOrWhiteSpace(MaDatPhong);
-    public bool CoTheCapNhatTraSom => CoTheChinhSua && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != "Đã trả phòng" ;
+    public bool CoTheChinhSua => TrangThai == HoaDonTrangThaiTexts.ChuaThanhToan || ConLai != 0;
+    public bool CoTheTraPhong => TrangThai == HoaDonTrangThaiTexts.DaThanhToan && TrangThaiDatPhong != DatPhongTrangThaiTexts.DaTraPhong && !string.IsNullOrWhiteSpace(MaDatPhong);
+    public bool CoTheCapNhatTraSom => CoTheChinhSua && !string.IsNullOrWhiteSpace(MaDatPhong) && TrangThaiDatPhong != DatPhongTrangThaiTexts.DaTraPhong;
 
     // --- TIỀN BẠC (ĐÃ SỬA LOGIC VAT) ---
     public decimal TienPhong { get => _tienPhong; private set { if (SetProperty(ref _tienPhong, value)) OnPropertyChanged(nameof(VatAmount)); } }
@@ -138,7 +139,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         private set { if (SetProperty(ref _tongDaThu, value)) OnPropertyChanged(nameof(TongDaThuHienThi)); }
     }
 
-    public string TongBillHienThi => $"{TongThanhToan:N0} ₫";
     public string TongDaThuHienThi => $"{TongDaThu:N0} ₫";
 
     // Đổi label linh hoạt tùy theo việc khách thiếu hay dư tiền
@@ -324,6 +324,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             foreach (var d in hd.DichVuChiTiets.Select(d => new DichVuItemVm
             {
                 TenDichVu = d.MaDichVuNavigation.TenDichVu,
+                
                 SoLuong = d.SoLuong,
                 DonGia = d.DonGia
             }))
@@ -332,6 +333,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             OnPropertyChanged(nameof(TienPhongHienThi));
             OnPropertyChanged(nameof(TienDichVuHienThi));
             OnPropertyChanged(nameof(VatPhanTramHienThi));
+            OnPropertyChanged(nameof(TienVatHienThi));
             OnPropertyChanged(nameof(TongThanhToanHienThi));
 
             await Task.WhenAll(TaiLaiLichSuThanhToanAsync(), TaiLaiPhuongThucThanhToanAsync());
@@ -431,7 +433,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     private async Task ThemDichVuAsync()
     {
-        if (TrangThai != "Chưa thanh toán")
+        if (TrangThai != HoaDonTrangThaiTexts.ChuaThanhToan)
         {
             _hopThoai.CanhBao("Hoá đơn đã thanh toán, không thể thêm dịch vụ.");
             return;
@@ -480,84 +482,65 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             return;
         }
 
-        decimal soTien = 0;
-
-        // Chỉ yêu cầu nhập và validate số tiền nếu khách CÒN NỢ
-        if (ConLai > 0)
+        decimal soTienHienTai = 0;
+        if (ConLai != 0)
         {
-            if (!ThuParseSoTien(SoTienNhap, out soTien) || soTien <= 0)
+            if (!ThuParseSoTien(SoTienNhap, out soTienHienTai) || soTienHienTai <= 0)
             {
-                _hopThoai.CanhBao("Số tiền không hợp lệ.");
+                _hopThoai.CanhBao("Số tiền giao dịch không hợp lệ.");
                 return;
             }
         }
-        else
-        {
-            // Nếu đã đủ tiền hoặc dư tiền cọc, mặc định số tiền giao dịch phát sinh là 0
-            soTien = 0;
-        }
 
         var maNhanVien = AppSession.MaNhanVien ?? "NV001";
+        string cauHoi = LoaiGiaoDichDuocChon == "Hoàn tiền"
+            ? $"Xác nhận HOÀN TRẢ {soTienHienTai:N0} đ cho khách?"
+            : (soTienHienTai > 0 ? $"Xác nhận thanh toán {soTienHienTai:N0} đ?" : "Xác nhận chốt hóa đơn?");
 
-        // Thay đổi câu hỏi xác nhận cho phù hợp với ngữ cảnh
-        string cauHoiXacNhan = soTien > 0
-            ? $"Xác nhận thanh toán số tiền {soTien:N0} đ cho hóa đơn {_maHoaDon}?"
-            : $"Hóa đơn {_maHoaDon} đã đủ tiền. Xác nhận chốt hóa đơn và in?";
-
-        if (!_hopThoai.XacNhan(cauHoiXacNhan, "Xác nhận thanh toán")) return;
+        if (!_hopThoai.XacNhan(cauHoi, "Xác nhận giao dịch")) return;
 
         DangXuLy = true;
         try
         {
-            // 2. Kiểm tra logic Thanh toán cuối
-            if (LoaiGiaoDichDuocChon == "Thanh toán cuối" && ConLai > 0 && soTien < ConLai)
+            if (LoaiGiaoDichDuocChon == "Thanh toán cuối" && ConLai > 0 && soTienHienTai < ConLai)
             {
-                _hopThoai.CanhBao($"Số tiền thanh toán chưa đủ để chốt hóa đơn. {soTien:N0}đ");
+                _hopThoai.CanhBao($"Số tiền không đủ để chốt. Cần: {ConLai:N0}đ");
                 return;
             }
 
-            // 3. XỬ LÝ DATA: Lưu thông tin thanh toán vào Database
-            var thongTin = await _hoaDon.ThanhToanVaTraKetQuaAsync(_maHoaDon, soTien, maPttt, maNhanVien, LoaiGiaoDichDuocChon, NoiDung);
+            // QUAN TRỌNG: Nếu là hoàn tiền, ta gửi số ÂM xuống Database để đối trừ doanh thu
+            decimal soTienThucTe = LoaiGiaoDichDuocChon == "Hoàn tiền" ? -soTienHienTai : soTienHienTai;
+
+            var thongTin = await _hoaDon.ThanhToanVaTraKetQuaAsync(_maHoaDon, soTienThucTe, maPttt, maNhanVien, LoaiGiaoDichDuocChon, NoiDung);
             SoTienNhap = "";
 
-            // 4. XỬ LÝ UI: Hiển thị kết quả & In hóa đơn
             if (thongTin.KetQua is KetQuaThanhToan.HoanTat or KetQuaThanhToan.DaHoanTat)
             {
-                if (LoaiGiaoDichDuocChon == "Thanh toán cuối" || ConLai == 0)
+                if (LoaiGiaoDichDuocChon is "Thanh toán cuối" or "Hoàn tiền" || ConLai == 0)
                 {
                     await _hoaDon.DongBoTrangThaiThanhToanAsync(_maHoaDon);
                 }
 
-                _hopThoai.ThongBao("Chốt hóa đơn hoàn tất! Hệ thống sẽ hiển thị bản in.");
-
-                // Gọi Print: Tạm tắt cờ DangXuLy để hàm InHoaDonMasterAsync có thể chạy
+                _hopThoai.ThongBao("Giao dịch thành công!");
                 DangXuLy = false;
                 await InHoaDonMasterAsync(false, KieuInHoaDon.TongHop);
-                DangXuLy = true; // Bật lại để block finally phía dưới xử lý an toàn
+                DangXuLy = true;
 
                 if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
                 await TaiLaiDuLieuNoiBoAsync();
                 return;
             }
 
-            // Các trường hợp trả thiếu tiền hoặc lỗi logic khác
-            if (thongTin.KetQua == KetQuaThanhToan.GhiNhanChuaDu)
-                _hopThoai.ThongBao($"Đã ghi nhận thanh toán {soTien:N0} đ. Khách chưa thanh toán đủ.");
-            else
-                _hopThoai.CanhBao(thongTin.ThongDiep);
-
+            _hopThoai.ThongBao(thongTin.ThongDiep);
             await TaiLaiDuLieuNoiBoAsync();
             if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
         }
         catch (Exception ex)
         {
             Logger.LogError("Lỗi", ex);
-            _hopThoai.BaoLoi($"Lỗi thanh toán: {ex.Message}");
+            _hopThoai.BaoLoi($"Lỗi: {ex.Message}");
         }
-        finally
-        {
-            DangXuLy = false;
-        }
+        finally { DangXuLy = false; }
     }
 
     private async Task TraPhongAsync()
@@ -568,7 +551,12 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         DangXuLy = true;
         try
         {
-            var maNhanVien = AppSession.MaNhanVien ?? "NV001";
+            var maNhanVien = AppSession.MaNhanVien;
+            if (string.IsNullOrWhiteSpace(maNhanVien))
+            {
+                MessageBox.Show("Phiên đăng nhập hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             await _hoaDon.TraPhongAsync(_maHoaDon, maNhanVien);
             _hopThoai.ThongBao("Tra phong thanh cong! Phong da chuyen sang trang thai can don dep.");
             await TaiLaiDuLieuNoiBoAsync();
@@ -670,6 +658,7 @@ public sealed class PhongItemVm
 public sealed class DichVuItemVm
 {
     public string TenDichVu { get; set; } = "";
+    public string MaPhong { get; set; } ="";
     public int SoLuong { get; set; }
     public decimal DonGia { get; set; }
     public decimal ThanhTien => DonGia * SoLuong;
@@ -684,6 +673,6 @@ public sealed class ThanhToanItemVm
     public DateTime? NgayThanhToan { get; set; }
     public string MaNhanVienThuTien { get; set; } = ""; 
     public string TenNhanVienThuTien { get; set; } = "";
-    public string SoTienText => $"{SoTien:N0} ₫";
+    public string SoTienText => SoTien < 0 ? $"- {Math.Abs(SoTien):N0} ₫" : $"+ {SoTien:N0} ₫";
 }
 #endregion

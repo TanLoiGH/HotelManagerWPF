@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
@@ -170,9 +171,9 @@ public class HoaDonDongViewModel
     public string TrangThai { get; set; } = "";
     public SolidColorBrush StatusColor => TrangThai switch
     {
-        "Chưa thanh toán" => new SolidColorBrush(Color.FromRgb(250, 204, 21)),
-        "Đã thanh toán" => new SolidColorBrush(Color.FromRgb(34, 197, 94)),
-        "Đã hủy" => new SolidColorBrush(Color.FromRgb(148, 163, 184)),
+        HoaDonTrangThaiTexts.ChuaThanhToan => new SolidColorBrush(Color.FromRgb(250, 204, 21)),
+        HoaDonTrangThaiTexts.DaThanhToan => new SolidColorBrush(Color.FromRgb(34, 197, 94)),
+        HoaDonTrangThaiTexts.DaHuy => new SolidColorBrush(Color.FromRgb(148, 163, 184)),
         _ => new SolidColorBrush(Color.FromRgb(59, 130, 246))
     };
 }

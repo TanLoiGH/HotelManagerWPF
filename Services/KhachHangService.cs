@@ -34,6 +34,9 @@ public class KhachHangService : IKhachHangService
         string? cccd,
         string? email,
         string? diaChi,
+        string ? passport,
+        string visa,
+        string quocTich,
         string? maLoaiKhach)
     {
         var lastMa = await _db.KhachHangs
@@ -49,6 +52,9 @@ public class KhachHangService : IKhachHangService
             Cccd = cccd,
             Email = email,
             DiaChi = diaChi,
+            Passport = passport,
+            Visa = visa,
+            QuocTich = quocTich,
             MaLoaiKhach = maLoaiKhach,
             TongTichLuy = 0
         });
@@ -63,6 +69,9 @@ public class KhachHangService : IKhachHangService
         string? cccd,
         string? email,
         string? diaChi,
+        string ? passport,
+        string? visa,
+        string? quocTich,
         string? maLoaiKhach)
     {
         var kh = await _db.KhachHangs.FindAsync(maKhachHang);
@@ -73,6 +82,9 @@ public class KhachHangService : IKhachHangService
         kh.Cccd = cccd;
         kh.Email = email;
         kh.DiaChi = diaChi;
+        kh.Passport = passport; 
+        kh.Visa = visa; 
+        kh.QuocTich = quocTich;
         kh.MaLoaiKhach = maLoaiKhach;
 
         await _db.SaveChangesAsync();

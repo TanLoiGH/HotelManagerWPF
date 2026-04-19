@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
@@ -36,13 +38,28 @@ public partial class SoDoPhongPage : Page
     {
         var card = sender as FrameworkElement;
         var vm = card?.Tag as PhongCardViewModel;
-        if (vm != null)
+        if (vm == null) return;
+
+        // Single-click: chỉ chọn phòng để load panel chi tiết, không clear multi-select.
+        _viewModel.SelectedRoom = vm;
+
+        // Double-click vào vùng trống của card (không phải checkbox): toggle chọn nhiều cho phòng Trống.
+        if (e.ClickCount >= 2 && !IsClickFrom<CheckBox>(e.OriginalSource) && vm.MaTrangThaiPhong == PhongTrangThaiCodes.Trong)
         {
-            // Nếu đang có phòng được check -> clear hết
-            if (_viewModel.IsMultiSelectMode)
-                _viewModel.ClearAllSelectedRooms();
-            _viewModel.SelectedRoom = vm;
+            vm.IsSelected = !vm.IsSelected;
+            e.Handled = true;
         }
+    }
+
+    private static bool IsClickFrom<T>(object? originalSource) where T : DependencyObject
+    {
+        var current = originalSource as DependencyObject;
+        while (current != null)
+        {
+            if (current is T) return true;
+            current = VisualTreeHelper.GetParent(current);
+        }
+        return false;
     }
 
     private void FilterButton_Click(object sender, RoutedEventArgs e)

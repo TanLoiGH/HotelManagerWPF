@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
@@ -35,10 +36,10 @@ public class HoaDonService : IHoaDonService
         string maDatPhong, string maNhanVien,
         string? maKhuyenMai = null)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
 
         bool hdExist = await _db.HoaDons
-            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đã hủy");
+            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != HoaDonTrangThaiTexts.DaHuy);
 
         if (hdExist)
             throw new InvalidOperationException("Đặt phòng này đã có hóa đơn active.");
@@ -92,7 +93,7 @@ public class HoaDonService : IHoaDonService
             Vat = vatPercent,
             MaKhuyenMai = maKhuyenMai,
             TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, 0, vatPercent, tienCoc, giamGia),
-            TrangThai = "Chưa thanh toán"
+            TrangThai = HoaDonTrangThaiTexts.ChuaThanhToan
         };
 
         _db.HoaDons.Add(hd);
@@ -186,7 +187,7 @@ public class HoaDonService : IHoaDonService
         if (loaiGiaoDich == "Hoàn tiền" && soTien > 0)
             soTien = -soTien; // Phiếu thanh toán phải là số âm để cấn trừ công nợ Hóa Đơn
 
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
 
         try
         {
@@ -292,7 +293,7 @@ public class HoaDonService : IHoaDonService
             bool daThuDu = tongDaThuMoi >= tongThanhToanThuc;
 
             if (daThuDu)
-                hd.TrangThai = "Đã thanh toán";
+                hd.TrangThai = HoaDonTrangThaiTexts.DaThanhToan;
 
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
@@ -313,7 +314,7 @@ public class HoaDonService : IHoaDonService
 
     public async Task<ThongTinThanhToan> DongBoTrangThaiThanhToanAsync(string maHoaDon)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
 
         try
         {
@@ -326,9 +327,9 @@ public class HoaDonService : IHoaDonService
                 .Where(t => t.MaHoaDon == maHoaDon)
                 .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
-            if (tongDaThu >= tongThanhToan && hd.TrangThai != "Đã thanh toán")
+            if (tongDaThu >= tongThanhToan && hd.TrangThai != HoaDonTrangThaiTexts.DaThanhToan)
             {
-                hd.TrangThai = "Đã thanh toán";
+                hd.TrangThai = HoaDonTrangThaiTexts.DaThanhToan;
                 await _db.SaveChangesAsync();
             }
 
@@ -348,10 +349,10 @@ public class HoaDonService : IHoaDonService
     }
 
     // Cap nhat tong tien khi khach tra som (khong check out, chi tinh lai so dem + tong tien).
-    // Neu sau khi tinh lai tongDaThu >= TongThanhToan thi tu dong dong bo TrangThai = "Đã thanh toán".
-    public async Task<ThongTinThanhToan> CapNhatTienPhongKhiTraSomAsync(string maHoaDon, DateTime thoiDiemTraPhong)
-    {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            // Neu sau khi tinh lai tongDaThu >= TongThanhToan thi tu dong dong bo TrangThai = "Đã thanh toán".
+            public async Task<ThongTinThanhToan> CapNhatTienPhongKhiTraSomAsync(string maHoaDon, DateTime thoiDiemTraPhong)
+            {
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
 
         try
         {
@@ -372,8 +373,8 @@ public class HoaDonService : IHoaDonService
                 .Where(t => t.MaHoaDon == maHoaDon)
                 .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
-            if (tongDaThu >= tongThanhToan && hd.TrangThai != "Đã thanh toán")
-                hd.TrangThai = "Đã thanh toán";
+            if (tongDaThu >= tongThanhToan && hd.TrangThai != HoaDonTrangThaiTexts.DaThanhToan)
+                hd.TrangThai = HoaDonTrangThaiTexts.DaThanhToan;
 
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
@@ -402,7 +403,7 @@ public class HoaDonService : IHoaDonService
 
     public async Task TraPhongAsync(string maHoaDon, string maNhanVien, DateTime? thoiDiem = null)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
 
         try
         {
@@ -418,7 +419,7 @@ public class HoaDonService : IHoaDonService
                 throw new InvalidOperationException("Hóa đơn không gắn với đặt phòng.");
 
             var dp = hd.MaDatPhongNavigation;
-            if (dp.TrangThai == "Đã trả phòng")
+            if (dp.TrangThai == DatPhongTrangThaiTexts.DaTraPhong)
             {
                 await tx.RollbackAsync();
                 return;
@@ -456,15 +457,15 @@ public class HoaDonService : IHoaDonService
                 throw new InvalidOperationException($"Khách đang dư {tongDaThu - tongThanhToanThuc:N0}đ. Vui lòng nhấn nút Thanh Toán, chọn 'Hoàn tiền' ở ComboBox để trả lại khách trước khi trả phòng.");
 
             // 3. Nếu mọi thứ đã khớp (TongDaThu == TongThanhToan), tiến hành trả phòng
-            hd.TrangThai = "Đã thanh toán";
+            hd.TrangThai = HoaDonTrangThaiTexts.DaThanhToan;
 
             foreach (var ct in dp.DatPhongChiTiets ?? [])
             {
                 var p = await _db.Phongs.FindAsync(ct.MaPhong);
-                if (p != null) p.MaTrangThaiPhong = "PTT03"; // Chuyển sang dọn dẹp
+                if (p != null) p.MaTrangThaiPhong = PhongTrangThaiCodes.DonDep; // Chuyển sang dọn dẹp
             }
 
-            dp.TrangThai = "Đã trả phòng";
+            dp.TrangThai = DatPhongTrangThaiTexts.DaTraPhong;
 
             if (!string.IsNullOrWhiteSpace(dp.MaKhachHang))
                 await _khachHangSvc.NangHangAsync(dp.MaKhachHang, tongThanhToanThuc);
@@ -526,7 +527,7 @@ public class HoaDonService : IHoaDonService
     {
         var hoaDons = await _db.HoaDons
             .Include(h => h.MaDatPhongNavigation)
-            .Where(h => h.TrangThai == "Chưa thanh toán")
+            .Where(h => h.TrangThai == HoaDonTrangThaiTexts.ChuaThanhToan)
             .ToListAsync();
 
         if (hoaDons.Count == 0)

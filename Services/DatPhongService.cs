@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
@@ -17,7 +18,7 @@ public class DatPhongService : IDatPhongService
     {
         // 1. Kiểm tra hóa đơn đã tồn tại cho mã đặt phòng này chưa
         bool hdExist = await _db.HoaDons
-            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != "Đã hủy");
+            .AnyAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != HoaDonTrangThaiTexts.DaHuy);
 
         if (hdExist) return;
 
@@ -60,7 +61,7 @@ public class DatPhongService : IDatPhongService
             TienDichVu = 0,
             Vat = vatPercent,
             TongThanhToan = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, 0, vatPercent, tienCoc, 0),
-            TrangThai = "Chưa thanh toán"
+            TrangThai = HoaDonTrangThaiTexts.ChuaThanhToan
         };
 
         _db.HoaDons.Add(hd);
@@ -91,8 +92,8 @@ public class DatPhongService : IDatPhongService
                   d => d.MaDatPhong,
                   (c, d) => new { c, d })
             .AnyAsync(x =>
-                x.d.TrangThai != "Đã trả phòng" &&
-                x.d.TrangThai != "Đã hủy" &&
+                x.d.TrangThai != DatPhongTrangThaiTexts.DaTraPhong &&
+                x.d.TrangThai != DatPhongTrangThaiTexts.DaHuy &&
                 x.c.NgayNhan < ngayTra &&
                 x.c.NgayTra > ngayNhan);
 
@@ -116,7 +117,7 @@ public class DatPhongService : IDatPhongService
                 throw new InvalidOperationException($"Ngày trả phòng {maPhong} phải sau hoặc bằng ngày nhận.");
         }
 
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
         try
         {
             int tongSucChua = 0;
@@ -146,7 +147,7 @@ public class DatPhongService : IDatPhongService
                 MaNhanVien = maNhanVien,
                 NgayDat = TimeHelper.GetVietnamTime(),
                 TienCoc = tienCoc,
-                TrangThai = "Chờ nhận phòng",
+                TrangThai = DatPhongTrangThaiTexts.ChoNhanPhong,
                 NgayNhanDuKien = rooms.Min(r => r.NgayNhan),
                 NgayTraDuKien = rooms.Max(r => r.NgayTra)
             };
@@ -171,7 +172,7 @@ public class DatPhongService : IDatPhongService
                     MaNhanVien = maNhanVien
                 });
 
-                phong.MaTrangThaiPhong = "PTT05"; // Đã đặt
+                phong.MaTrangThaiPhong = PhongTrangThaiCodes.DaDat; // Đã đặt
             }
 
             await _db.SaveChangesAsync();
@@ -185,7 +186,7 @@ public class DatPhongService : IDatPhongService
     #region CHECK-IN & HỦY PHÒNG
     public async Task CheckInAsync(string maDatPhong, string maNhanVienLeTan)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
         try
         {
             var dp = await _db.DatPhongs
@@ -193,16 +194,16 @@ public class DatPhongService : IDatPhongService
                 .FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong)
                 ?? throw new KeyNotFoundException("Không tìm thấy thông tin đặt phòng.");
 
-            if (dp.TrangThai != "Chờ nhận phòng")
+            if (dp.TrangThai != DatPhongTrangThaiTexts.ChoNhanPhong)
                 throw new InvalidOperationException($"Không thể nhận phòng. Trạng thái hiện tại: {dp.TrangThai}");
 
-            dp.TrangThai = "Đang ở";
+            dp.TrangThai = DatPhongTrangThaiTexts.DangO;
 
             // Cập nhật trạng thái từng phòng trong đoàn sang "Đang ở"
             foreach (var ct in dp.DatPhongChiTiets)
             {
                 var phong = await _db.Phongs.FindAsync(ct.MaPhong);
-                if (phong != null) phong.MaTrangThaiPhong = "PTT02"; // Đang có khách
+                if (phong != null) phong.MaTrangThaiPhong = PhongTrangThaiCodes.DangO; // Đang có khách
 
                 // Cập nhật lại ngày nhận thực tế là lúc Check-in
                 ct.NgayNhan = TimeHelper.GetVietnamTime();
@@ -220,7 +221,7 @@ public class DatPhongService : IDatPhongService
 
     public async Task HuyDatPhongAsync(string maDatPhong, string lyDo, decimal tienHoanTra = 0)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
         try
         {
             var dp = await _db.DatPhongs
@@ -240,7 +241,7 @@ public class DatPhongService : IDatPhongService
             }
             else
             {
-                dp.TrangThai = "Đã hủy";
+                dp.TrangThai = DatPhongTrangThaiTexts.DaHuy;
             }
 
             // Giải phóng các phòng trong đoàn
@@ -251,9 +252,9 @@ public class DatPhongService : IDatPhongService
                 {
                     bool isOccupiedElsewhere = await _db.DatPhongChiTiets
                         .AnyAsync(c => c.MaPhong == ct.MaPhong && c.MaDatPhong != maDatPhong &&
-                                      c.MaDatPhongNavigation!.TrangThai == "Đang ở");
+                                      c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.DangO);
 
-                    if (!isOccupiedElsewhere) phong.MaTrangThaiPhong = "PTT01"; // Trống
+                    if (!isOccupiedElsewhere) phong.MaTrangThaiPhong = PhongTrangThaiCodes.Trong; // Trống
                 }
             }
 
@@ -267,7 +268,7 @@ public class DatPhongService : IDatPhongService
     #region GIA HẠN & ĐỔI PHÒNG (SẴN SÀNG CHO CHUYỂN PHÒNG)
     public async Task GiaHanAsync(string maDatPhong, string maPhong, DateTime ngayTraMoi)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
 
         var ct = await _db.DatPhongChiTiets.FirstOrDefaultAsync(x => x.MaDatPhong == maDatPhong && x.MaPhong == maPhong)
             ?? throw new KeyNotFoundException("Không tìm thấy chi tiết phòng cần gia hạn.");
@@ -285,7 +286,7 @@ public class DatPhongService : IDatPhongService
 
     public async Task DoiPhongAsync(string maDatPhong, string maPhongCu, string maPhongMoi)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
         try
         {
             var ctCu = await _db.DatPhongChiTiets
@@ -345,7 +346,7 @@ public class DatPhongService : IDatPhongService
     // 1. Hủy đặt phòng
     public async Task HuyDatPhongAsync(string maDatPhong, string maNhanVien)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted); 
         try
         {
             var dp = await _db.DatPhongs.Include(d => d.DatPhongChiTiets).FirstOrDefaultAsync(d => d.MaDatPhong == maDatPhong);
@@ -379,10 +380,10 @@ public class DatPhongService : IDatPhongService
             foreach (var ct in dp.DatPhongChiTiets)
             {
                 var p = await _db.Phongs.FindAsync(ct.MaPhong);
-                if (p != null) p.MaTrangThaiPhong = "PTT01";
+                if (p != null) p.MaTrangThaiPhong = PhongTrangThaiCodes.Trong;
             }
 
-            dp.TrangThai = "Đã hủy";
+            dp.TrangThai = DatPhongTrangThaiTexts.DaHuy;
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
         }
@@ -395,7 +396,7 @@ public class DatPhongService : IDatPhongService
         var p = await _db.Phongs.FindAsync(maPhong);
         if (p != null)
         {
-            p.MaTrangThaiPhong = "PTT01"; // Chuyển về Trống
+            p.MaTrangThaiPhong = PhongTrangThaiCodes.Trong; // Chuyển về Trống
             await _db.SaveChangesAsync();
         }
     }

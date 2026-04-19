@@ -1,5 +1,6 @@
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -106,11 +107,11 @@ public class DashboardViewModel : BaseViewModel
                     BarWidth = (double)s.Count / (tongPhong > 0 ? tongPhong : 1) * 80,
                     MauSac = new SolidColorBrush(s.MaTrangThai switch
                     {
-                        "PTT01" => Color.FromRgb(16, 185, 129),
-                        "PTT02" => Color.FromRgb(225, 29, 72),
-                        "PTT03" => Color.FromRgb(245, 158, 11),
-                        "PTT04" => Color.FromRgb(100, 116, 139),
-                        "PTT05" => Color.FromRgb(99, 102, 241),
+                        PhongTrangThaiCodes.Trong => Color.FromRgb(16, 185, 129),
+                        PhongTrangThaiCodes.DangO => Color.FromRgb(225, 29, 72),
+                        PhongTrangThaiCodes.DonDep => Color.FromRgb(245, 158, 11),
+                        PhongTrangThaiCodes.BaoTri => Color.FromRgb(100, 116, 139),
+                        PhongTrangThaiCodes.DaDat => Color.FromRgb(99, 102, 241),
                         _ => Color.FromRgb(100, 116, 139),
                     })
                 });
@@ -159,4 +160,4 @@ public class BarChartItem { public string ThangText { get; set; } = ""; public d
 public class PhongStatusItem { public string TenTT { get; set; } = ""; public int SoPhong { get; set; } public double BarWidth { get; set; } public SolidColorBrush MauSac { get; set; } = new(Colors.Gray); }
 public class TopDichVuItem { public string TenDV { get; set; } = ""; public int SoLan { get; set; } }
 public class ChiPhiItem { public string Loai { get; set; } = ""; public decimal Tong { get; set; } public double BarWidth { get; set; } public string TongText => Tong.ToString("N0") + " ₫"; }
-public class DashboardBookingItem { public string MaDatPhong { get; set; } = ""; public string TenKhachHang { get; set; } = ""; public string TrangThai { get; set; } = ""; public SolidColorBrush StatusColor => TrangThai switch { "Chờ nhận phòng" => new SolidColorBrush(Color.FromRgb(99, 102, 241)), "Đang ở" => new SolidColorBrush(Color.FromRgb(16, 185, 129)), "Đã trả phòng" => new SolidColorBrush(Color.FromRgb(100, 116, 139)), _ => new SolidColorBrush(Color.FromRgb(37, 99, 235)), }; }
+public class DashboardBookingItem { public string MaDatPhong { get; set; } = ""; public string TenKhachHang { get; set; } = ""; public string TrangThai { get; set; } = ""; public SolidColorBrush StatusColor => TrangThai switch { DatPhongTrangThaiTexts.ChoNhanPhong => new SolidColorBrush(Color.FromRgb(99, 102, 241)), DatPhongTrangThaiTexts.DangO => new SolidColorBrush(Color.FromRgb(16, 185, 129)), DatPhongTrangThaiTexts.DaTraPhong => new SolidColorBrush(Color.FromRgb(100, 116, 139)), _ => new SolidColorBrush(Color.FromRgb(37, 99, 235)), }; }

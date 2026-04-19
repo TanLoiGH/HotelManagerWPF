@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Reports.DTO;
 
@@ -32,23 +33,23 @@ public class ReportService
 
         if (loadProcedures)
         {
-            cmd.CommandText =
-            "SELECT s.name + '.' + p.name as FullName, p.name as ProcName " +
-            "FROM sys.procedures p " +
-            "INNER JOIN sys.schemas s ON s.schema_id = p.schema_id " +
-            "WHERE p.name LIKE 'SP_BAO_CAO%' " +
-            "AND s.name = 'dbo' " +
-            "ORDER BY s.name, p.name";
+            cmd.CommandText = $@"
+SELECT s.name + '.' + p.name as FullName, p.name as ProcName
+FROM sys.procedures p
+INNER JOIN sys.schemas s ON s.schema_id = p.schema_id
+WHERE p.name LIKE '{ReportDbObjects.BaoCaoProcedureLikePattern}'
+AND s.name = '{ReportDbObjects.DefaultSchema}'
+ORDER BY s.name, p.name";
         }
         else
         {
-            cmd.CommandText =
-            "SELECT s.name + '.' + v.name as FullName, v.name as ViewName " +
-            "FROM sys.views v " +
-            "INNER JOIN sys.schemas s ON s.schema_id = v.schema_id " +
-            "WHERE v.name LIKE 'VW_%' " +
-            "AND s.name = 'dbo' " +
-            "ORDER BY s.name, v.name";
+            cmd.CommandText = $@"
+SELECT s.name + '.' + v.name as FullName, v.name as ViewName
+FROM sys.views v
+INNER JOIN sys.schemas s ON s.schema_id = v.schema_id
+WHERE v.name LIKE '{ReportDbObjects.ViewLikePattern}'
+AND s.name = '{ReportDbObjects.DefaultSchema}'
+ORDER BY s.name, v.name";
         }
         cmd.CommandType = CommandType.Text;
         await using var reader = await cmd.ExecuteReaderAsync();
@@ -75,13 +76,13 @@ public class ReportService
             await conn.OpenAsync();
 
         await using var cmd = conn.CreateCommand();
-        var (schema, name) = ParseTwoPartName(fullName, "dbo");
+        var (schema, name) = ParseTwoPartName(fullName, ReportDbObjects.DefaultSchema);
 
         if (isView)
         {
             cmd.CommandType = CommandType.Text;
             var qualified = $"{QuoteIdentifier(schema)}.{QuoteIdentifier(name)}";
-            cmd.CommandText = $"SELECT TOP (5000) * FROM {qualified}";
+            cmd.CommandText = $"SELECT TOP ({ReportDbObjects.MaxRows}) * FROM {qualified}";
         }
         else
         {
@@ -108,10 +109,10 @@ public class ReportService
     private static string FormatDisplayName(string objectName, bool isProcedure)
     {
         string clean = objectName;
-        if (isProcedure && clean.StartsWith("SP_BAO_CAO_"))
-            clean = clean["SP_BAO_CAO_".Length..];
-        else if (!isProcedure && clean.StartsWith("VW_"))
-            clean = clean["VW_".Length..];
+        if (isProcedure && clean.StartsWith(ReportDbObjects.BaoCaoProcedureDisplayPrefix))
+            clean = clean[ReportDbObjects.BaoCaoProcedureDisplayPrefix.Length..];
+        else if (!isProcedure && clean.StartsWith(ReportDbObjects.ViewDisplayPrefix))
+            clean = clean[ReportDbObjects.ViewDisplayPrefix.Length..];
 
         clean = Regex.Replace(clean, "([a-z])([A-Z])", "$1 $2");
         return clean.Trim();

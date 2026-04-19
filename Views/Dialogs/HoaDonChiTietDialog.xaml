@@ -193,6 +193,10 @@
                                     Binding="{Binding TenDichVu}"
                                     Header="Dịch vụ" />
                                 <DataGridTextColumn
+                                    Width="120"
+                                    Binding="{Binding Phong}"
+                                    Header="Thành tiền" />
+                                <DataGridTextColumn
                                     Width="70"
                                     Binding="{Binding SoLuong}"
                                     Header="SL" />
@@ -266,7 +270,7 @@
                                 HorizontalAlignment="Right"
                                 DockPanel.Dock="Right"
                                 FontWeight="Bold"
-                                Text="{Binding TongBillHienThi}" />
+                                Text="{Binding TongThanhToanHienThi}" />
                         </DockPanel>
 
                         <DockPanel Grid.Row="5" Margin="0,4">
@@ -342,7 +346,7 @@
                                     HorizontalAlignment="Right"
                                     DockPanel.Dock="Right"
                                     FontWeight="SemiBold"
-                                    Text="{Binding TongBillHienThi}" />
+                                    Text="{Binding TongThanhToanHienThi}" />
                             </DockPanel>
                             <DockPanel Margin="0,4">
                                 <TextBlock DockPanel.Dock="Left" Text="Đã thanh toán:" />

@@ -217,12 +217,32 @@
                                         Width="200"
                                         Height="180"
                                         helpers:ThemeProperties.ShadowBlurRadius="20"
-                                        helpers:ThemeProperties.ShadowColor="{Binding ShadowColor}"
                                         helpers:ThemeProperties.ShadowOpacity="0.3"
-                                        Background="{Binding CardBackground}"
                                         MouseLeftButtonDown="PhongCard_Click"
-                                        Style="{DynamicResource MacFluent.RoomCard}"
                                         Tag="{Binding}">
+                                        <ContentControl.Style>
+                                            <Style BasedOn="{StaticResource MacFluent.RoomCard}" TargetType="ContentControl">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+                                                <Setter Property="helpers:ThemeProperties.ShadowColor" Value="{DynamicResource Color.BrandPrimary}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT01">
+                                                        <Setter Property="helpers:ThemeProperties.ShadowColor" Value="{DynamicResource Color.RoomAvailable}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT02">
+                                                        <Setter Property="helpers:ThemeProperties.ShadowColor" Value="{DynamicResource Color.RoomOccupied}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT03">
+                                                        <Setter Property="helpers:ThemeProperties.ShadowColor" Value="{DynamicResource Color.RoomCleaning}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT04">
+                                                        <Setter Property="helpers:ThemeProperties.ShadowColor" Value="{DynamicResource Color.RoomMaintenance}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT05">
+                                                        <Setter Property="helpers:ThemeProperties.ShadowColor" Value="{DynamicResource Color.RoomReserved}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
                                         <Grid Margin="12">
                                             <Grid.ContextMenu>
                                                 <ContextMenu>
@@ -268,13 +288,56 @@
                                                     Margin="0,3,0,2"
                                                     Padding="8,5"
                                                     VerticalAlignment="Center"
-                                                    Background="{Binding BadgeBackground}"
                                                     CornerRadius="10">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="{DynamicResource Brush.RoomMaintenanceSoft}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT01">
+                                                                    <Setter Property="Background" Value="{DynamicResource Brush.RoomAvailableSoft}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT02">
+                                                                    <Setter Property="Background" Value="{DynamicResource Brush.RoomOccupiedSoft}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT03">
+                                                                    <Setter Property="Background" Value="{DynamicResource Brush.RoomCleaningSoft}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT04">
+                                                                    <Setter Property="Background" Value="{DynamicResource Brush.RoomMaintenanceSoft}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT05">
+                                                                    <Setter Property="Background" Value="{DynamicResource Brush.RoomReservedSoft}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
                                                     <TextBlock
                                                         FontSize="13"
                                                         FontWeight="Bold"
-                                                        Foreground="{Binding BadgeForeground}"
-                                                        Text="{Binding TenTrangThai}" />
+                                                        Text="{Binding TenTrangThai}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="{DynamicResource Brush.RoomMaintenance}" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT01">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.RoomAvailable}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT02">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.RoomOccupied}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT03">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.RoomCleaning}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT04">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.RoomMaintenance}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT05">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.RoomReserved}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
                                                 </Border>
                                                 <StackPanel
                                                     Grid.Row="1"
@@ -304,8 +367,30 @@
                                                     Margin="0,20,0,2"
                                                     HorizontalAlignment="Center"
                                                     FontSize="32"
-                                                    Opacity="0.4"
-                                                    Text="{Binding StatusIcon}" />
+                                                    Opacity="0.4">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="ℹ️" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT01">
+                                                                    <Setter Property="Text" Value="✨" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT02">
+                                                                    <Setter Property="Text" Value="👤" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT03">
+                                                                    <Setter Property="Text" Value="🧹" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT04">
+                                                                    <Setter Property="Text" Value="🛠️" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding MaTrangThaiPhong}" Value="PTT05">
+                                                                    <Setter Property="Text" Value="📅" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
                                                 <TextBlock
                                                     MaxHeight="34"
                                                     HorizontalAlignment="Center"
@@ -346,8 +431,23 @@
                                 CornerRadius="12">
                                 <Border.Style>
                                     <Style TargetType="Border">
-                                        <Setter Property="Background" Value="{Binding SelectedRoom.BadgeForeground}" />
+                                        <Setter Property="Background" Value="{DynamicResource Brush.BrandPrimary}" />
                                         <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedRoom.MaTrangThaiPhong}" Value="PTT01">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.RoomAvailable}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedRoom.MaTrangThaiPhong}" Value="PTT02">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.RoomOccupied}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedRoom.MaTrangThaiPhong}" Value="PTT03">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.RoomCleaning}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedRoom.MaTrangThaiPhong}" Value="PTT04">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.RoomMaintenance}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedRoom.MaTrangThaiPhong}" Value="PTT05">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.RoomReserved}" />
+                                            </DataTrigger>
                                             <DataTrigger Binding="{Binding IsMultiSelectMode}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource Brush.BrandPrimary}" />
                                             </DataTrigger>

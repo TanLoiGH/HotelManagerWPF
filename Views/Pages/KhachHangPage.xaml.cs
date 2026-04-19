@@ -116,6 +116,9 @@ public partial class KhachHangPage : Page
                     TxtCCCD.Text.Trim(),
                     TxtEmail.Text.Trim(),
                     TxtDiaChi.Text.Trim(),
+                    TxtPassport.Text.Trim(),
+                    TxtVisa.Text.Trim(),
+                    TxtQuocTich.Text.Trim(),
                     CboLoaiKhach.SelectedValue as string ?? "LK001");
             }
             else if (_selected != null)
@@ -127,6 +130,9 @@ public partial class KhachHangPage : Page
                     TxtCCCD.Text.Trim(),
                     TxtEmail.Text.Trim(),
                     TxtDiaChi.Text.Trim(),
+                    TxtPassport.Text.Trim(),
+                    TxtVisa.Text.Trim(),
+                    TxtQuocTich.Text.Trim(),
                     CboLoaiKhach.SelectedValue as string);
             }
 

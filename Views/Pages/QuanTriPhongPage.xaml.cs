@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
@@ -120,7 +121,7 @@ public partial class QuanTriPhongPage : Page
             TxtMaPhong.IsEnabled = true;
             TxtMaPhong.Text = "";
             CboLoaiPhong.SelectedIndex = 0;
-            CboTrangThai.SelectedValue = "PTT01";
+            CboTrangThai.SelectedValue = PhongTrangThaiCodes.Trong;
             TxtHint.Text = "Gợi ý: nhập mã phòng theo chuẩn của khách sạn (VD: 101, 102, P101...).";
             PanelTienNghi.Visibility = Visibility.Collapsed;
             _tienNghiItems.Clear();
@@ -226,7 +227,7 @@ public partial class QuanTriPhongPage : Page
             return;
         }
 
-        string maTrangThai = CboTrangThai.SelectedValue as string ?? "PTT01";
+        string maTrangThai = CboTrangThai.SelectedValue as string ?? PhongTrangThaiCodes.Trong;
 
         if (!ConfirmHelper.ConfirmSave($"phòng {maPhong}")) return;
 

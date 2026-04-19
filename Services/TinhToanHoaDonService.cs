@@ -23,14 +23,10 @@ public static class TinhToanHoaDonService
 
     public static decimal TinhTongThanhToan(decimal tienPhong, decimal tienDichVu, decimal vatPercent, decimal tienCoc, decimal giamGia)
     {
-        decimal tongTruocVat = (tienPhong + tienDichVu) - giamGia;
-        if (tongTruocVat < 0) tongTruocVat = 0;
-
-        decimal tienVat = tongTruocVat * (vatPercent / 100m);
-
-        // SỬA Ở ĐÂY: Nếu cọc lớn hơn tổng bill thì Tổng cần thanh toán là 0đ (phần dư sẽ trả bằng Phiếu Hoàn Tiền)
-        decimal tongThanhToan = (tongTruocVat + tienVat) - tienCoc;
-
+        decimal tongTienGoc = tienPhong + tienDichVu;
+        decimal tienVat = tongTienGoc * (vatPercent / 100m);
+        decimal tongThanhToan = (tongTienGoc + tienVat) - giamGia - tienCoc;
+        // Đảm bảo không âm (nếu cọc lớn hơn tổng bill thì trả về 0đ)
         return tongThanhToan < 0 ? 0 : tongThanhToan;
     }
 

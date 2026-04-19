@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
@@ -44,8 +45,8 @@ public class PhongService : IPhongService
             .AsNoTracking()
             .Include(c => c.MaDatPhongNavigation)
                 .ThenInclude(dp => dp.MaKhachHangNavigation)
-            .Where(c => c.MaDatPhongNavigation.TrangThai == "Đang ở" ||
-                        c.MaDatPhongNavigation.TrangThai == "Chờ nhận phòng")
+            .Where(c => c.MaDatPhongNavigation.TrangThai == DatPhongTrangThaiTexts.DangO ||
+                        c.MaDatPhongNavigation.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong)
             .ToListAsync();
     }
 
@@ -57,7 +58,7 @@ public class PhongService : IPhongService
             .Include(c => c.MaDatPhongNavigation)
                 .ThenInclude(dp => dp.MaKhachHangNavigation)
             .Where(c => c.MaPhong == maPhong &&
-                        c.MaDatPhongNavigation.TrangThai == "Chờ nhận phòng")
+                        c.MaDatPhongNavigation.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong)
             .OrderByDescending(c => c.MaDatPhongNavigation.NgayDat)
             .FirstOrDefaultAsync();
     }
@@ -107,7 +108,7 @@ public class PhongService : IPhongService
                 p.MaPhong,
                 p.MaLoaiPhong,
                 p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
-                p.MaTrangThaiPhong ?? "PTT01",
+                p.MaTrangThaiPhong ?? PhongTrangThaiCodes.Trong,
                 p.MaTrangThaiPhongNavigation != null ? (p.MaTrangThaiPhongNavigation.TenTrangThai ?? "") : "",
                 p.DatPhongChiTiets.Any() || p.TienNghiPhongs.Any() || p.ChiPhis.Any()))
             .ToListAsync();
@@ -187,15 +188,15 @@ public class PhongService : IPhongService
         if (p == null) return;
 
         bool coDangO = await _db.DatPhongChiTiets
-            .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == "Đang ở");
+            .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.DangO);
 
         bool coChoNhan = await _db.DatPhongChiTiets
-            .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == "Chờ nhận phòng");
+            .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong);
 
-        if (coDangO && maTrangThai != "PTT02")
+        if (coDangO && maTrangThai != PhongTrangThaiCodes.DangO)
             throw new InvalidOperationException("Phong dang o, khong the chuyen sang trang thai khac.");
 
-        if (!coDangO && coChoNhan && maTrangThai != "PTT05")
+        if (!coDangO && coChoNhan && maTrangThai != PhongTrangThaiCodes.DaDat)
             throw new InvalidOperationException("Phong dang duoc dat, chi co the de trang thai 'Da dat'.");
 
         p.MaLoaiPhong = maLoaiPhong;

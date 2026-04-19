@@ -21,7 +21,7 @@ public class CaiDatViewModel : BaseViewModel
     private string _hotelEmail = "";
     private string _defaultCheckIn = "14:00";
     private string _defaultCheckOut = "12:00";
-    private int _vatPercent = 8;
+    private int _vatPercent = 10;
 
     // Thông tin tài khoản/nhân viên
     private string _maNhanVien = "";

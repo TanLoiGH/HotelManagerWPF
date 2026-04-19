@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
@@ -64,12 +64,6 @@ public partial class SoDoPhongViewModel : BaseViewModel
         get => _selectedRoom;
         set
         {
-            // Nếu đang có phòng được check và người dùng chọn phòng khác -> hỏi hoặc tự động clear
-            if (value != null && IsMultiSelectMode)
-            {
-                ClearAllSelectedRooms();
-            }
-
             if (SetProperty(ref _selectedRoom, value))
             {
                 OnPropertyChanged(nameof(IsRoomSelected));
@@ -82,8 +76,8 @@ public partial class SoDoPhongViewModel : BaseViewModel
     }
 
     public bool IsRoomSelected => SelectedRoom != null;
-    public bool IsRoomAvailable => SelectedRoom?.MaTrangThaiPhong == "PTT01";
-    public bool IsRoomReserved => SelectedRoom?.MaTrangThaiPhong == "PTT05";
+    public bool IsRoomAvailable => SelectedRoom?.MaTrangThaiPhong == PhongTrangThaiCodes.Trong;
+    public bool IsRoomReserved => SelectedRoom?.MaTrangThaiPhong == PhongTrangThaiCodes.DaDat;
     public bool IsRoomOccupied => SelectedRoom != null && !IsRoomAvailable && !IsRoomReserved;
 
     public string RoomCountText => $"{_allPhongs.Count} phòng";
@@ -162,17 +156,17 @@ public partial class SoDoPhongViewModel : BaseViewModel
 
                 _allPhongs.Clear();
 
-                // Sửa lỗi ở đây: Bao bọc bằng ngoặc nhọn để code chạy đúng vòng lặp
+                var dictBookings = activeBookings.ToDictionary(b => b.MaPhong);                // Sửa lỗi ở đây: Bao bọc bằng ngoặc nhọn để code chạy đúng vòng lặp
                 foreach (var p in rooms)
                 {
-                    var booking = activeBookings.FirstOrDefault(b => b.MaPhong == p.MaPhong);
+                    dictBookings.TryGetValue(p.MaPhong, out var booking);
 
                     var vm = new PhongCardViewModel
                     {
                         MaPhong = p.MaPhong,
                         TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
                         TenTrangThai = p.MaTrangThaiPhongNavigation?.TenTrangThai ?? "",
-                        MaTrangThaiPhong = p.MaTrangThaiPhong ?? "PTT01",
+                        MaTrangThaiPhong = p.MaTrangThaiPhong ?? PhongTrangThaiCodes.Trong,
                         SoNguoiToiDa = p.MaLoaiPhongNavigation.SoNguoiToiDa ?? 0,
                         GiaPhong = p.MaLoaiPhongNavigation.GiaPhong,
                         Tang = LayTangTuMaPhong(p.MaPhong),
@@ -268,12 +262,6 @@ public class PhongCardViewModel : BaseViewModel
             return int.TryParse(digits, out var n) ? n : 0;
         }
     }
-
-    public static SolidColorBrush CardBackground => new(Color.FromRgb(255, 255, 255));
-    public SolidColorBrush BadgeBackground => MaTrangThaiPhong switch { "PTT01" => new SolidColorBrush(Color.FromRgb(209, 250, 229)), "PTT02" => new SolidColorBrush(Color.FromRgb(255, 228, 230)), "PTT03" => new SolidColorBrush(Color.FromRgb(254, 243, 199)), "PTT04" => new SolidColorBrush(Color.FromRgb(241, 245, 249)), "PTT05" => new SolidColorBrush(Color.FromRgb(224, 231, 255)), _ => new SolidColorBrush(Color.FromRgb(241, 245, 249)), };
-    public SolidColorBrush BadgeForeground => MaTrangThaiPhong switch { "PTT01" => new SolidColorBrush(Color.FromRgb(16, 185, 129)), "PTT02" => new SolidColorBrush(Color.FromRgb(225, 29, 72)), "PTT03" => new SolidColorBrush(Color.FromRgb(245, 158, 11)), "PTT04" => new SolidColorBrush(Color.FromRgb(100, 116, 139)), "PTT05" => new SolidColorBrush(Color.FromRgb(99, 102, 241)), _ => new SolidColorBrush(Color.FromRgb(100, 116, 139)), };
-    public Color ShadowColor => MaTrangThaiPhong switch { "PTT01" => Color.FromRgb(16, 185, 129), "PTT02" => Color.FromRgb(225, 29, 72), "PTT03" => Color.FromRgb(245, 158, 11), "PTT05" => Color.FromRgb(99, 102, 241), _ => Color.FromRgb(37, 99, 235), };
-    public string StatusIcon => MaTrangThaiPhong switch { "PTT01" => "✨", "PTT02" => "👤", "PTT03" => "🧹", "PTT04" => "🛠️", "PTT05" => "📅", _ => "ℹ️" };
     public string? GuestName { get; set; }
     public string InfoText => !string.IsNullOrEmpty(GuestName) ? GuestName : "Chưa có thông tin";
     public string CaptionText => $"{TenLoaiPhong}";

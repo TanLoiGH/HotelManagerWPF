@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Dtos;
@@ -13,7 +14,7 @@ public class DashboardService
     public async Task<DashboardData> GetDashboardAsync(DateTime tuNgay, DateTime denNgay)
     {
         var doanhThu = await _db.HoaDons
-            .Where(h => h.TrangThai == "Đã thanh toán"
+            .Where(h => h.TrangThai == HoaDonTrangThaiTexts.DaThanhToan
                      && h.NgayLap >= tuNgay
                      && h.NgayLap <= denNgay)
             .SumAsync(h => (decimal?)h.TongThanhToan) ?? 0;
@@ -64,7 +65,4 @@ public class DashboardService
         };
     }
 }
-
-
-
 
