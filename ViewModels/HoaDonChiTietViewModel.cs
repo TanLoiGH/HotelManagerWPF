@@ -62,6 +62,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private PhuongThucThanhToanDto? _phuongThucThanhToanDuocChon;
     private string _loaiGiaoDichDuocChon = "Thanh toán cuối";
     private string _noiDung = "";
+    private decimal _tongDaThu;
     #endregion
 
     #region THUỘC TÍNH (PROPERTIES)
@@ -130,6 +131,20 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     public decimal TienCoc { get => _tienCoc; private set { if (SetProperty(ref _tienCoc, value)) OnPropertyChanged(nameof(TienCocHienThi)); } }
     public decimal TongThanhToan { get => _tongThanhToan; private set => SetProperty(ref _tongThanhToan, value); }
     public string KhuyenMai { get => _khuyenMai; private set => SetProperty(ref _khuyenMai, value); }
+
+    public decimal TongDaThu
+    {
+        get => _tongDaThu;
+        private set { if (SetProperty(ref _tongDaThu, value)) OnPropertyChanged(nameof(TongDaThuHienThi)); }
+    }
+
+    public string TongBillHienThi => $"{TongThanhToan:N0} ₫";
+    public string TongDaThuHienThi => $"{TongDaThu:N0} ₫";
+
+    // Đổi label linh hoạt tùy theo việc khách thiếu hay dư tiền
+    public string LabelDuNo => ConLai > 0 ? "KHÁCH NỢ:" : "KHÁCH DƯ:";
+    public string SoTienDuNoHienThi => $"{Math.Abs(ConLai):N0} ₫";
+
 
     public string TienPhongHienThi => $"{TienPhong:N0} ₫";
     public string TienDichVuHienThi => $"{TienDichVu:N0} ₫";
@@ -287,7 +302,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             TienCoc = hd.MaDatPhongNavigation?.TienCoc ?? 0;
             KhuyenMai = hd.MaKhuyenMaiNavigation?.TenKhuyenMai ?? "Không";
 
-            TongThanhToan = (TienPhong + TienDichVu + VatAmount) - TienCoc;
+            TongThanhToan = (TienPhong + TienDichVu + VatAmount);
 
             var maPhongDangChon = SelectedPhong?.MaPhong;
             Phongs.Clear();
@@ -382,12 +397,15 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         foreach (var t in items) LichSuThanhToan.Add(t);
 
         OnPropertyChanged(nameof(CoLichSu));
-        decimal tongDaThu = items.Sum(t => t.SoTien);
+        decimal tongDaThuLichSu = items.Sum(t => t.SoTien);
 
-        // ConLai này đã bao gồm cả Tiền Cọc (vì TongThanhToan ở hàm trên đã trừ cọc)
-        ConLai = TongThanhToan - tongDaThu;
+        // Tổng đã thu = Tiền Cọc + Các lần thanh toán trong lịch sử
+        TongDaThu = TienCoc + tongDaThuLichSu;
+        ConLai = TongThanhToan - TongDaThu;
 
-        // TỐI ƯU UX: Tự động điền số tiền và loại giao dịch
+        OnPropertyChanged(nameof(LabelDuNo));
+        OnPropertyChanged(nameof(SoTienDuNoHienThi));
+
         if (CoTheChinhSua)
         {
             if (ConLai > 0)

@@ -194,18 +194,29 @@ public class HoaDonService : IHoaDonService
             var hd = await _db.HoaDons
                 .Include(h => h.MaDatPhongNavigation)
                     .ThenInclude(d => d!.DatPhongChiTiets)
+                .Include(h => h.MaKhuyenMaiNavigation)
                 .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
 
             if (hd == null)
                 return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, "Không tìm thấy hoá đơn.");
 
-            var tienCoc = hd.MaDatPhongNavigation?.TienCoc ?? 0;
-            var tongThanhToanThuc = (hd.TongThanhToan ?? 0) + tienCoc;
+            // TÍNH LẠI TỔNG TIỀN GỐC TƯƠNG TỰ NHƯ TRÊN
+            decimal tienPhong = hd.TienPhong ?? 0;
+            decimal tienDv = hd.TienDichVu ?? 0;
+            decimal vatPercent = hd.Vat ?? 0;
+            decimal giamGia = 0;
+
+            var km = hd.MaKhuyenMaiNavigation ?? (!string.IsNullOrWhiteSpace(hd.MaKhuyenMai) ? await _db.KhuyenMais.FindAsync(hd.MaKhuyenMai) : null);
+            if (km is { IsActive: true } && km.NgayBatDau <= DateTime.Now && DateTime.Now <= km.NgayKetThuc)
+                giamGia = TinhToanHoaDonService.TinhGiamGia(tienPhong, tienDv, km.LoaiKhuyenMai ?? "", km.GiaTriKm ?? 0);
+
+            decimal tongThanhToanThuc = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, tienDv, vatPercent, 0, giamGia);
 
             var tongDaThuLichSu = await _db.ThanhToans
                 .Where(t => t.MaHoaDon == maHoaDon)
                 .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
+            var tienCoc = hd.MaDatPhongNavigation?.TienCoc ?? 0;
             var tongDaThuHienTai = tongDaThuLichSu + tienCoc;
 
             // Bắt lỗi logic dòng tiền (Chống "Hoàn tiền" lố hoặc chốt sổ 0đ khi còn nợ)
@@ -416,19 +427,31 @@ public class HoaDonService : IHoaDonService
             // 1. Tính toán lại bill chốt hạ lần cuối trước khi trả phòng
             await CapNhatTienPhongTheoThoiDiemTraPhongAsync(hd, thoiDiem ?? TimeHelper.GetVietnamTime());
 
-            // 2. TÍNH LẠI CÔNG NỢ: Cộng thêm Tiền Cọc vào Tổng Đã Thu
-            var tongThuTrongLichSu = await _db.ThanhToans
+            // 2. TÍNH LẠI CÔNG NỢ ĐÚNG CHUẨN (Bypass lỗi ép số âm về 0 của DB)
+            decimal tienPhong = hd.TienPhong ?? 0;
+            decimal tienDv = hd.TienDichVu ?? 0;
+            decimal vatPercent = hd.Vat ?? 0;
+            decimal giamGia = 0;
+
+            var km = hd.MaKhuyenMaiNavigation;
+            if (km is { IsActive: true } && km.NgayBatDau <= DateTime.Now && DateTime.Now <= km.NgayKetThuc)
+                giamGia = TinhToanHoaDonService.TinhGiamGia(tienPhong, tienDv, km.LoaiKhuyenMai ?? "", km.GiaTriKm ?? 0);
+
+            // CỐ TÌNH truyền tienCoc = 0 vào hàm tính để lấy TỔNG TIỀN GỐC (Tránh bị ép về 0)
+            decimal tongThanhToanThuc = TinhToanHoaDonService.TinhTongThanhToan(tienPhong, tienDv, vatPercent, 0, giamGia);
+
+            // Tổng tiền khách đã đưa = Lịch sử thanh toán + Tiền cọc ban đầu
+            var tongDaThuLichSu = await _db.ThanhToans
                 .Where(t => t.MaHoaDon == maHoaDon)
                 .SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
             var tienCoc = dp.TienCoc ?? 0;
-            var tongDaThu = tongThuTrongLichSu + tienCoc;
+            var tongDaThu = tongDaThuLichSu + tienCoc;
 
-            var tongThanhToanThuc = (hd.TongThanhToan ?? 0) + tienCoc;
-
-            // 2. CHECK LOGIC: Bắt buộc nhân viên phải giải quyết tiền dư/nợ qua UI trước
+            // 3. CHECK LOGIC BÁO LỖI (Bây giờ sẽ báo chính xác 1.356.000đ)
             if (tongDaThu < tongThanhToanThuc)
-                throw new InvalidOperationException($"Chưa thanh toán đủ (còn nợ {tongThanhToanThuc - tongDaThu:N0}đ). Vui lòng thanh toán trước khi trả phòng.");  
+                throw new InvalidOperationException($"Chưa thanh toán đủ (còn nợ {tongThanhToanThuc - tongDaThu:N0}đ). Vui lòng thanh toán trước khi trả phòng.");
+
             if (tongDaThu > tongThanhToanThuc)
                 throw new InvalidOperationException($"Khách đang dư {tongDaThu - tongThanhToanThuc:N0}đ. Vui lòng nhấn nút Thanh Toán, chọn 'Hoàn tiền' ở ComboBox để trả lại khách trước khi trả phòng.");
 

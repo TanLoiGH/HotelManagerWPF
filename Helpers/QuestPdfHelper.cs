@@ -231,17 +231,22 @@ public static class QuestPdfHelper
         catch { }
     }
 
-    #region HÀM ĐỌC SỐ THÀNH CHỮ TIẾNG VIỆT
-    private static string NumberToText(long inputNumber)
+    #region HÀM ĐỌC SỐ THÀNH CHỮ TIẾNG VIỆT
+    private static string NumberToText(long inputNumber)
     {
+        // 1. CHẶN LỖI SỐ KHÔNG NGAY TỪ ĐẦU
+        if (inputNumber == 0) return "Không";
+
         string[] unitNumbers = new string[] { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
         string[] placeValues = new string[] { "", "nghìn", "triệu", "tỷ" };
         bool isNegative = false;
+
         if (inputNumber < 0) { isNegative = true; inputNumber = -inputNumber; }
 
-        string sNumber = inputNumber.ToString("#");
-        long number = Convert.ToInt64(sNumber);
-        if (number == 0) return "Không";
+        // 2. SỬA FORMAT SỐ (Thay "#" thành "0" để chuỗi không bao giờ rỗng)
+        string sNumber = inputNumber.ToString("0");
+
+        if (string.IsNullOrWhiteSpace(sNumber)) return "Không"; // Chặn kép an toàn
 
         string result = "", tmp = "";
         int[] position = new int[6];
@@ -263,6 +268,9 @@ public static class QuestPdfHelper
 
         result = result.Trim();
         if (isNegative) result = "Âm " + result;
+
+        if (string.IsNullOrEmpty(result)) return "Không"; // Tránh lỗi Substring ở dòng dưới
+
         return result.Substring(0, 1).ToUpper() + result.Substring(1);
 
         string ReadGroup(int groupNumber)

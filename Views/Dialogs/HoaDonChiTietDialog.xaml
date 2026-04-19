@@ -130,6 +130,9 @@
                             Text="Ngày lập HĐ" />
                         <TextBlock Text="{Binding NgayLap, StringFormat=dd/MM/yyyy}" />
 
+                        <TextBlock Foreground="{DynamicResource Brush.TextSecondary}" Text="Mã đặt phòng:" />
+                        <TextBlock FontWeight="SemiBold" Text="{Binding MaDatPhong}" />
+
                         <TextBlock Foreground="{DynamicResource Brush.TextLabel}" Text="Trạng thái" />
                         <TextBlock
                             FontWeight="Bold"
@@ -220,58 +223,82 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
 
-                        <TextBlock
-                            Grid.Row="0"
-                            Foreground="{DynamicResource Brush.TextLabel}"
-                            Text="Tiền phòng" />
-                        <TextBlock
-                            Grid.Row="0"
-                            Grid.Column="1"
-                            FontWeight="SemiBold"
-                            Text="{Binding TienPhongHienThi}" />
+                        <DockPanel Grid.Row="0" Margin="0,4">
+                            <TextBlock DockPanel.Dock="Left" Text="Tổng tiền phòng" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Text="{Binding TienPhongHienThi}" />
+                        </DockPanel>
 
-                        <TextBlock
-                            Grid.Row="1"
-                            Margin="0,6,0,0"
-                            Foreground="{DynamicResource Brush.TextLabel}"
-                            Text="Tiền dịch vụ" />
-                        <TextBlock
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            Margin="0,6,0,0"
-                            FontWeight="SemiBold"
-                            Text="{Binding TienDichVuHienThi}" />
+                        <DockPanel Grid.Row="1" Margin="0,4">
+                            <TextBlock DockPanel.Dock="Left" Text="Tổng dịch vụ" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Text="{Binding TienDichVuHienThi}" />
+                        </DockPanel>
 
-                        <TextBlock
-                            Grid.Row="2"
-                            Margin="0,6,0,0"
-                            Foreground="{DynamicResource Brush.TextLabel}"
-                            Text="VAT" />
-                        <TextBlock
-                            Grid.Row="2"
-                            Grid.Column="1"
-                            Margin="0,6,0,0"
-                            Text="{Binding VatPhanTramHienThi}" />
+                        <DockPanel Grid.Row="2" Margin="0,4">
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding VatPercent, StringFormat='VAT ({0:N0}%):'}" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Text="{Binding TienVatHienThi}" />
+                        </DockPanel>
 
-                        <TextBlock
+                        <Separator
                             Grid.Row="3"
-                            Margin="0,10,0,0"
-                            FontWeight="Bold"
-                            Text="TỔNG THANH TOÁN" />
-                        <TextBlock
-                            Grid.Row="3"
-                            Grid.Column="1"
-                            Margin="0,10,0,0"
-                            FontSize="20"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource Brush.BrandPrimary}"
-                            Text="{Binding TongThanhToanHienThi}" />
+                            Margin="0,8"
+                            Background="Gray" />
+
+                        <DockPanel Grid.Row="4" Margin="0,4">
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                FontWeight="Bold"
+                                Text="TỔNG BILL:" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                FontWeight="Bold"
+                                Text="{Binding TongBillHienThi}" />
+                        </DockPanel>
+
+                        <DockPanel Grid.Row="5" Margin="0,4">
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                Foreground="Red"
+                                Text="Đã đặt cọc:" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Foreground="Red"
+                                Text="{Binding TienCocHienThi}" />
+                        </DockPanel>
+
+                        <Separator
+                            Grid.Row="6"
+                            Margin="0,8"
+                            Background="Gray" />
+
+                        <DockPanel Grid.Row="7" Margin="0,4">
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                FontWeight="Bold"
+                                Foreground="#0078D7"
+                                Text="{Binding LabelDuNo}" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                FontWeight="Bold"
+                                Foreground="#0078D7"
+                                Text="{Binding SoTienDuNoHienThi}" />
+                        </DockPanel>
                     </Grid>
                 </Border>
             </Grid>
@@ -294,25 +321,6 @@
                     </Grid.RowDefinitions>
 
                     <!--  THANH TOÁN  -->
-                    <Grid
-                        Grid.Row="1"
-                        Margin="0,4"
-                        Visibility="{Binding TienCoc, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='>0'}">
-                        <TextBlock
-                            FontStyle="Italic"
-                            Foreground="#D32F2F"
-                            Text="Đã trừ tiền cọc:" />
-                        <TextBlock
-                            HorizontalAlignment="Right"
-                            FontWeight="Bold"
-                            Foreground="#D32F2F"
-                            Text="{Binding TienCocHienThi}" />
-                        <TextBlock
-                            Margin="0,15,0,0"
-                            HorizontalAlignment="Right"
-                            Foreground="BlueViolet"
-                            Text="---------------------" />
-                    </Grid>
                     <TextBlock
                         Grid.Row="0"
                         Margin="0,0,0,10"
@@ -320,6 +328,48 @@
                         FontWeight="Bold"
                         Foreground="{DynamicResource Brush.Heading}"
                         Text="THANH TOÁN" />
+
+                    <Border
+                        Grid.Row="1"
+                        Margin="0,0,0,15"
+                        Padding="15"
+                        Background="{DynamicResource Brush.SurfaceSecondary}"
+                        CornerRadius="8">
+                        <StackPanel>
+                            <DockPanel Margin="0,4">
+                                <TextBlock DockPanel.Dock="Left" Text="Tổng bill:" />
+                                <TextBlock
+                                    HorizontalAlignment="Right"
+                                    DockPanel.Dock="Right"
+                                    FontWeight="SemiBold"
+                                    Text="{Binding TongBillHienThi}" />
+                            </DockPanel>
+                            <DockPanel Margin="0,4">
+                                <TextBlock DockPanel.Dock="Left" Text="Đã thanh toán:" />
+                                <TextBlock
+                                    HorizontalAlignment="Right"
+                                    DockPanel.Dock="Right"
+                                    FontWeight="SemiBold"
+                                    Text="{Binding TongDaThuHienThi}" />
+                            </DockPanel>
+
+                            <Separator Margin="0,5" />
+
+                            <DockPanel Margin="0,4">
+                                <TextBlock
+                                    DockPanel.Dock="Left"
+                                    FontWeight="Bold"
+                                    Foreground="Red"
+                                    Text="{Binding LabelDuNo}" />
+                                <TextBlock
+                                    HorizontalAlignment="Right"
+                                    DockPanel.Dock="Right"
+                                    FontWeight="Bold"
+                                    Foreground="Red"
+                                    Text="{Binding SoTienDuNoHienThi}" />
+                            </DockPanel>
+                        </StackPanel>
+                    </Border>
 
                     <StackPanel Grid.Row="2" Margin="0,0,0,12">
                         <TextBlock
