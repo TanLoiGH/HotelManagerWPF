@@ -1,8 +1,10 @@
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views;
 
@@ -13,10 +15,9 @@ public partial class LoginWindow : Window
     public LoginWindow()
     {
         InitializeComponent();
-        _db = new QuanLyKhachSanContext();
-        var vm = new LoginViewModel(new AuthService(_db));
-        vm.LoginSuccess += () => DialogResult = true;
-        DataContext = vm;
+        // Thay vì new AuthService(_db), hãy lấy từ ServiceProvider
+        var authService = App.ServiceProvider.GetRequiredService<IAuthService>();
+        DataContext = new LoginViewModel(authService);
     }
 
     private void Window_DragMove(object sender, MouseButtonEventArgs e)
@@ -44,24 +45,18 @@ public partial class LoginWindow : Window
 
     private void TriggerLogin()
     {
-        if (DataContext is LoginViewModel vm &&
-            vm.LoginCommand.CanExecute(PbPassword))
-        {
+        if (DataContext is LoginViewModel vm && vm.LoginCommand.CanExecute(PbPassword))
             vm.LoginCommand.Execute(PbPassword);
-        }
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        // Đóng dialog đăng nhập một cách "sạch" (App/MainWindow sẽ quyết định shutdown hay mở MainWindow)
         if (Application.Current?.ShutdownMode == ShutdownMode.OnExplicitShutdown)
         {
             DialogResult = false;
             Close();
             return;
         }
-
-        // Fallback: nếu LoginWindow được mở như window thường
         Close();
     }
 

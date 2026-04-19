@@ -19,5 +19,6 @@ namespace QuanLyKhachSan_PhamTanLoi.Services.Interfaces
         Task<ThongTinThanhToan> ThanhToanVaTraKetQuaAsync(string maHoaDon, decimal soTien, string maPTTT, string nguoiThu, string loaiGiaoDich = "Thanh toán cuối", string? noiDung = null);
         Task TraPhongAsync(string maHoaDon, string maNhanVien, DateTime? thoiDiem = null);
         Task<HoaDon> XuatHoaDonAsync(string maDatPhong, string maNhanVien, string? maKhuyenMai = null);
+        Task HuyHoaDonAsync(string maHoaDon);
     }
 }

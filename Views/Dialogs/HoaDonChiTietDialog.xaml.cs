@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Services;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
@@ -16,13 +17,12 @@ public partial class HoaDonChiTietDialog : Window
     {
         InitializeComponent();
 
-        _db = new QuanLyKhachSanContext();
-        var khSvc = new KhachHangService(_db);
-        var hdSvc = new HoaDonService(_db, khSvc);
-        var dvSvc = new DichVuService(_db);
-        var hopThoai = new HopThoaiServiceWpf();
-        var inHoaDon = new InHoaDonServiceWpf();
-        var chonDichVu = new ChonDichVuServiceWpf();
+        // ✅ Lấy toàn bộ Service từ DI thay vì 'new' thủ công
+        var hdSvc = App.ServiceProvider.GetRequiredService<IHoaDonService>();
+        var dvSvc = App.ServiceProvider.GetRequiredService<IDichVuService>();
+        var hopThoai = App.ServiceProvider.GetRequiredService<IHopThoaiService>();
+        var inHoaDon = App.ServiceProvider.GetRequiredService<IInHoaDonService>();
+        var chonDichVu = App.ServiceProvider.GetRequiredService<IChonDichVuService>();
 
         _vm = new HoaDonChiTietViewModel(
             maHoaDon,

@@ -2,6 +2,7 @@ using System.Windows;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
@@ -38,6 +39,9 @@ public class CaiDatViewModel : BaseViewModel
     private string _matKhauCu = "";
     private string _matKhauMoi = "";
     private string _xacNhanMatKhau = "";
+    private EmployeeService employeeService;
+    private IAuthService authService;
+    private IHoaDonService hoaDonService;
 
     public CaiDatViewModel(EmployeeService employeeSvc, AuthService authSvc, HoaDonService hoaDonSvc)
     {
@@ -54,6 +58,13 @@ public class CaiDatViewModel : BaseViewModel
 
         LoadSystemSettings();
         _ = LoadCurrentUserInfoAsync();
+    }
+
+    public CaiDatViewModel(EmployeeService employeeService, IAuthService authService, IHoaDonService hoaDonService)
+    {
+        this.employeeService = employeeService;
+        this.authService = authService;
+        this.hoaDonService = hoaDonService;
     }
 
     public string HotelName

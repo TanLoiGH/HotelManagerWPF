@@ -1,27 +1,24 @@
-using System.Windows.Controls;
-using QuanLyKhachSan_PhamTanLoi.Data;
+using Microsoft.Extensions.DependencyInjection;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 using QuanLyKhachSan_PhamTanLoi.ViewModels;
+using System.Windows.Controls;
 
 namespace QuanLyKhachSan_PhamTanLoi.Views.Pages
 {
-    /// <summary>
-    /// Interaction logic for CaiDatPage.xaml
-    /// </summary>
     public partial class CaiDatPage : Page
     {
-        private readonly QuanLyKhachSanContext _db;
-
         public CaiDatPage()
         {
             InitializeComponent();
-            _db = new QuanLyKhachSanContext();
-            DataContext = new CaiDatViewModel(
-                new EmployeeService(_db),
-                new AuthService(_db),
-                new HoaDonService(_db, new KhachHangService(_db)));
-            Unloaded += (_, _) => _db.Dispose();
-        }
 
+            // Lấy các Service đã được DI Container cấu hình sẵn
+            // Không dùng 'new' để tránh lỗi thiếu tham số auditService
+            var employeeService = App.ServiceProvider.GetRequiredService<EmployeeService>();
+            var authService = App.ServiceProvider.GetRequiredService<IAuthService>();
+            var hoaDonService = App.ServiceProvider.GetRequiredService<IHoaDonService>();
+
+            DataContext = new CaiDatViewModel(employeeService, authService, hoaDonService);
+        }
     }
 }

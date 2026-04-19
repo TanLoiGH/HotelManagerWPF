@@ -68,6 +68,9 @@ public partial class QuanLyKhachSanContext : DbContext
 
     public virtual DbSet<TrangThaiNhanVien> TrangThaiNhanViens { get; set; } = null!;
 
+    public virtual DbSet<HeThongNhatKy> HeThongNhatKys { get; set; } = null!;
+
+
     public DbSet<VwDoanhThuThang> VwDoanhThuThangs { get; set; } = null!;
     public DbSet<VwCoCauChiPhi> VwCoCauChiPhis { get; set; } = null!;
     public DbSet<VwTopDichVu> VwTopDichVus { get; set; } = null!;

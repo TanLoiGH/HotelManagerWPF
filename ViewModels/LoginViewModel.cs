@@ -1,6 +1,7 @@
 using System.Windows.Controls;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Services;
+using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
@@ -10,6 +11,7 @@ public class LoginViewModel : BaseViewModel
     private string _tenDangNhap = "";
     private string _errorMessage = "";
     private bool _isLoading;
+    private IAuthService authService;
 
     public string TenDangNhap
     {
@@ -42,6 +44,11 @@ public class LoginViewModel : BaseViewModel
     {
         _authSvc = authSvc;
         LoginCommand = new RelayCommand(ExecuteLogin, _ => !IsLoading);
+    }
+
+    public LoginViewModel(IAuthService authService)
+    {
+        this.authService = authService;
     }
 
     private async void ExecuteLogin(object? parameter)
