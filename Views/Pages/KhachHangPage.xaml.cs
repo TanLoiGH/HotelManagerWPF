@@ -74,6 +74,9 @@ public partial class KhachHangPage : Page
         TxtCCCD.Text = row?.Cccd ?? "";
         TxtEmail.Text = "";
         TxtDiaChi.Text = "";
+        TxtPassport.Text = row?.Passport ?? "";
+        TxtVisa.Text = row?.Visa ?? "";
+        TxtQuocTich.Text = row?.QuocTich ?? "";
         BtnXoa.IsEnabled = row != null;
 
         // Load thêm email/diachi nếu sửa

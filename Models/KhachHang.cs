@@ -7,7 +7,7 @@ public partial class KhachHang
 {
     public string MaKhachHang { get; set; } = null!;
 
-    public string TenKhachHang { get; set; } = null!;
+    public string? TenKhachHang { get; set; }
 
     public string? DienThoai { get; set; }
 

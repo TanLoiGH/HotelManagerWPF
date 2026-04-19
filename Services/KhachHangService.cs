@@ -205,11 +205,14 @@ public class KhachHangService : IKhachHangService
         return await q.Select(k => new KhachHangViewModel
         {
             MaKhachHang = k.MaKhachHang,
-            TenKhachHang = k.TenKhachHang,
+            TenKhachHang = k.TenKhachHang ?? "1",
             DienThoai = k.DienThoai ?? "",
             Email = k.Email ?? "",
             Cccd = k.Cccd ?? "",
             DiaChi = k.DiaChi ?? "",
+            Passport = k.Passport,
+            Visa = k.Visa,
+            QuocTich = k.QuocTich,
             TenLoaiKhach = k.MaLoaiKhachNavigation != null
                            ? k.MaLoaiKhachNavigation.TenLoaiKhach ?? "" : "",
             TongTichLuy = k.TongTichLuy ?? 0

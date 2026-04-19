@@ -118,7 +118,10 @@
                             Width="120"
                             Binding="{Binding TichLuyText}"
                             Header="Tích lũy" />
-                        <DataGridTextColumn Width="120" Binding="{Binding QuocTich}" />
+                        <DataGridTextColumn
+                            Width="120"
+                            Binding="{Binding QuocTich}"
+                            Header="Quốc tịch" />
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
