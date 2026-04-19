@@ -1,99 +1,207 @@
-<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.HoaDonPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
-                    
-      Background="Transparent" Title="Hoá Đơn">
+<Page
+    x:Class="QuanLyKhachSan_PhamTanLoi.Views.HoaDonPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+    Title="Hoá Đơn"
+    Background="Transparent">
 
     <Grid Margin="28,20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="Quản lý Hóa đơn" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource Brush.Accent}"/>
-                <Border Background="{DynamicResource Brush.SurfaceSoft}" CornerRadius="15" Padding="10,4" Margin="15,0,0,0">
+
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock
+                    FontSize="24"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource Brush.Accent}"
+                    Text="Quản lý Hóa đơn" />
+                <Border
+                    Margin="15,0,0,0"
+                    Padding="10,4"
+                    Background="{DynamicResource Brush.SurfaceSoft}"
+                    CornerRadius="15">
                     <StackPanel Orientation="Horizontal">
-                        <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="Green" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="TxtPrintStatus" Text="Máy in: Sẵn sàng" FontSize="12" VerticalAlignment="Center"/>
+                        <Ellipse
+                            x:Name="StatusDot"
+                            Width="8"
+                            Height="8"
+                            Margin="0,0,8,0"
+                            Fill="Green" />
+                        <TextBlock
+                            x:Name="TxtPrintStatus"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Text="Máy in: Sẵn sàng" />
                     </StackPanel>
                 </Border>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button x:Name="BtnTatCa" Content="Tất cả" Command="{Binding LocTrangThaiCommand}" CommandParameter="" Style="{DynamicResource MacFluent.FilterButton.Active}" Margin="0,0,8,0"/>
-                <Button Content="Chưa TT" Command="{Binding LocTrangThaiCommand}" CommandParameter="Chưa thanh toán" Style="{DynamicResource MacFluent.FilterButton}" Margin="0,0,8,0"/>
-                <Button Content="Đã TT" Command="{Binding LocTrangThaiCommand}" CommandParameter="Đã thanh toán" Style="{DynamicResource MacFluent.FilterButton}" Margin="0,0,8,0"/>
-                <Button Content="Đã hủy" Command="{Binding LocTrangThaiCommand}" CommandParameter="Đã hủy" Style="{DynamicResource MacFluent.FilterButton}"/>
+                <Button
+                    x:Name="BtnTatCa"
+                    Margin="0,0,8,0"
+                    Command="{Binding LocTrangThaiCommand}"
+                    CommandParameter=""
+                    Content="Tất cả"
+                    Style="{DynamicResource MacFluent.FilterButton.Active}" />
+                <Button
+                    Margin="0,0,8,0"
+                    Command="{Binding LocTrangThaiCommand}"
+                    CommandParameter="Chưa thanh toán"
+                    Content="Chưa TT"
+                    Style="{DynamicResource MacFluent.FilterButton}" />
+                <Button
+                    Margin="0,0,8,0"
+                    Command="{Binding LocTrangThaiCommand}"
+                    CommandParameter="Đã thanh toán"
+                    Content="Đã TT"
+                    Style="{DynamicResource MacFluent.FilterButton}" />
+                <Button
+                    Command="{Binding LocTrangThaiCommand}"
+                    CommandParameter="Đã hủy"
+                    Content="Đã hủy"
+                    Style="{DynamicResource MacFluent.FilterButton}" />
             </StackPanel>
         </Grid>
 
-        <!-- Search & Filter -->
+        <!--  Search & Filter  -->
         <Grid Grid.Row="1" Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Border CornerRadius="8" Background="{DynamicResource Brush.SurfaceSoft}" Padding="10,5">
+            <Border
+                Padding="10,5"
+                Background="{DynamicResource Brush.SurfaceSoft}"
+                CornerRadius="8">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="🔍" VerticalAlignment="Center" Margin="5,0,10,0" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                    <TextBox x:Name="TxtSearch" Grid.Column="1" Background="Transparent" BorderThickness="0" 
-                             VerticalAlignment="Center" FontSize="15" Tag="Tìm mã hóa đơn, tên khách..."
-                             Text="{Binding TuKhoaTimKiem, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock
+                        Margin="5,0,10,0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource Brush.TextPlaceholder}"
+                        Text="🔍" />
+                    <TextBox
+                        x:Name="TxtSearch"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontSize="15"
+                        Tag="Tìm mã hóa đơn, tên khách..."
+                        Text="{Binding TuKhoaTimKiem, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- DataGrid -->
-        <ContentControl Grid.Row="2"
-                        Background="{DynamicResource Brush.Surface}"
-                        BorderThickness="0"
-                        Style="{DynamicResource MacFluent.ShadowCard}"
-                        helpers:ThemeProperties.CornerRadius="16">
-            <DataGrid x:Name="HoaDonGrid" ItemsSource="{Binding HoaDonDaLoc}"
-                      AutoGenerateColumns="False" IsReadOnly="True"
-                      SelectionMode="Single" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" FontSize="15"
-                      BorderThickness="0" Padding="8" RowHeight="44"
-                      >
+        <!--  DataGrid  -->
+        <ContentControl
+            Grid.Row="2"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
+            <DataGrid
+                x:Name="HoaDonGrid"
+                Padding="8"
+                AutoGenerateColumns="False"
+                BorderThickness="0"
+                FontSize="15"
+                GridLinesVisibility="Horizontal"
+                HeadersVisibility="Column"
+                IsReadOnly="True"
+                ItemsSource="{Binding HoaDonDaLoc}"
+                RowHeight="44"
+                SelectionMode="Single">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Mã HD" Binding="{Binding MaHoaDon}" Width="90"/>
-                    <DataGridTextColumn Header="Khách hàng" Binding="{Binding TenKhachHang}" Width="*"/>
-                    <DataGridTextColumn Header="Ngày lập" Binding="{Binding NgayLapHienThi}" Width="110"/>
-                    <DataGridTextColumn Header="Tiền phòng" Binding="{Binding TienPhongHienThi}" Width="120"/>
-                    <DataGridTextColumn Header="Tiền DV" Binding="{Binding TienDichVuHienThi}" Width="100"/>
-                    <DataGridTextColumn Header="Tổng TT" Binding="{Binding TongThanhToanHienThi}" Width="120"/>
-                    <DataGridTemplateColumn Header="Trạng thái" Width="130">
+                    <DataGridTextColumn
+                        Width="90"
+                        Binding="{Binding MaHoaDon}"
+                        Header="Mã HD" />
+                    <DataGridTextColumn
+                        Width="*"
+                        Binding="{Binding TenKhachHang}"
+                        Header="Khách hàng" />
+                    <DataGridTextColumn
+                        Width="110"
+                        Binding="{Binding NgayLapHienThi}"
+                        Header="Ngày lập" />
+                    <DataGridTextColumn
+                        Width="120"
+                        Binding="{Binding TienPhongHienThi}"
+                        Header="Tiền phòng" />
+                    <DataGridTextColumn
+                        Width="100"
+                        Binding="{Binding TienDichVuHienThi}"
+                        Header="Tiền DV" />
+                    <DataGridTextColumn
+                        Width="120"
+                        Binding="{Binding TongThanhToanHienThi}"
+                        Header="Tổng TT" />
+                    <DataGridTemplateColumn Width="130" Header="Trạng thái">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="6" Padding="8,3" Margin="4"
-                                        Background="{Binding StatusColor}" HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding TrangThai}" FontSize="13" FontWeight="Bold" />
+                                <Border
+                                    Margin="4"
+                                    Padding="8,3"
+                                    HorizontalAlignment="Left"
+                                    Background="{Binding StatusColor}"
+                                    CornerRadius="6">
+                                    <TextBlock
+                                        FontSize="13"
+                                        FontWeight="Bold"
+                                        Text="{Binding TrangThai}" />
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="100" Header="Thao tác">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <Button
+                                        Margin="0,0,5,0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Click="BtnSua_Click"
+                                        Content="✏️"
+                                        Cursor="Hand"
+                                        ToolTip="Sửa hóa đơn" />
+                                    <Button
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Click="BtnXoa_Click"
+                                        Content="🗑️"
+                                        Cursor="Hand"
+                                        ToolTip="Huỷ hóa đơn" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+
                 </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <EventSetter Event="MouseLeftButtonUp" Handler="HoaDonRow_Click"/>
+                        <Setter Property="Cursor" Value="Hand" />
+                        <EventSetter Event="MouseLeftButtonUp" Handler="HoaDonRow_Click" />
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>

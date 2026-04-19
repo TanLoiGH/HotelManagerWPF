@@ -622,7 +622,27 @@ public class HoaDonService : IHoaDonService
             return km;
         return null;
     }
+
+    public async Task HuyHoaDonAsync(string maHoaDon)
+    {
+        var hd = await _db.HoaDons.FindAsync(maHoaDon);
+        if (hd == null) throw new KeyNotFoundException("Không tìm thấy hóa đơn.");
+
+        // Chỉ cho phép hủy hóa đơn chưa thanh toán (tùy nghiệp vụ của bạn)
+        if (hd.TrangThai == HoaDonTrangThaiTexts.DaThanhToan)
+            throw new InvalidOperationException("Không thể hủy hóa đơn đã thanh toán. Vui lòng làm quy trình hoàn tiền nếu cần.");
+
+        hd.TrangThai = HoaDonTrangThaiTexts.DaHuy; // Xóa mềm = Chuyển trạng thái
+        await _db.SaveChangesAsync();
+    }
+
+
+
+
 }
+
+
+
 
 public enum KetQuaThanhToan
 {
