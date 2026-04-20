@@ -28,8 +28,8 @@ public partial class ChiPhiPage : Page
         InitializeComponent();
         Loaded += (_, _) =>
         {
-            DpTuNgay.SelectedDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            DpDenNgay.SelectedDate = DateTime.Today;
+            DpTuNgay.SelectedDate = new DateTime(TimeHelper.GetVietnamTime().Year, TimeHelper.GetVietnamTime().Month, 1);
+            DpDenNgay.SelectedDate = TimeHelper.GetVietnamTime().Date;
         };
     }
 

@@ -348,7 +348,7 @@
                                         MouseLeftButtonDown="Nav_DanhMucTienNghi">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Margin="0,0,12,0" Text="🧰" />
-                                            <TextBlock Text="DM Tiện Nghi" />
+                                            <TextBlock Text="Tiện Nghi" />
                                         </StackPanel>
                                     </Border>
 

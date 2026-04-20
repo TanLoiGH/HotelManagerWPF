@@ -1,63 +1,106 @@
-<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.LoaiPhongPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
-      Background="Transparent" Title="Loại Phòng">
+<Page
+    x:Class="QuanLyKhachSan_PhamTanLoi.Views.LoaiPhongPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+    Title="Loại Phòng"
+    Background="Transparent">
 
     <Grid Margin="28,20">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="320" />
         </Grid.ColumnDefinitions>
 
-        <!-- Danh sách -->
-        <ContentControl Grid.Column="0"
-                        Background="{DynamicResource Brush.Surface}"
-                        BorderThickness="0"
-                        Style="{DynamicResource MacFluent.ShadowCard}"
-                        helpers:ThemeProperties.CornerRadius="16">
+        <!--  Danh sách  -->
+        <ContentControl
+            Grid.Column="0"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,0,1">
+                <Border
+                    Grid.Row="0"
+                    Padding="16,12"
+                    BorderBrush="{DynamicResource Brush.Border}"
+                    BorderThickness="0,0,0,1">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TxtTong" FontSize="16" FontWeight="Bold"
-                                   Foreground="{DynamicResource Brush.Heading}" VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Content="➕  Thêm"
-                                Height="36" Padding="16,0" FontSize="15"
-                                FontWeight="SemiBold" Cursor="Hand"
-                                Style="{DynamicResource MacFluent.ButtonAction.Add}"
-                                Click="BtnThem_Click"/>
+                        <TextBlock
+                            x:Name="TxtTong"
+                            VerticalAlignment="Center"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Foreground="{DynamicResource Brush.Heading}" />
+                        <Button
+                            Grid.Column="1"
+                            Height="36"
+                            Padding="16,0"
+                            Click="BtnThem_Click"
+                            Content="➕  Thêm"
+                            Cursor="Hand"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Style="{DynamicResource MacFluent.ButtonAction.Add}" />
                     </Grid>
                 </Border>
 
-                <DataGrid x:Name="LpGrid" Grid.Row="1"
-                          AutoGenerateColumns="False" IsReadOnly="True"
-                          SelectionMode="Single" HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal" FontSize="15"
-                          BorderThickness="0" Padding="8" RowHeight="44"
-                          SelectionChanged="LpGrid_SelectionChanged">
+                <DataGrid
+                    x:Name="LpGrid"
+                    Grid.Row="1"
+                    Padding="8"
+                    AutoGenerateColumns="False"
+                    BorderThickness="0"
+                    FontSize="15"
+                    GridLinesVisibility="Horizontal"
+                    HeadersVisibility="Column"
+                    IsReadOnly="True"
+                    RowHeight="44"
+                    SelectionChanged="LpGrid_SelectionChanged"
+                    SelectionMode="Single">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Mã" Binding="{Binding MaLoaiPhong}" Width="90"/>
-                        <DataGridTextColumn Header="Tên loại phòng" Binding="{Binding TenLoaiPhong}" Width="*"/>
-                        <DataGridTextColumn Header="Sức chứa" Binding="{Binding SoNguoiText}" Width="100"/>
-                        <DataGridTextColumn Header="Giá/đêm" Binding="{Binding GiaPhongText}" Width="140"/>
-                        <DataGridTextColumn Header="Số phòng" Binding="{Binding SoPhong}" Width="90"/>
+                        <DataGridTextColumn
+                            Width="90"
+                            Binding="{Binding MaLoaiPhong}"
+                            ElementStyle="{StaticResource CenterCell}"
+                            Header="Mã" />
+                        <DataGridTextColumn
+                            Width="*"
+                            Binding="{Binding TenLoaiPhong}"
+                            ElementStyle="{StaticResource CenterCell}"
+                            Header="Tên loại phòng" />
+                        <DataGridTextColumn
+                            Width="100"
+                            Binding="{Binding SoNguoiText}"
+                            ElementStyle="{StaticResource CenterCell}"
+                            Header="Sức chứa" />
+                        <DataGridTextColumn
+                            Width="140"
+                            Binding="{Binding GiaPhongText}"
+                            ElementStyle="{StaticResource CenterCell}"
+                            Header="Giá/đêm" />
+                        <DataGridTextColumn
+                            Width="90"
+                            Binding="{Binding SoPhong}"
+                            ElementStyle="{StaticResource CenterCell}"
+                            Header="Số phòng" />
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
-                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Cursor" Value="Hand" />
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}"/>
+                                    <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -66,71 +109,134 @@
             </Grid>
         </ContentControl>
 
-        <!-- Form -->
-        <ContentControl Grid.Column="2"
-                        Background="{DynamicResource Brush.Surface}" Padding="20"
-                        BorderThickness="0"
-                        Style="{DynamicResource MacFluent.ShadowCard}"
-                        helpers:ThemeProperties.CornerRadius="16">
+        <!--  Form  -->
+        <ContentControl
+            Grid.Column="2"
+            Padding="20"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
             <StackPanel>
-                <TextBlock x:Name="TxtFormTitle" Text="Chi tiết loại phòng" 
-                           FontSize="18" FontWeight="Bold"
-                           Foreground="{DynamicResource Brush.Heading}" Margin="0,0,0,20"/>
+                <TextBlock
+                    x:Name="TxtFormTitle"
+                    Margin="0,0,0,20"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource Brush.Heading}"
+                    Text="Chi tiết loại phòng" />
 
                 <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
-                    <TextBlock Text="🏠" FontSize="50" HorizontalAlignment="Center" Margin="0,30,0,12"/>
-                    <TextBlock Text="Chọn loại phòng hoặc bấm Thêm mới"
-                               FontSize="15" Foreground="{DynamicResource Brush.TextMuted}"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                    <TextBlock
+                        Margin="0,30,0,12"
+                        HorizontalAlignment="Center"
+                        FontSize="50"
+                        Text="🏠" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="15"
+                        Foreground="{DynamicResource Brush.TextMuted}"
+                        Text="Chọn loại phòng hoặc bấm Thêm mới"
+                        TextAlignment="Center" />
                 </StackPanel>
 
                 <StackPanel x:Name="PanelForm" Visibility="Collapsed">
 
-                    <TextBlock Text="Tên loại phòng *" FontSize="14" FontWeight="SemiBold"
-                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
-                            Height="36" Margin="0,0,0,12">
-                        <TextBox x:Name="TxtTen" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="15"/>
+                    <TextBlock
+                        Margin="0,0,0,4"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Tên loại phòng *" />
+                    <Border
+                        Height="36"
+                        Margin="0,0,0,12"
+                        BorderBrush="{DynamicResource Brush.Border}"
+                        BorderThickness="1.5"
+                        CornerRadius="8">
+                        <TextBox
+                            x:Name="TxtTen"
+                            Padding="10,0"
+                            VerticalAlignment="Center"
+                            BorderThickness="0"
+                            FontSize="15" />
                     </Border>
 
-                    <TextBlock Text="Sức chứa (người)" FontSize="14" FontWeight="SemiBold"
-                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
-                            Height="36" Margin="0,0,0,12">
-                        <TextBox x:Name="TxtSoNguoi" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="15"
-                                 TextAlignment="Right" Text="2"/>
+                    <TextBlock
+                        Margin="0,0,0,4"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Sức chứa (người)" />
+                    <Border
+                        Height="36"
+                        Margin="0,0,0,12"
+                        BorderBrush="{DynamicResource Brush.Border}"
+                        BorderThickness="1.5"
+                        CornerRadius="8">
+                        <TextBox
+                            x:Name="TxtSoNguoi"
+                            Padding="10,0"
+                            VerticalAlignment="Center"
+                            BorderThickness="0"
+                            FontSize="15"
+                            Text="2"
+                            TextAlignment="Right" />
                     </Border>
 
-                    <TextBlock Text="Giá/đêm (₫) *" FontSize="14" FontWeight="SemiBold"
-                               Foreground="{DynamicResource Brush.TextLabel}" Margin="0,0,0,4"/>
-                    <Border CornerRadius="8" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1.5"
-                            Height="36" Margin="0,0,0,20">
-                        <TextBox x:Name="TxtGia" BorderThickness="0" Padding="10,0"
-                                 VerticalAlignment="Center" FontSize="15"
-                                 TextAlignment="Right"/>
+                    <TextBlock
+                        Margin="0,0,0,4"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Giá/đêm (₫) *" />
+                    <Border
+                        Height="36"
+                        Margin="0,0,0,20"
+                        BorderBrush="{DynamicResource Brush.Border}"
+                        BorderThickness="1.5"
+                        CornerRadius="8">
+                        <TextBox
+                            x:Name="TxtGia"
+                            Padding="10,0"
+                            VerticalAlignment="Center"
+                            BorderThickness="0"
+                            FontSize="15"
+                            TextAlignment="Right" />
                     </Border>
 
-                    <!-- Danh sách phòng thuộc loại này -->
-                    <TextBlock x:Name="TxtPhongList" FontSize="14" Foreground="{DynamicResource Brush.TextPlaceholder}"
-                               Margin="0,0,0,20" TextWrapping="Wrap"/>
+                    <!--  Danh sách phòng thuộc loại này  -->
+                    <TextBlock
+                        x:Name="TxtPhongList"
+                        Margin="0,0,0,20"
+                        FontSize="14"
+                        Foreground="{DynamicResource Brush.TextPlaceholder}"
+                        TextWrapping="Wrap" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" x:Name="BtnXoa" Content="🗑 Xóa"
-                                Height="38" FontSize="15" Cursor="Hand"
-                                Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}"
-                                Click="BtnXoa_Click"/>
-                        <Button Grid.Column="2" Content="💾 Lưu"
-                                Height="38" FontSize="15" FontWeight="SemiBold"
-                                Cursor="Hand"
-                                Style="{DynamicResource MacFluent.ButtonPrimary}"
-                                Click="BtnLuu_Click"/>
+                        <Button
+                            x:Name="BtnXoa"
+                            Grid.Column="0"
+                            Height="38"
+                            Click="BtnXoa_Click"
+                            Content="🗑 Xóa"
+                            Cursor="Hand"
+                            FontSize="15"
+                            Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}" />
+                        <Button
+                            Grid.Column="2"
+                            Height="38"
+                            Click="BtnLuu_Click"
+                            Content="💾 Lưu"
+                            Cursor="Hand"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Style="{DynamicResource MacFluent.ButtonPrimary}" />
                     </Grid>
                 </StackPanel>
             </StackPanel>

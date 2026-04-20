@@ -276,7 +276,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             SelectedPhong = !string.IsNullOrWhiteSpace(maPhongDangChon) ? Phongs.FirstOrDefault(x => x.MaPhong == maPhongDangChon) ?? Phongs.FirstOrDefault() : Phongs.FirstOrDefault();
 
             DichVus.Clear();
-            foreach (var d in hd.DichVuChiTiets.Select(d => new DichVuItemVm { TenDichVu = d.MaDichVuNavigation.TenDichVu, SoLuong = d.SoLuong, DonGia = d.DonGia })) DichVus.Add(d);
+            foreach (var d in hd.DichVuChiTiets.Select(d => new DichVuItemVm { MaPhong = d.MaPhong, TenDichVu = d.MaDichVuNavigation.TenDichVu, SoLuong = d.SoLuong, DonGia = d.DonGia })) DichVus.Add(d);
 
             await Task.WhenAll(TaiLaiLichSuThanhToanNoiBoAsync(hd.ThanhToans), TaiLaiPhuongThucThanhToanAsync());
 
@@ -305,9 +305,9 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     private async Task TaiLaiPhuongThucThanhToanAsync()
     {
-        if (_cachePhuongThucThanhToan != null && (DateTime.Now - _thoiDiemTaiPttt) <= ThoiGianHetHanPttt) { GanDanhSachPhuongThucThanhToan(_cachePhuongThucThanhToan); return; }
+        if (_cachePhuongThucThanhToan != null && (TimeHelper.GetVietnamTime() - _thoiDiemTaiPttt) <= ThoiGianHetHanPttt) { GanDanhSachPhuongThucThanhToan(_cachePhuongThucThanhToan); return; }
         var list = await _hoaDon.LayDanhSachPhuongThucThanhToanAsync();
-        _cachePhuongThucThanhToan = list; _thoiDiemTaiPttt = DateTime.Now; GanDanhSachPhuongThucThanhToan(list);
+        _cachePhuongThucThanhToan = list; _thoiDiemTaiPttt = TimeHelper.GetVietnamTime(); GanDanhSachPhuongThucThanhToan(list);
     }
 
     private void GanDanhSachPhuongThucThanhToan(IEnumerable<PhuongThucThanhToanDto> danhSach)

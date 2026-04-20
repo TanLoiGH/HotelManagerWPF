@@ -72,18 +72,22 @@
                         <DataGridTextColumn
                             Width="90"
                             Binding="{Binding MaLoaiKhach}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Mã" />
                         <DataGridTextColumn
                             Width="*"
                             Binding="{Binding TenLoaiKhach}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Tên hạng" />
                         <DataGridTextColumn
                             Width="160"
                             Binding="{Binding NguongText}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Ngưỡng tích lũy" />
                         <DataGridTextColumn
                             Width="80"
                             Binding="{Binding SoKhachHang}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Số KH" />
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>

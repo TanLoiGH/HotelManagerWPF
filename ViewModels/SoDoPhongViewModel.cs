@@ -100,12 +100,13 @@ public partial class SoDoPhongViewModel : BaseViewModel
     public ICommand RefreshCommand { get; }
     public ICommand SelectKhachCommand { get; }
     public ICommand DatPhongCommand { get; }
-    public ICommand CheckInCommand { get; }
     public ICommand DoiPhongCommand { get; }
 
     public string SelectedMaDatPhong { get; set; } // Dùng để lưu mã đặt phòng khi chọn phòng PTT05
     public ICommand HuyDatPhongCommand { get; }
+    public ICommand HuyPhongRiengLeCommand { get; }
     public ICommand HoanThanhDonDepCommand { get; }
+    public ICommand CheckInRiengLeCommand { get; }
 
     // ── Constructor ─────────────────────────────────────────────────────────
     public SoDoPhongViewModel(PhongService roomService, KhachHangService khachHangService, DatPhongService datPhongService)
@@ -125,12 +126,14 @@ public partial class SoDoPhongViewModel : BaseViewModel
         RefreshCommand = new RelayCommand(async _ => await TaiDuLieuAsync());
         SelectKhachCommand = new RelayCommand(p => SelectedKhach = p as KhachHang);
         DatPhongCommand = new RelayCommand(async _ => await ThucHienDatPhongAsync());
-        CheckInCommand = new RelayCommand(async _ => await ThucHienNhanPhongAsync());
+        CheckInRiengLeCommand = new AsyncRelayCommand(async _ => await ThucHienCheckInRiengLeAsync(), _ => SelectedRoom != null && !string.IsNullOrEmpty(SelectedRoom.MaDatPhong));
         DoiPhongCommand = new RelayCommand(async _ => await ThucHienDoiPhongAsync());
 
+        HuyPhongRiengLeCommand = new AsyncRelayCommand(async _ => await ThucHienHuyPhongRiengLeAsync());
         HuyDatPhongCommand = new AsyncRelayCommand(async _ => await ThucHienHuyDatPhongAsync());
         HoanThanhDonDepCommand = new AsyncRelayCommand(async _ => await ThucHienHoanThanhDonDepAsync());
     }
+
 
     public void ClearAllSelectedRooms()
     {
@@ -164,6 +167,7 @@ public partial class SoDoPhongViewModel : BaseViewModel
                     var vm = new PhongCardViewModel
                     {
                         MaPhong = p.MaPhong,
+                        MaDatPhong = booking?.MaDatPhong ?? "",
                         TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
                         TenTrangThai = p.MaTrangThaiPhongNavigation?.TenTrangThai ?? "",
                         MaTrangThaiPhong = p.MaTrangThaiPhong ?? PhongTrangThaiCodes.Trong,
@@ -227,6 +231,7 @@ public partial class SoDoPhongViewModel : BaseViewModel
     }
 }
 
+
 // Giữ nguyên 2 class phụ trợ này ở file gốc
 public class TienNghiItem { public string TenTienNghi { get; set; } = ""; }
 
@@ -245,6 +250,7 @@ public class PhongCardViewModel : BaseViewModel
     public Action? OnSelectedChanged { get; set; }
 
     public string MaPhong { get; set; } = "";
+    public string MaDatPhong { get; set; } = "";
     public string TenLoaiPhong { get; set; } = "";
     public string TenTrangThai { get; set; } = "";
     public string MaTrangThaiPhong { get; set; } = "";

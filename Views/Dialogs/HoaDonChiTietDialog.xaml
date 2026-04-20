@@ -148,66 +148,104 @@
                 </Grid>
 
                 <!--  Tabs  -->
-                <TabControl Grid.Row="1">
-                    <TabItem Header="Phòng">
+                <TabControl
+                    Grid.Row="1"
+                    Margin="0,15,0,0"
+                    Background="White"
+                    BorderThickness="0,1,0,0">
+                    <TabItem Header="📋 Danh sách Phòng">
                         <DataGrid
                             AutoGenerateColumns="False"
-                            FontSize="18"
+                            BorderThickness="0"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            FontSize="16"
+                            GridLinesVisibility="Horizontal"
+                            HeadersVisibility="Column"
+                            HorizontalGridLinesBrush="#EDF0F5"
                             IsReadOnly="True"
                             ItemsSource="{Binding Phongs}"
-                            SelectedItem="{Binding SelectedPhong}">
+                            RowHeight="45"
+                            SelectedItem="{Binding SelectedPhong}"
+                            SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTextColumn
-                                    Width="90"
+                                    Width="100"
                                     Binding="{Binding MaPhong}"
+                                    ElementStyle="{StaticResource CenterCell}"
                                     Header="Phòng" />
+
                                 <DataGridTextColumn
-                                    Width="110"
-                                    Binding="{Binding NgayNhan, StringFormat=dd/MM}"
-                                    Header="Ngày nhận" />
+                                    Width="140"
+                                    Binding="{Binding NgayNhan, StringFormat=dd/MM/yyyy}"
+                                    ElementStyle="{StaticResource CenterCell}"
+                                    Header="Ngày Nhận" />
+
                                 <DataGridTextColumn
-                                    Width="110"
-                                    Binding="{Binding NgayTra, StringFormat=dd/MM}"
-                                    Header="Ngày trả" />
+                                    Width="140"
+                                    Binding="{Binding NgayTra, StringFormat=dd/MM/yyyy}"
+                                    ElementStyle="{StaticResource CenterCell}"
+                                    Header="Ngày Trả" />
+
                                 <DataGridTextColumn
                                     Width="80"
                                     Binding="{Binding SoDem}"
-                                    Header="Số đêm" />
+                                    ElementStyle="{StaticResource CenterCell}"
+                                    Header="Đêm" />
+
                                 <DataGridTextColumn
-                                    Width="120"
+                                    Width="*"
                                     Binding="{Binding DonGiaText}"
-                                    Header="Đơn giá" />
+                                    ElementStyle="{StaticResource RightCell}"
+                                    Header="Đơn Giá (VNĐ)" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
 
-                    <TabItem Header="Dịch vụ">
+                    <TabItem Header="🍹 Dịch vụ sử dụng">
                         <DataGrid
                             AutoGenerateColumns="False"
-                            FontSize="18"
+                            BorderThickness="0"
+                            CanUserAddRows="False"
+                            FontSize="16"
+                            GridLinesVisibility="Horizontal"
+                            HeadersVisibility="Column"
+                            HorizontalGridLinesBrush="#EDF0F5"
                             IsReadOnly="True"
-                            ItemsSource="{Binding DichVus}">
+                            ItemsSource="{Binding DichVus}"
+                            RowHeight="45"
+                            SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTextColumn
                                     Width="*"
                                     Binding="{Binding TenDichVu}"
-                                    Header="Dịch vụ" />
+                                    Header="Tên Dịch Vụ" />
+
                                 <DataGridTextColumn
-                                    Width="120"
-                                    Binding="{Binding Phong}"
-                                    Header="Phòng" />
+                                    Width="100"
+                                    Binding="{Binding MaPhong}"
+                                    ElementStyle="{StaticResource CenterCell}"
+                                    Header="Phòng" />
+
                                 <DataGridTextColumn
-                                    Width="70"
+                                    Width="80"
                                     Binding="{Binding SoLuong}"
+                                    ElementStyle="{StaticResource CenterCell}"
                                     Header="SL" />
+
                                 <DataGridTextColumn
-                                    Width="120"
+                                    Width="130"
                                     Binding="{Binding DonGiaText}"
-                                    Header="Đơn giá" />
+                                    ElementStyle="{StaticResource RightCell}"
+                                    Header="Đơn Giá" />
+
                                 <DataGridTextColumn
-                                    Width="120"
+                                    Width="160"
                                     Binding="{Binding ThanhTienText}"
-                                    Header="Thành tiền" />
+                                    ElementStyle="{StaticResource RightCell}"
+                                    FontWeight="Bold"
+                                    Foreground="#2E7D32"
+                                    Header="Thành Tiền" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>

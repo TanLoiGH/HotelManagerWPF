@@ -16,7 +16,7 @@ public class BaoCaoPageViewModel : BaseViewModel
 {
     private readonly ReportService _reportService;
     private int _selectedSourceIndex = 0; // 0: View, 1: SP
-    private DateTime? _tuNgay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    private DateTime? _tuNgay = new DateTime(TimeHelper.GetVietnamTime().Year, TimeHelper.GetVietnamTime().Month, 1);
     private DateTime? _denNgay = DateTime.Today;
     private ReportItem? _selectedReport;
     private ObservableCollection<ReportItem> _availableReports = new();

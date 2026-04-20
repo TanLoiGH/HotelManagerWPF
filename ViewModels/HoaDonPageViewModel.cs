@@ -97,7 +97,7 @@ public class HoaDonPageViewModel : BaseViewModel
             var danhSach = ChuyenHoaDon(hoaDons);
 
             _cacheHoaDon = danhSach;
-            _thoiDiemTaiCache = DateTime.Now;
+            _thoiDiemTaiCache = TimeHelper.GetVietnamTime();
 
             CapNhatDanhSachHoaDon(danhSach);
         }
@@ -118,6 +118,11 @@ public class HoaDonPageViewModel : BaseViewModel
                 MaHoaDon = hoaDon.MaHoaDon,
                 TenKhachHang = hoaDon.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "(Không có KH)",
                 NgayLapHienThi = hoaDon.NgayLap?.ToString("dd/MM/yyyy") ?? "",
+
+                // 👇 PHẢI GÁN 2 DÒNG NÀY THÌ TIỀN THUẾ MỚI TỰ TÍNH ĐƯỢC 👇
+                TienPhong = hoaDon.TienPhong ?? 0,
+                Vat = hoaDon.Vat ?? 0,
+
                 TienPhongHienThi = (hoaDon.TienPhong ?? 0).ToString("N0") + " ₫",
                 TienDichVuHienThi = (hoaDon.TienDichVu ?? 0).ToString("N0") + " ₫",
                 TongThanhToanHienThi = (hoaDon.TongThanhToan ?? 0).ToString("N0") + " ₫",
@@ -138,7 +143,7 @@ public class HoaDonPageViewModel : BaseViewModel
     }
 
     private static bool CacheHopLe()
-        => _cacheHoaDon.Count > 0 && (DateTime.Now - _thoiDiemTaiCache) <= ThoiGianHetHanCache;
+        => _cacheHoaDon.Count > 0 && (TimeHelper.GetVietnamTime() - _thoiDiemTaiCache) <= ThoiGianHetHanCache;
 
     private void LuuTrangThaiLoc()
     {
@@ -165,10 +170,20 @@ public class HoaDonDongViewModel
     public string MaHoaDon { get; set; } = "";
     public string TenKhachHang { get; set; } = "";
     public string NgayLapHienThi { get; set; } = "";
+
+    // --- THÊM 2 DÒNG NÀY ---
+    public decimal TienPhong { get; set; } // Giá trị số để tính toán
+    public decimal Vat { get; set; }        // Giá trị số để tính toán
+    // -----------------------
+
     public string TienPhongHienThi { get; set; } = "";
     public string TienDichVuHienThi { get; set; } = "";
     public string TongThanhToanHienThi { get; set; } = "";
     public string TrangThai { get; set; } = "";
+
+    // Giờ thì dòng này sẽ hết báo lỗi (???) vì đã tìm thấy TienPhong và Vat
+    public string TienVatHienThi => (TienPhong * (Vat / 100m)).ToString("N0") + " ₫";
+
     public SolidColorBrush StatusColor => TrangThai switch
     {
         HoaDonTrangThaiTexts.ChuaThanhToan => new SolidColorBrush(Color.FromRgb(250, 204, 21)),

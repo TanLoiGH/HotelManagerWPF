@@ -58,7 +58,11 @@ public class PhongService : IPhongService
             .Include(c => c.MaDatPhongNavigation)
                 .ThenInclude(dp => dp.MaKhachHangNavigation)
             .Where(c => c.MaPhong == maPhong &&
-                        c.MaDatPhongNavigation.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong)
+                        // 👇 NỚI LỎNG ĐIỀU KIỆN Ở ĐÂY 👇
+                        (c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong ||
+                         c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.DangO) &&
+                        // Chỉ lấy những phòng mà vật lý chưa nhận (vẫn đang Đã đặt)
+                        c.MaPhongNavigation.MaTrangThaiPhong == PhongTrangThaiCodes.DaDat)
             .OrderByDescending(c => c.MaDatPhongNavigation.NgayDat)
             .FirstOrDefaultAsync();
     }

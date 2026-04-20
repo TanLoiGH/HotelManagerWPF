@@ -1,11 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
+using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
+using QuanLyKhachSan_PhamTanLoi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using QuanLyKhachSan_PhamTanLoi.Constants;
-using QuanLyKhachSan_PhamTanLoi.Data;
-using QuanLyKhachSan_PhamTanLoi.Models;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -41,7 +42,7 @@ public class DashboardService
 
     public async Task<List<(int Year, int Month, decimal Total)>> GetMonthlyRevenueAsync(int monthsCount = 12)
     {
-        var now = DateTime.Now;
+        var now = TimeHelper.GetVietnamTime();
         var result = new List<(int Year, int Month, decimal Total)>();
         for (int i = monthsCount - 1; i >= 0; i--)
         {

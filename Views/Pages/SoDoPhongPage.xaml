@@ -623,7 +623,7 @@
                                         Foreground="{DynamicResource Brush.BrandPrimary}"
                                         Text="{Binding ReservedTienCoc}" />
                                 </Grid>
-                                <Button Command="{Binding CheckInCommand}" Style="{DynamicResource MacFluent.ButtonPrimary}">
+                                <Button Command="{Binding CheckInRiengLeCommand}" Style="{DynamicResource MacFluent.ButtonPrimary}">
                                     <TextBlock
                                         FontSize="16"
                                         FontWeight="SemiBold"
@@ -631,10 +631,19 @@
                                         Text="✅  Khách đã nhận phòng" />
                                 </Button>
                                 <Button
-                                    Margin="50,18,50,0"
+                                    Margin="10,18,10,0"
+                                    Command="{Binding HuyPhongRiengLeCommand}"
+                                    Style="{DynamicResource MacFluent.ButtonSecondary}">
+                                    <TextBlock
+                                        Foreground="#FF8C00"
+                                        Text="✂️ Hủy riêng phòng này"
+                                        TextWrapping="Wrap" />
+                                </Button>
+                                <Button
+                                    Margin="30,18,30,0"
                                     Command="{Binding HuyDatPhongCommand}"
                                     Style="{DynamicResource MacFluent.ButtonSecondary}">
-                                    <TextBlock Foreground="{DynamicResource Brush.Error}" Text="❌  Hủy đặt phòng" />
+                                    <TextBlock Foreground="{DynamicResource Brush.Error}" Text="❌ Hủy TOÀN BỘ đoàn" />
                                 </Button>
                             </StackPanel>
 
@@ -766,13 +775,20 @@
                                 </Border>
                                 <StackPanel Margin="0,10,0,0">
                                     <TextBlock Text="Tiền cọc trước (VNĐ):" />
-                                    <TextBox Height="35" Text="{Binding TienCoc, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" />
+                                    <TextBox
+                                        Height="35"
+                                        FontSize="14"
+                                        Text="{Binding TienCoc, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" />
                                 </StackPanel>
                                 <Border
                                     Margin="0,14"
                                     Background="{DynamicResource Brush.SurfaceSoft}"
                                     CornerRadius="8">
-                                    <TextBlock Padding="12,8" Text="{Binding TotalPriceText, StringFormat='{}Tổng tiền tạm tính: {0}'}" />
+
+                                    <TextBlock
+                                        Padding="12,8"
+                                        Text="{Binding TotalPriceText, StringFormat='{}Tổng tiền tạm tính: {0}'}"
+                                        TextWrapping="WrapWithOverflow" />
                                 </Border>
                                 <Button
                                     Command="{Binding DatPhongCommand}"

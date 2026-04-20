@@ -97,26 +97,32 @@
                         <DataGridTextColumn
                             Width="90"
                             Binding="{Binding MaNhanVien}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Mã NV" />
                         <DataGridTextColumn
                             Width="*"
                             Binding="{Binding TenNhanVien}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Tên nhân viên" />
                         <DataGridTextColumn
                             Width="120"
                             Binding="{Binding ChucVu}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Chức vụ" />
                         <DataGridTextColumn
                             Width="120"
                             Binding="{Binding DienThoai}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Điện thoại" />
                         <DataGridTextColumn
                             Width="100"
                             Binding="{Binding TenTrangThai}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Trạng thái" />
                         <DataGridTextColumn
                             Width="140"
                             Binding="{Binding QuyenText}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Quyền" />
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>

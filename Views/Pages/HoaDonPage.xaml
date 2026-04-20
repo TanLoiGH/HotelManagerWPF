@@ -131,31 +131,38 @@
                     <DataGridTextColumn
                         Width="90"
                         Binding="{Binding MaHoaDon}"
+                        ElementStyle="{StaticResource CenterCell}"
                         Header="Mã HD" />
                     <DataGridTextColumn
                         Width="*"
                         Binding="{Binding TenKhachHang}"
+                        ElementStyle="{StaticResource CenterCell}"
                         Header="Khách hàng" />
                     <DataGridTextColumn
                         Width="110"
                         Binding="{Binding NgayLapHienThi}"
+                        ElementStyle="{StaticResource CenterCell}"
                         Header="Ngày lập" />
                     <DataGridTextColumn
                         Width="120"
                         Binding="{Binding TienPhongHienThi}"
+                        ElementStyle="{StaticResource CenterCell}"
                         Header="Tiền phòng" />
                     <DataGridTextColumn
                         Width="100"
                         Binding="{Binding TienDichVuHienThi}"
+                        ElementStyle="{StaticResource CenterCell}"
                         Header="Tiền DV" />
 
                     <DataGridTextColumn
                         Width="100"
                         Binding="{Binding TienVatHienThi}"
+                        ElementStyle="{StaticResource CenterCell}"
                         Header="Tiền thuế" />
                     <DataGridTextColumn
                         Width="120"
                         Binding="{Binding TongThanhToanHienThi}"
+                        ElementStyle="{StaticResource CenterCell}"
                         Header="Tổng TT" />
                     <DataGridTemplateColumn Width="130" Header="Trạng thái">
                         <DataGridTemplateColumn.CellTemplate>

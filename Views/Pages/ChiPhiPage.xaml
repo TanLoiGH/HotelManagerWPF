@@ -1,82 +1,148 @@
-<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.ChiPhiPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
-      Background="Transparent" Title="Chi Phí">
+<Page
+    x:Class="QuanLyKhachSan_PhamTanLoi.Views.ChiPhiPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+    Title="Chi Phí"
+    Background="Transparent">
 
     <Grid Margin="28,20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="16"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="16"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Toolbar lọc -->
-        <ContentControl Grid.Row="0"
-                        Background="{DynamicResource Brush.Surface}" Padding="16,12"
-                        BorderThickness="0"
-                        Style="{DynamicResource MacFluent.ShadowCard}"
-                        helpers:ThemeProperties.CornerRadius="14"
-                        helpers:ThemeProperties.ShadowBlurRadius="10">
+        <!--  Toolbar lọc  -->
+        <ContentControl
+            Grid.Row="0"
+            Padding="16,12"
+            helpers:ThemeProperties.CornerRadius="14"
+            helpers:ThemeProperties.ShadowBlurRadius="10"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <DatePicker x:Name="DpTuNgay" Grid.Column="0" Height="34" Width="140" FontSize="15"
-                            SelectedDateChanged="Filter_Changed"/>
-                <TextBlock Grid.Column="2" Text="→" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextPlaceholder}"/>
-                <DatePicker x:Name="DpDenNgay" Grid.Column="4" Height="34" Width="140" FontSize="15"
-                            SelectedDateChanged="Filter_Changed"/>
+                <DatePicker
+                    x:Name="DpTuNgay"
+                    Grid.Column="0"
+                    Width="140"
+                    Height="34"
+                    FontSize="15"
+                    SelectedDateChanged="Filter_Changed" />
+                <TextBlock
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource Brush.TextPlaceholder}"
+                    Text="→" />
+                <DatePicker
+                    x:Name="DpDenNgay"
+                    Grid.Column="4"
+                    Width="140"
+                    Height="34"
+                    FontSize="15"
+                    SelectedDateChanged="Filter_Changed" />
 
-                <TextBlock x:Name="TxtTongChiPhi" Grid.Column="6"
-                           FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.WarningText}"
-                           VerticalAlignment="Center"/>
+                <TextBlock
+                    x:Name="TxtTongChiPhi"
+                    Grid.Column="6"
+                    VerticalAlignment="Center"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource Brush.WarningText}" />
 
-                <Button Grid.Column="8" Content="➕  Ghi chi phí"
-                        Height="36" Padding="16,0" FontSize="15"
-                        FontWeight="SemiBold" Cursor="Hand"
-                        Style="{DynamicResource MacFluent.ButtonAction.Edit}"
-                        Click="BtnThem_Click"/>
+                <Button
+                    Grid.Column="8"
+                    Height="36"
+                    Padding="16,0"
+                    Click="BtnThem_Click"
+                    Content="➕  Ghi chi phí"
+                    Cursor="Hand"
+                    FontSize="15"
+                    FontWeight="SemiBold"
+                    Style="{DynamicResource MacFluent.ButtonAction.Edit}" />
             </Grid>
         </ContentControl>
 
-        <!-- DataGrid -->
-        <ContentControl Grid.Row="2"
-                        Background="{DynamicResource Brush.Surface}"
-                        BorderThickness="0"
-                        Style="{DynamicResource MacFluent.ShadowCard}"
-                        helpers:ThemeProperties.CornerRadius="16">
-            <DataGrid x:Name="CpGrid"
-                      AutoGenerateColumns="False" IsReadOnly="True"
-                      SelectionMode="Single" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" FontSize="15"
-                      BorderThickness="0" Padding="8" RowHeight="44">
+        <!--  DataGrid  -->
+        <ContentControl
+            Grid.Row="2"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
+            <DataGrid
+                x:Name="CpGrid"
+                Padding="8"
+                AutoGenerateColumns="False"
+                BorderThickness="0"
+                FontSize="15"
+                GridLinesVisibility="Horizontal"
+                HeadersVisibility="Column"
+                IsReadOnly="True"
+                RowHeight="44"
+                SelectionMode="Single">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Mã CP" Binding="{Binding MaChiPhi}" Width="90"/>
-                    <DataGridTextColumn Header="Tên chi phí" Binding="{Binding TenChiPhi}" Width="*"/>
-                    <DataGridTextColumn Header="Loại" Binding="{Binding TenLoaiCp}" Width="130"/>
-                    <DataGridTextColumn Header="Số tiền" Binding="{Binding SoTienText}" Width="120"/>
-                    <DataGridTextColumn Header="Ngày" Binding="{Binding NgayText}" Width="100"/>
-                    <DataGridTextColumn Header="Nhà CC" Binding="{Binding TenNcc}" Width="140"/>
-                    <DataGridTextColumn Header="Phòng" Binding="{Binding MaPhong}" Width="80"/>
-                    <DataGridTextColumn Header="Ghi chú" Binding="{Binding GhiChu}" Width="160"/>
+                    <DataGridTextColumn
+                        Width="90"
+                        Binding="{Binding MaChiPhi}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Mã CP" />
+                    <DataGridTextColumn
+                        Width="*"
+                        Binding="{Binding TenChiPhi}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Tên chi phí" />
+                    <DataGridTextColumn
+                        Width="130"
+                        Binding="{Binding TenLoaiCp}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Loại" />
+                    <DataGridTextColumn
+                        Width="120"
+                        Binding="{Binding SoTienText}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Số tiền" />
+                    <DataGridTextColumn
+                        Width="100"
+                        Binding="{Binding NgayText}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Ngày" />
+                    <DataGridTextColumn
+                        Width="140"
+                        Binding="{Binding TenNcc}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Nhà CC" />
+                    <DataGridTextColumn
+                        Width="80"
+                        Binding="{Binding MaPhong}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Phòng" />
+                    <DataGridTextColumn
+                        Width="160"
+                        Binding="{Binding GhiChu}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Ghi chú" />
                 </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -84,28 +150,37 @@
             </DataGrid>
         </ContentControl>
 
-        <!-- Summary bar -->
-        <ContentControl Grid.Row="4"
-                        Background="{DynamicResource Brush.Surface}" Padding="16,12"
-                        BorderThickness="0"
-                        Style="{DynamicResource MacFluent.ShadowCard}"
-                        helpers:ThemeProperties.CornerRadius="12"
-                        helpers:ThemeProperties.ShadowBlurRadius="10">
+        <!--  Summary bar  -->
+        <ContentControl
+            Grid.Row="4"
+            Padding="16,12"
+            helpers:ThemeProperties.CornerRadius="12"
+            helpers:ThemeProperties.ShadowBlurRadius="10"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
             <ItemsControl x:Name="SummaryItems">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
+                        <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="0,0,24,0">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Loai}" FontSize="15" Foreground="{DynamicResource Brush.TextLabel}"
-                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding TongText}" FontSize="15"
-                                           FontWeight="Bold" Foreground="{DynamicResource Brush.WarningText}"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock
+                                    Margin="0,0,8,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="{DynamicResource Brush.TextLabel}"
+                                    Text="{Binding Loai}" />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    FontWeight="Bold"
+                                    Foreground="{DynamicResource Brush.WarningText}"
+                                    Text="{Binding TongText}" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>

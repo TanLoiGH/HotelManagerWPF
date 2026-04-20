@@ -20,7 +20,7 @@ public sealed class InHoaDonServiceWpf : IInHoaDonService
         try
         {
             // Tạo đường dẫn file tạm trong thư mục Temp của Windows
-            string tempFile = Path.Combine(Path.GetTempPath(), $"HD_{hoaDon.MaHoaDon}_{DateTime.Now.Ticks}.pdf");
+            string tempFile = Path.Combine(Path.GetTempPath(), $"HD_{hoaDon.MaHoaDon}_{TimeHelper.GetVietnamTime().Ticks}.pdf");
 
             QuestPdfHelper.XuatVaMoHoaDonPdf(hoaDon, tenKhachHang, tenNhanVien, tempFile, kieuIn, false);
             return true;
@@ -37,7 +37,7 @@ public sealed class InHoaDonServiceWpf : IInHoaDonService
     {
         try
         {
-            string tempFile = Path.Combine(Path.GetTempPath(), $"TamTinh_{hoaDon.MaHoaDon}_{DateTime.Now.Ticks}.pdf");
+            string tempFile = Path.Combine(Path.GetTempPath(), $"TamTinh_{hoaDon.MaHoaDon}_{TimeHelper.GetVietnamTime().Ticks}.pdf");
 
             // Tham số cuối laTamTinh = true để đổi tiêu đề bill
             QuestPdfHelper.XuatVaMoHoaDonPdf(hoaDon, tenKhachHang, tenNhanVien, tempFile, HoaDonChiTietViewModel.KieuInHoaDon.TongHop, true);

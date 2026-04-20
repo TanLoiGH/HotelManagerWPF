@@ -31,9 +31,9 @@ public class DashboardViewModel : BaseViewModel
         _dashboardService = dashboardService;
 
         LoadCommand = new RelayCommand(async _ => await LoadDataAsync());
-        FilterThangNayCommand = new RelayCommand(_ => { TuNgay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1); DenNgay = DateTime.Today; });
-        FilterQuyNayCommand = new RelayCommand(_ => { int quy = (DateTime.Now.Month - 1) / 3 + 1; TuNgay = new DateTime(DateTime.Now.Year, (quy - 1) * 3 + 1, 1); DenNgay = DateTime.Today; });
-        FilterNamNayCommand = new RelayCommand(_ => { TuNgay = new DateTime(DateTime.Now.Year, 1, 1); DenNgay = DateTime.Today; });
+        FilterThangNayCommand = new RelayCommand(_ => { TuNgay = new DateTime(TimeHelper.GetVietnamTime().Year, TimeHelper.GetVietnamTime().Month, 1); DenNgay = DateTime.Today; });
+        FilterQuyNayCommand = new RelayCommand(_ => { int quy = (TimeHelper.GetVietnamTime().Month - 1) / 3 + 1; TuNgay = new DateTime(TimeHelper.GetVietnamTime().Year, (quy - 1) * 3 + 1, 1); DenNgay = DateTime.Today; });
+        FilterNamNayCommand = new RelayCommand(_ => { TuNgay = new DateTime(TimeHelper.GetVietnamTime().Year, 1, 1); DenNgay = DateTime.Today; });
     }
 
     // Properties
@@ -84,7 +84,7 @@ public class DashboardViewModel : BaseViewModel
             MonthlyRevenue.Clear();
             foreach (var (year, month, total) in monthlyData)
             {
-                bool isCurrent = year == DateTime.Now.Year && month == DateTime.Now.Month;
+                bool isCurrent = year == TimeHelper.GetVietnamTime().Year && month == TimeHelper.GetVietnamTime().Month;
                 MonthlyRevenue.Add(new BarChartItem
                 {
                     ThangText = $"T{month}",

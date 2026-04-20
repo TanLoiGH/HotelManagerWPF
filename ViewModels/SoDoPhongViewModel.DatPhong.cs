@@ -87,7 +87,7 @@ public partial class SoDoPhongViewModel
         if (TienCoc > 0)
         {
             // Hiển thị dạng: 1.000.000 - Cọc: 200.000 = Còn: 800.000
-            TotalPriceText = $"{tongTienPhong:N0} ₫ - Cọc: {TienCoc:N0} ₫ = Còn: {conLai:N0} ₫{suffix}";
+            TotalPriceText = $"{tongTienPhong:N0} ₫ \n Cọc: {TienCoc:N0} ₫ \n Còn: {conLai:N0}₫ {suffix}";
         }
         else
         {
@@ -226,22 +226,28 @@ public partial class SoDoPhongViewModel
         }
     }
 
-    private async Task ThucHienNhanPhongAsync()
+    private async Task ThucHienCheckInRiengLeAsync()
     {
         if (SelectedRoom == null) return;
+
+        var xacNhan = MessageBox.Show($"Xác nhận khách vào nhận trước phòng {SelectedRoom.MaPhong}?",
+                                      "Nhận phòng riêng lẻ", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (xacNhan != MessageBoxResult.Yes) return;
+
+        // Bật loading giống Hàm 1
+        IsLoading = true;
         try
         {
             DatPhongChiTiet? booking;
             await _khoaPhong.WaitAsync();
-            try
+            try { booking = await _roomService.LayDatPhongChoNhanTheoPhongAsync(SelectedRoom.MaPhong); }
+            finally { _khoaPhong.Release(); }
+
+            if (booking == null)
             {
-                booking = await _roomService.LayDatPhongChoNhanTheoPhongAsync(SelectedRoom.MaPhong);
+                MessageBox.Show("Không tìm thấy thông tin đặt phòng của phòng này.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            finally
-            {
-                _khoaPhong.Release();
-            }
-            if (booking == null) return;
 
             var maNhanVien = AppSession.MaNhanVien;
             if (string.IsNullOrWhiteSpace(maNhanVien))
@@ -251,23 +257,23 @@ public partial class SoDoPhongViewModel
             }
 
             await _khoaDatPhong.WaitAsync();
-            try
-            {
-                await _datPhongService.CheckInAsync(booking.MaDatPhong, maNhanVien);
-            }
-            finally
-            {
-                _khoaDatPhong.Release();
-            }
-            MessageBox.Show("Nhận phòng thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            try { await _datPhongService.CheckInPhongRiengLeAsync(booking.MaDatPhong, SelectedRoom.MaPhong, maNhanVien); }
+            finally { _khoaDatPhong.Release(); }
+
+            MessageBox.Show($"Nhận phòng {SelectedRoom.MaPhong} thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
 
             SelectedRoom = null;
             await TaiDuLieuAsync();
         }
         catch (Exception ex)
         {
-            Logger.LogError("Lỗi", ex);
+            Logger.LogError("Lỗi nhận phòng lẻ", ex);
             MessageBox.Show($"Lỗi nhận phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            // Tắt loading giống Hàm 1
+            IsLoading = false;
         }
     }
 
@@ -369,21 +375,86 @@ public partial class SoDoPhongViewModel
 
     private async Task ThucHienHuyDatPhongAsync()
     {
-        if (string.IsNullOrEmpty(SelectedMaDatPhong)) return;
-        if (!ConfirmHelper.Confirm("Xác nhận hủy đơn đặt phòng này? Tiền cọc (nếu có) sẽ được tính vào Chi phí hoàn trả.", "Hủy đặt phòng")) return;
+        if (SelectedRoom == null) return;
 
+        // 1. GỌI DATABASE ĐỂ LẤY TIỀN CỌC THỰC TẾ
+        DatPhongChiTiet? bookingInfo;
+        await _khoaPhong.WaitAsync();
+        try { bookingInfo = await _roomService.LayDatPhongChoNhanTheoPhongAsync(SelectedRoom.MaPhong); }
+        finally { _khoaPhong.Release(); }
+
+        decimal tienCocThucTe = bookingInfo?.MaDatPhongNavigation?.TienCoc ?? 0;
+
+        
+        var dialog = new Views.Dialogs.HuyPhongDialog(tienCocThucTe, false)
+        {
+            Owner = Application.Current.MainWindow,
+            Title = "XÁC NHẬN HỦY TOÀN BỘ ĐẶT PHÒNG"
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        IsLoading = true;
         try
         {
-            await _datPhongService.HuyDatPhongAsync(SelectedMaDatPhong, AppSession.MaNhanVien ?? "NV001");
-            MessageBox.Show("Đã hủy đặt phòng thành công.");
+            var maNhanVien = AppSession.MaNhanVien ?? "NV001";
+            await _datPhongService.HuyDatPhongAsync(SelectedRoom.MaDatPhong, maNhanVien, dialog.LyDoHuy, dialog.TienHoanTra);
+            MessageBox.Show("Đã hủy đặt phòng thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            SelectedRoom = null;
             await TaiDuLieuAsync();
         }
         catch (Exception ex)
         {
-            Logger.LogError("Lỗi", ex);
-            MessageBox.Show("Lỗi: " + ex.Message);
+            Logger.LogError("Lỗi hủy", ex);
+            MessageBox.Show($"Lỗi hủy phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally { IsLoading = false; }
+    }
+
+    private async Task ThucHienHuyPhongRiengLeAsync()
+    {
+        if (SelectedRoom == null) return;
+
+        // 1. Tận dụng lại Dialog cũ. Truyền 0đ vào để lễ tân biết là không cần xử lý tiền hoàn.
+        var dialog = new Views.Dialogs.HuyPhongDialog(0,true)
+        {
+            Owner = Application.Current.MainWindow,
+            Title = $"HỦY RIÊNG PHÒNG {SelectedRoom.MaPhong}" 
+        };
+
+        // Hiện lên, nếu bấm "Quay lại" hoặc dấu X thì hủy thao tác
+        if (dialog.ShowDialog() != true) return;
+
+        IsLoading = true;
+        try
+        {
+            var maNhanVien = AppSession.MaNhanVien ?? "NV001";
+
+            // 2. GỌI HÀM HỦY LẺ (truyền lý do từ Dialog xuống)
+            await _datPhongService.HuyPhongRiengLeAsync(
+                SelectedRoom.MaDatPhong,
+                SelectedRoom.MaPhong,
+                maNhanVien,
+                dialog.LyDoHuy // Lấy lý do khách hủy
+            );
+
+            MessageBox.Show($"Đã hủy phòng {SelectedRoom.MaPhong} thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            SelectedRoom = null;
+            await TaiDuLieuAsync(); // Tải lại sơ đồ phòng để phòng đó biến thành màu xanh (Trống)
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Lỗi hủy phòng lẻ", ex);
+            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
+
+
 
     private async Task ThucHienHoanThanhDonDepAsync()
     {

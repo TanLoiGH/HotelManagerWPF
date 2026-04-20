@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -58,6 +59,47 @@ public class DichVuService : IDichVuService
         await _db.SaveChangesAsync();
     }
 
+    private async Task CapNhatLaiTongTienHoaDonAsync(string maDatPhong)
+    {
+        var hd = await _db.HoaDons
+            .Include(h => h.MaDatPhongNavigation)
+            .Include(h => h.MaKhuyenMaiNavigation)
+            .FirstOrDefaultAsync(h => h.MaDatPhong == maDatPhong && h.TrangThai != HoaDonTrangThaiTexts.DaHuy);
+
+        if (hd == null) return;
+
+        // A. Tính tiền phòng: Chỉ tính những phòng ĐÃ CHECK-IN (có trong HoaDonChiTiet)
+        var roomsInBill = await _db.HoaDonChiTiets
+            .Join(_db.DatPhongChiTiets, hct => new { hct.MaDatPhong, hct.MaPhong }, dpct => new { dpct.MaDatPhong, dpct.MaPhong }, (hct, dpct) => dpct)
+            .Where(x => x.MaDatPhong == maDatPhong)
+            .ToListAsync();
+
+        decimal tienPhong = roomsInBill.Sum(ct => ct.DonGia * TinhToanHoaDonService.TinhSoDem(ct.NgayNhan, ct.NgayTra));
+
+        // B. Tính tiền dịch vụ: Tất cả dịch vụ đã gọi của cả đoàn
+        decimal tongDv = await _db.DichVuChiTiets
+            .Where(d => d.MaHoaDon == hd.MaHoaDon)
+            .SumAsync(d => (decimal?)d.SoLuong * d.DonGia) ?? 0;
+
+        // C. Gọi Helper tính toán toàn bộ (VAT, Khuyến mãi, Cọc)
+        var res = TinhToanHoaDonService.TinhToanToanBo(
+            tienPhong,
+            tongDv,
+            hd.Vat ?? 10,
+            hd.MaKhuyenMaiNavigation?.GiaTriKm ?? 0,
+            hd.MaKhuyenMaiNavigation?.LoaiKhuyenMai ?? "",
+            hd.MaDatPhongNavigation?.TienCoc ?? 0,
+            await _db.ThanhToans.Where(t => t.MaHoaDon == hd.MaHoaDon).SumAsync(t => (decimal?)t.SoTien) ?? 0
+        );
+
+        hd.TienPhong = res.TienPhong;
+        hd.TienDichVu = tongDv;
+        hd.TongThanhToan = res.TongThanhToan;
+
+        await _db.SaveChangesAsync();
+    }
+
+
     public async Task<bool> XoaHoacTatAsync(string maDichVu)
     {
         var dv = await _db.DichVus.FindAsync(maDichVu);
@@ -96,63 +138,69 @@ public class DichVuService : IDichVuService
 
     public async Task UpsertDichVuAsync(string maHoaDon, string maDatPhong, string maPhong, string maDichVu, int soLuong)
     {
-        var existing = await _db.DichVuChiTiets.FirstOrDefaultAsync(d => d.MaHoaDon == maHoaDon && d.MaDichVu == maDichVu && d.MaPhong == maPhong);
+        using var tx = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            // 1. TÌM HÓA ĐƠN CHUẨN (Ưu tiên tìm theo maDatPhong vì maHoaDon từ UI có thể rỗng)
+            var hd = await _db.HoaDons
+                .FirstOrDefaultAsync(h => (h.MaHoaDon == maHoaDon || h.MaDatPhong == maDatPhong)
+                                     && h.TrangThai != HoaDonTrangThaiTexts.DaHuy);
 
-        if (existing != null)
-        {
-            existing.SoLuong += soLuong;
-        }
-        else
-        {
-            var dv = await _db.DichVus.FindAsync(maDichVu) ?? throw new KeyNotFoundException("Dịch vụ không tồn tại");
-            _db.DichVuChiTiets.Add(new DichVuChiTiet
+            // 2. NẾU CHƯA CÓ HÓA ĐƠN (Trường hợp khách chưa check-in phòng nào) -> TỰ TẠO VỎ HÓA ĐƠN
+            if (hd == null)
             {
-                MaHoaDon = maHoaDon,
-                MaDatPhong = maDatPhong,
-                MaPhong = maPhong,
-                MaDichVu = maDichVu,
-                SoLuong = soLuong,
-                DonGia = dv.Gia ?? 0,
-                NgaySuDung = TimeHelper.GetVietnamTime()
-            });
-        }
-
-        await _db.SaveChangesAsync();
-
-        var hd = await _db.HoaDons.FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
-        if (hd != null)
-        {
-            decimal tongDv = await _db.DichVuChiTiets
-                .Where(d => d.MaHoaDon == maHoaDon)
-                .SumAsync(d => (decimal?)d.SoLuong * d.DonGia) ?? 0;
-
-            hd.TienDichVu = tongDv;
-
-            decimal tienPhong = hd.TienPhong ?? 0;
-            decimal vatPercent = hd.Vat ?? 10;
-            decimal tienCoc = 0;
-
-            if (!string.IsNullOrWhiteSpace(hd.MaDatPhong))
-            {
-                var dp = await _db.DatPhongs.FindAsync(hd.MaDatPhong);
-                tienCoc = dp?.TienCoc ?? 0;
+                var lastMa = await _db.HoaDons.OrderByDescending(h => h.MaHoaDon).Select(h => h.MaHoaDon).FirstOrDefaultAsync();
+                hd = new HoaDon
+                {
+                    MaHoaDon = MaHelper.Next("HD", lastMa),
+                    MaDatPhong = maDatPhong,
+                    NgayLap = TimeHelper.GetVietnamTime(),
+                    TrangThai = HoaDonTrangThaiTexts.ChuaThanhToan,
+                    TienPhong = 0,
+                    TienDichVu = 0,
+                    Vat = 10 // Mặc định 10%
+                };
+                _db.HoaDons.Add(hd);
+                await _db.SaveChangesAsync();
             }
 
-            decimal kmPercent = 0;
-            if (!string.IsNullOrWhiteSpace(hd.MaKhuyenMai) && hd.MaKhuyenMaiNavigation == null)
-                hd.MaKhuyenMaiNavigation = await _db.KhuyenMais.FindAsync(hd.MaKhuyenMai);
+            string maHdThucTe = hd.MaHoaDon;
 
-            var km = hd.MaKhuyenMaiNavigation;
-            if (km is { IsActive: true } && km.NgayBatDau <= TimeHelper.GetVietnamTime() && TimeHelper.GetVietnamTime() <= km.NgayKetThuc)
+            // 3. THÊM HOẶC CẬP NHẬT DỊCH VỤ CHI TIẾT
+            var existing = await _db.DichVuChiTiets.FirstOrDefaultAsync(d => d.MaHoaDon == maHdThucTe && d.MaDichVu == maDichVu && d.MaPhong == maPhong);
+
+            if (existing != null)
             {
-                kmPercent = km.LoaiKhuyenMai == "Phần trăm"
-                    ? km.GiaTriKm ?? 0
-                    : tienPhong > 0 ? (km.GiaTriKm ?? 0) / tienPhong * 100 : 0;
+                existing.SoLuong += soLuong;
             }
-
-            hd.TongThanhToan = (((tienPhong * (1 - kmPercent / 100m)) + tongDv) * (1 + vatPercent / 100m)) - tienCoc;
+            else
+            {
+                var dv = await _db.DichVus.FindAsync(maDichVu) ?? throw new Exception("Dịch vụ không tồn tại trong hệ thống.");
+                _db.DichVuChiTiets.Add(new DichVuChiTiet
+                {
+                    MaHoaDon = maHdThucTe,
+                    MaDatPhong = maDatPhong,
+                    MaPhong = maPhong,
+                    MaDichVu = maDichVu,
+                    SoLuong = soLuong,
+                    DonGia = dv.Gia ?? 0,
+                    NgaySuDung = TimeHelper.GetVietnamTime()
+                });
+            }
 
             await _db.SaveChangesAsync();
+
+            // 4. CẬP NHẬT LẠI TỔNG TIỀN HÓA ĐƠN (Đồng bộ logic với DatPhongService)
+            await CapNhatLaiTongTienHoaDonAsync(maDatPhong);
+
+            await tx.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            await tx.RollbackAsync();
+            // DEBUG VỚI INNER EXCEPTION: Giúp bạn thấy lỗi thực sự từ SQL (như lỗi Khóa ngoại, Check constraint)
+            var mess = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+            throw new Exception($"Lỗi thêm dịch vụ: {mess}", ex);
         }
     }
 }
