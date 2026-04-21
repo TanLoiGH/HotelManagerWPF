@@ -285,7 +285,7 @@
                                     <DataGridComboBoxColumn
                                         Width="120"
                                         DisplayMemberPath="TenTrangThai"
-                                        ElementStyle="{StaticResource CenterCell}"
+                                        ElementStyle="{StaticResource CenterComboBoxCell}"
                                         Header="Trạng thái"
                                         SelectedValueBinding="{Binding MaTrangThai, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         SelectedValuePath="MaTrangThai" />
