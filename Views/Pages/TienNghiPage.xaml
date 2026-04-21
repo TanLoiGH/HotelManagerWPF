@@ -200,22 +200,22 @@
                         ElementStyle="{StaticResource CenterCell}"
                         Header="Tên tiện nghi" />
                     <DataGridTextColumn
-                        Width="160"
+                        Width="300"
                         Binding="{Binding TenNCC}"
                         ElementStyle="{StaticResource CenterCell}"
                         Header="Nhà cung cấp" />
                     <DataGridTextColumn
-                        Width="120"
+                        Width="180"
                         Binding="{Binding HanBaoHanhText}"
                         ElementStyle="{StaticResource CenterCell}"
                         Header="Hạn bảo hành" />
                     <DataGridTextColumn
-                        Width="150"
+                        Width="180"
                         Binding="{Binding TenTrangThai}"
                         ElementStyle="{StaticResource CenterCell}"
                         Header="Trạng thái" />
                     <DataGridCheckBoxColumn
-                        Width="90"
+                        Width="180"
                         Binding="{Binding CanBaoTri}"
                         Header="Cảnh báo" />
                 </DataGrid.Columns>

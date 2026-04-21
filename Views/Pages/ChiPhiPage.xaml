@@ -135,7 +135,7 @@
                     <DataGridTextColumn
                         Width="*"
                         Binding="{Binding GhiChu}"
-                        ElementStyle="{StaticResource LeftCell̀}"
+                        ElementStyle="{StaticResource LeftCell}"
                         Header="Ghi chú" />
                 </DataGrid.Columns>
                 <DataGrid.RowStyle>
