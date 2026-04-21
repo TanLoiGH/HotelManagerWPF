@@ -101,7 +101,7 @@
                         <DataGridTextColumn
                             Width="*"
                             Binding="{Binding TenNcc}"
-                            ElementStyle="{StaticResource LeftCell}"
+                            ElementStyle="{StaticResource CenterCell}"
                             Header="Tên nhà cung cấp" />
                         <DataGridTextColumn
                             Width="100"
@@ -113,7 +113,7 @@
                             Binding="{Binding NguoiLienHe}"
                             ElementStyle="{StaticResource CenterCell}"
                             Header="Người LH" />
-                        <DataGridTemplateColumn Width="90" Header="Hoạt động">
+                        <DataGridTemplateColumn Width="110" Header="Hoạt động">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock
@@ -290,7 +290,6 @@
                         <Button
                             x:Name="BtnXoa"
                             Grid.Column="0"
-                            Height="38"
                             Click="BtnXoa_Click"
                             Content="🗑 Xóa"
                             Cursor="Hand"
@@ -299,7 +298,6 @@
                         <Button
                             x:Name="BtnLuu"
                             Grid.Column="2"
-                            Height="38"
                             Click="BtnLuu_Click"
                             Content="💾 Lưu"
                             Cursor="Hand"

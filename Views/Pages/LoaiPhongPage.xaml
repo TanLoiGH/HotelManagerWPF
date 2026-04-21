@@ -222,7 +222,6 @@
                         <Button
                             x:Name="BtnXoa"
                             Grid.Column="0"
-                            Height="38"
                             Click="BtnXoa_Click"
                             Content="🗑 Xóa"
                             Cursor="Hand"
@@ -230,7 +229,6 @@
                             Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}" />
                         <Button
                             Grid.Column="2"
-                            Height="38"
                             Click="BtnLuu_Click"
                             Content="💾 Lưu"
                             Cursor="Hand"

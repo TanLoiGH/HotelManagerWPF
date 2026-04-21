@@ -98,12 +98,12 @@
                     SelectionMode="Single">
                     <DataGrid.Columns>
                         <DataGridTextColumn
-                            Width="90"
+                            Width="60"
                             Binding="{Binding MaTienNghi}"
                             ElementStyle="{StaticResource CenterCell}"
                             Header="Mã" />
                         <DataGridTextColumn
-                            Width="200"
+                            Width="180"
                             Binding="{Binding TenTienNghi}"
                             ElementStyle="{StaticResource CenterCell}"
                             Header="Tên tiện nghi" />

@@ -133,9 +133,9 @@
                         ElementStyle="{StaticResource CenterCell}"
                         Header="Phòng" />
                     <DataGridTextColumn
-                        Width="160"
+                        Width="*"
                         Binding="{Binding GhiChu}"
-                        ElementStyle="{StaticResource CenterCell}"
+                        ElementStyle="{StaticResource LeftCell̀}"
                         Header="Ghi chú" />
                 </DataGrid.Columns>
                 <DataGrid.RowStyle>

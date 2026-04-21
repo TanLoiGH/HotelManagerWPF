@@ -30,19 +30,20 @@ public partial class MainWindow : Window
 
         NavigateTo(new DashboardPage(), "Dashboard", BtnDashboard);
     }
+
     private void CloseWindow_Click(object sender, MouseButtonEventArgs e)
     {
         if (MessageBox.Show("Bạn có muốn đóng ứng dụng?", "Xác nhận",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             Application.Current.Shutdown();
     }
+
     // ── Kéo / đóng cửa sổ ───────────────────────────────────────────────────
     private void TitleBar_DragMove(object sender, MouseButtonEventArgs e)
     {
         if (e.ButtonState == MouseButtonState.Pressed)
             DragMove();
     }
-
 
 
     // ── Đăng xuất ───────────────────────────────────────────────────────────
@@ -80,6 +81,7 @@ public partial class MainWindow : Window
             Application.Current.Shutdown();
         }
     }
+
     // ── Navigation helpers ───────────────────────────────────────────────────
     private void NavigateTo(Page page, string title, Border? activeBtn = null)
     {
@@ -105,7 +107,7 @@ public partial class MainWindow : Window
         => NavigateTo(new SoDoPhongPage(), "Quản lý Phòng", sender as Border);
 
     private void Nav_QuanTriPhong(object sender, MouseButtonEventArgs e)
-    => NavigateTo(new QuanTriPhongPage(), "Quản lý Phòng", sender as Border);
+        => NavigateTo(new QuanTriPhongPage(), "Quản lý Phòng", sender as Border);
 
     private void Nav_KhachHang(object sender, MouseButtonEventArgs e)
         => NavigateTo(new KhachHangPage(), "Khách Hàng", sender as Border);
@@ -132,17 +134,10 @@ public partial class MainWindow : Window
         => NavigateTo(new ChiPhiPage(), "Chi Phí", sender as Border);
 
     private void Nav_LoaiPhong(object sender, MouseButtonEventArgs e)
-    => NavigateTo(new LoaiPhongPage(), "Loại Phòng", sender as Border);
+        => NavigateTo(new LoaiPhongPage(), "Loại Phòng", sender as Border);
 
     private void Nav_LoaiKhach(object sender, MouseButtonEventArgs e)
         => NavigateTo(new LoaiKhachPage(), "Hạng Khách Hàng", sender as Border);
-    // ── Nav events — Dialog popup (cần tham số, không navigate trực tiếp) ───
-    // Các menu này mở SoDoPhongPage trước, user chọn phòng rồi dialog tự mở
-    private void Nav_DatPhong(object sender, MouseButtonEventArgs e)
-        => NavigateTo(new SoDoPhongPage(), "Quản lý Phòng — Chọn phòng để đặt", sender as Border);
-
-    private void Nav_ThanhToan(object sender, MouseButtonEventArgs e)
-        => NavigateTo(new HoaDonPage(), "Hoá Đơn — Chọn hóa đơn để thanh toán", sender as Border);
 
     private void Nav_DichVu(object sender, MouseButtonEventArgs e)
         => NavigateTo(new DichVuPage(), "Dịch vụ", sender as Border);
@@ -154,10 +149,10 @@ public partial class MainWindow : Window
         => NavigateTo(new PhuongThucThanhToanPage(), "Phương Thức Thanh Toán", sender as Border);
 
     private void Nav_DanhMucTienNghi(object sender, MouseButtonEventArgs e)
-        => NavigateTo(new DanhMucTienNghiPage(), "Danh mục Tiện Nghi", sender as Border);
+        => NavigateTo(new DanhMucTienNghiPage(), "Tiện Nghi", sender as Border);
 
     private void Nav_CaiDat(object sender, MouseButtonEventArgs e)
-    => NavigateTo(new CaiDatPage(), "Cài đặt", sender as Border);
+        => NavigateTo(new CaiDatPage(), "Cài đặt", sender as Border);
 
     // ── Hover effects ────────────────────────────────────────────────────────
     private void NavItem_MouseEnter(object sender, MouseEventArgs e)
@@ -172,7 +167,3 @@ public partial class MainWindow : Window
             b.Background = new SolidColorBrush(Colors.Transparent);
     }
 }
-
-
-
-
