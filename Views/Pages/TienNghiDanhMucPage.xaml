@@ -1,0 +1,253 @@
+﻿<Page
+    x:Class="QuanLyKhachSan_PhamTanLoi.Views.TienNghiDanhMucPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+    Title="Danh Mục Tiện Nghi"
+    Background="Transparent">
+
+    <Grid Margin="28,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="320" />
+        </Grid.ColumnDefinitions>
+
+        <ContentControl
+            Grid.Column="0"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border
+                    Grid.Row="0"
+                    Padding="16,12"
+                    BorderBrush="{DynamicResource Brush.Border}"
+                    BorderThickness="0,0,0,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="16"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource Brush.Heading}"
+                                Text="Danh sách phân loại tiện nghi" />
+
+                            <Border
+                                Width="220"
+                                Height="34"
+                                Margin="16,0,0,0"
+                                Padding="10,0"
+                                BorderBrush="{DynamicResource Brush.Border}"
+                                BorderThickness="1.5"
+                                CornerRadius="8">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Margin="0,0,6,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Text="🔍" />
+                                    <TextBox
+                                        x:Name="TxtSearch"
+                                        Width="180"
+                                        VerticalAlignment="Center"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        FontSize="15"
+                                        TextChanged="TxtSearch_TextChanged" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <Button
+                            x:Name="BtnThem"
+                            Grid.Column="1"
+                            Height="36"
+                            Padding="16,0"
+                            Click="BtnThem_Click"
+                            Content="➕  Thêm danh mục"
+                            Cursor="Hand"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Style="{DynamicResource MacFluent.ButtonAction.Add}" />
+                    </Grid>
+                </Border>
+
+                <DataGrid
+                    x:Name="GridDanhMuc"
+                    Grid.Row="1"
+                    Padding="8"
+                    AutoGenerateColumns="False"
+                    BorderThickness="0"
+                    FontSize="15"
+                    GridLinesVisibility="Horizontal"
+                    HeadersVisibility="Column"
+                    IsReadOnly="True"
+                    RowHeight="44"
+                    SelectionChanged="GridDanhMuc_SelectionChanged"
+                    SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn
+                            Width="120"
+                            Binding="{Binding MaDanhMuc}"
+                            ElementStyle="{StaticResource CenterCell}"
+                            Header="Mã danh mục" />
+                        <DataGridTextColumn
+                            Width="*"
+                            Binding="{Binding TenDanhMuc}"
+                            ElementStyle="{StaticResource CenterCell}"
+                            Header="Tên danh mục" />
+
+                        <DataGridTemplateColumn Width="140" Header="Trạng thái">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Margin="4"
+                                        Padding="8,3"
+                                        HorizontalAlignment="Center"
+                                        CornerRadius="6">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#E74C3C" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Background" Value="#27AE60" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock
+                                            Margin="3"
+                                            FontSize="15"
+                                            FontWeight="SemiBold"
+                                            Foreground="White">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="Tạm ngưng" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                            <Setter Property="Text" Value="Hoạt động" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Cursor" Value="Hand" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource Brush.SurfaceSoft}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </Grid>
+        </ContentControl>
+
+        <ContentControl
+            Grid.Column="2"
+            Padding="20"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
+            <StackPanel>
+                <TextBlock
+                    x:Name="TxtFormTitle"
+                    Margin="0,0,0,20"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource Brush.Heading}"
+                    Text="Chi tiết danh mục" />
+
+                <StackPanel x:Name="PanelEmpty" HorizontalAlignment="Center">
+                    <TextBlock
+                        Margin="0,30,0,12"
+                        HorizontalAlignment="Center"
+                        FontSize="50"
+                        Text="🗂️" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="15"
+                        Foreground="{DynamicResource Brush.TextMuted}"
+                        Text="Chọn danh mục hoặc bấm Thêm mới"
+                        TextAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel x:Name="PanelForm" Visibility="Collapsed">
+                    <TextBlock
+                        Margin="0,0,0,4"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Tên danh mục *" />
+                    <Border
+                        Height="36"
+                        Margin="0,0,0,16"
+                        BorderBrush="{DynamicResource Brush.Border}"
+                        BorderThickness="1.5"
+                        CornerRadius="8">
+                        <TextBox
+                            x:Name="TxtTenDanhMuc"
+                            Margin="10,0"
+                            VerticalAlignment="Center"
+                            BorderThickness="0"
+                            FontSize="15" />
+                    </Border>
+
+                    <CheckBox
+                        x:Name="ChkActive"
+                        Margin="0,0,0,20"
+                        Content="Đang hoạt động"
+                        FontSize="15"
+                        IsChecked="True" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            x:Name="BtnXoa"
+                            Grid.Column="0"
+                            Height="38"
+                            Click="BtnXoa_Click"
+                            Content="🗑 Xóa"
+                            Cursor="Hand"
+                            FontSize="15"
+                            Style="{DynamicResource MacFluent.ButtonAction.DeleteSoft}" />
+                        <Button
+                            x:Name="BtnLuu"
+                            Grid.Column="2"
+                            Height="38"
+                            Click="BtnLuu_Click"
+                            Content="💾 Lưu"
+                            Cursor="Hand"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Style="{DynamicResource MacFluent.ButtonPrimary}" />
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </ContentControl>
+    </Grid>
+</Page>

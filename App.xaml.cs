@@ -127,7 +127,7 @@ namespace QuanLyKhachSan_PhamTanLoi
             services.AddTransient<DashboardPage>();
             services.AddTransient<SoDoPhongPage>();
             services.AddTransient<BaoCaoPage>();
-            services.AddTransient<TienNghiPage>();
+
             services.AddTransient<HoaDonPage>();
             services.AddTransient<KhachHangPage>();
             services.AddTransient<LoaiKhachPage>();
@@ -141,7 +141,9 @@ namespace QuanLyKhachSan_PhamTanLoi
             services.AddTransient<CaiDatPage>();
             services.AddTransient<QuanTriPhongPage>();
             services.AddTransient<PhuongThucThanhToanPage>();
-            services.AddTransient<DanhMucTienNghiPage>();
+            services.AddTransient<TienNghiPage>();
+            services.AddTransient<TienNghiTrangThaiPage>();
+            services.AddTransient<TienNghiDanhMucPage>();
         }
     }
 }

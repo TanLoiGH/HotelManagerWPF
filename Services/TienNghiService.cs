@@ -23,7 +23,7 @@ public class TienNghiService
 
     public TienNghiService(QuanLyKhachSanContext db) => _db = db;
 
-    #region TRUY VẤN DỮ LIỆU & DANH MỤC
+    #region TRUY VẤN DỮ LIỆU TIỆN NGHI & DANH MỤC
 
     public async Task<List<TienNghiTrangThai>> LayTrangThaiTienNghiAsync()
         => await _db.TienNghiTrangThais
@@ -38,12 +38,19 @@ public class TienNghiService
             .OrderBy(n => n.TenNcc)
             .ToListAsync();
 
-    public async Task<List<TienNghi>> LayDanhMucTienNghiAsync()
+    public async Task<List<TienNghi>> LayTienNghiAsync()
         => await _db.TienNghis
             .AsNoTracking()
             .Include(t => t.MaNccNavigation)
+            .Include(t => t.MaDanhMucNavigation)
             .Include(t => t.TienNghiPhongs)
             .OrderBy(t => t.MaTienNghi)
+            .ToListAsync();
+
+    public async Task<List<TienNghiDanhMuc>> LayTatCaDanhMucAsync()
+        => await _db.TienNghiDanhMucs
+            .AsNoTracking()
+            .OrderBy(d => d.TenDanhMuc)
             .ToListAsync();
 
     public async Task<List<TienNghi>> GetAllTienNghiAsync()
@@ -59,9 +66,15 @@ public class TienNghiService
             .Include(t => t.MaTienNghiNavigation)
             .ThenInclude(tn => tn.MaNccNavigation)
             .Include(t => t.MaTrangThaiNavigation)
+            .Include(t => t.MaTienNghiNavigation)
+            .ThenInclude(tn => tn.MaDanhMucNavigation)
             .Where(t => t.MaPhong == maPhong)
             .Select(t => new TienNghiPhongViewModel
             {
+                MaDanhMuc = t.MaTienNghiNavigation.MaDanhMuc,
+                TenDanhMuc = t.MaTienNghiNavigation.MaDanhMucNavigation != null
+                    ? t.MaTienNghiNavigation.MaDanhMucNavigation.TenDanhMuc
+                    : "Chưa phân loại",
                 MaTienNghi = t.MaTienNghi,
                 TenTienNghi = t.MaTienNghiNavigation.TenTienNghi,
                 HanBaoHanh = t.MaTienNghiNavigation.HanBaoHanh,
@@ -82,7 +95,7 @@ public class TienNghiService
     #region THAO TÁC CƠ SỞ DỮ LIỆU KHO (CRUD)
 
     public async Task TaoMoiTienNghiAsync(
-        string tenTienNghi, string? maNcc, DateOnly? hanBaoHanh,
+        string tenTienNghi, string? maDanhMuc, string? maNcc, DateOnly? hanBaoHanh,
         int tongSoLuong, string? donViTinh, bool isActive)
     {
         // Senior Fix: Validation chặn rác
@@ -100,6 +113,7 @@ public class TienNghiService
         {
             MaTienNghi = MaHelper.Next(PREFIX_TIEN_NGHI, lastMa),
             TenTienNghi = tenTienNghi.Trim(), // Defensive Programming
+            MaDanhMuc = maDanhMuc,
             MaNcc = maNcc,
             HanBaoHanh = hanBaoHanh,
             TongSoLuong = tongSoLuong,
@@ -111,7 +125,7 @@ public class TienNghiService
     }
 
     public async Task CapNhatTienNghiAsync(
-        string maTienNghi, string tenTienNghi, string? maNcc,
+        string maTienNghi, string tenTienNghi, string? maDanhMuc, string? maNcc,
         DateOnly? hanBaoHanh, int tongSoLuong, string? donViTinh, bool isActive)
     {
         if (string.IsNullOrWhiteSpace(tenTienNghi))
@@ -125,6 +139,7 @@ public class TienNghiService
 
         item.TenTienNghi = tenTienNghi.Trim();
         item.MaNcc = maNcc;
+        item.MaDanhMuc = maDanhMuc;
         item.HanBaoHanh = hanBaoHanh;
         item.TongSoLuong = tongSoLuong;
         item.DonViTinh = donViTinh?.Trim();
@@ -149,9 +164,65 @@ public class TienNghiService
 
     #endregion
 
+    #region CRUD DANH MỤC TIỆN NGHI
+
+    // 1. Hàm tạo mới
+    public async Task<string> TaoMoiDanhMucAsync(string tenDanhMuc, bool isActive)
+    {
+        var lastMa = await _db.TienNghiDanhMucs
+            .OrderByDescending(d => d.MaDanhMuc)
+            .Select(d => d.MaDanhMuc)
+            .FirstOrDefaultAsync();
+
+        string newMa = MaHelper.Next("TNDM", lastMa);
+
+        var dmMoi = new TienNghiDanhMuc
+        {
+            MaDanhMuc = newMa,
+            TenDanhMuc = tenDanhMuc.Trim(),
+            IsActive = isActive
+        };
+
+        _db.TienNghiDanhMucs.Add(dmMoi);
+        await _db.SaveChangesAsync();
+
+        return newMa;
+    }
+
+    // 2. Hàm Cập nhật
+    public async Task CapNhatDanhMucAsync(string maDanhMuc, string tenDanhMuc, bool isActive)
+    {
+        var dm = await _db.TienNghiDanhMucs.FindAsync(maDanhMuc)
+                 ?? throw new KeyNotFoundException("Không tìm thấy danh mục.");
+
+        dm.TenDanhMuc = tenDanhMuc.Trim();
+        dm.IsActive = isActive;
+        await _db.SaveChangesAsync();
+    }
+
+    // 3. Hàm Xóa
+    public async Task XoaDanhMucAsync(string maDanhMuc)
+    {
+        // Cảnh báo: Phải kiểm tra xem Danh mục này đã được gán cho Tiện nghi nào chưa
+        bool isUsed = await _db.TienNghis.AnyAsync(t => t.MaDanhMuc == maDanhMuc);
+        if (isUsed)
+        {
+            throw new InvalidOperationException(
+                "Danh mục này đang được sử dụng bởi các Tiện nghi trong kho. Không thể xóa!");
+        }
+
+        var dm = await _db.TienNghiDanhMucs.FindAsync(maDanhMuc)
+                 ?? throw new KeyNotFoundException("Không tìm thấy danh mục.");
+
+        _db.TienNghiDanhMucs.Remove(dm);
+        await _db.SaveChangesAsync();
+    }
+
+    #endregion
+
     #region NGHIỆP VỤ QUẢN LÝ TIỆN NGHI TRONG PHÒNG
 
-    public async Task CapNhatTrangThaiAsync(string maPhong, string maTienNghi, string maTrangThai)
+    public async Task CapNhatTrangThaiAsync(string maPhong, string maTienNghi, string maTrangThai, bool isThayMoi)
     {
         var item = await _db.TienNghiPhongs.FindAsync(maPhong, maTienNghi);
         var tienNghi = await _db.TienNghis.FindAsync(maTienNghi)
@@ -174,15 +245,18 @@ public class TienNghiService
         }
         else
         {
-            // Nếu trạng thái cũ là bình thường mà trạng thái mới là hỏng/mất/thanh lý
-            if (item.MaTrangThai != maTrangThai && maTrangThai == TRANG_THAI_THANH_LY)
+            if (isThayMoi)
             {
-                // Senior Note: Nếu thanh lý, tiện nghi đó bị vứt bỏ, kho cũng không được cộng lại.
-                // Tuy nhiên, nên có 1 Table LogChiPhi để ghi nhận khoản mất mát này.
-                // TODO: Gọi ChiPhiService ghi nhận khoản phí thanh lý tại đây (nếu quy định).
-            }
+                if ((tienNghi.TongSoLuong ?? 0) <= 0)
+                    throw new InvalidOperationException($"Không đủ '{tienNghi.TenTienNghi}' trong kho để thay mới.");
 
-            item.MaTrangThai = maTrangThai;
+                tienNghi.TongSoLuong--;
+                item.MaTrangThai = TRANG_THAI_BINH_THUONG;
+            }
+            else
+            {
+                item.MaTrangThai = maTrangThai;
+            }
         }
 
         await _db.SaveChangesAsync();

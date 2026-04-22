@@ -79,8 +79,6 @@ public partial class MainWindow : Window
     private void Nav_NhaCungCap(object sender, MouseButtonEventArgs e) =>
         NavigateByService<NhaCungCapPage>("Nhà Cung Cấp", sender as Border);
 
-    private void Nav_TienNghi(object sender, MouseButtonEventArgs e) =>
-        NavigateByService<TienNghiPage>("Tiện Nghi", sender as Border);
 
     private void Nav_KhuyenMai(object sender, MouseButtonEventArgs e) =>
         NavigateByService<KhuyenMaiPage>("Khuyến Mãi", sender as Border);
@@ -104,11 +102,17 @@ public partial class MainWindow : Window
     private void Nav_LoaiKhach(object sender, MouseButtonEventArgs e) =>
         NavigateByService<LoaiKhachPage>("Loại Khách", sender as Border);
 
-    private void Nav_DanhMucTienNghi(object sender, MouseButtonEventArgs e) =>
-        NavigateByService<DanhMucTienNghiPage>("Danh mục Tiện Nghi", sender as Border);
+    private void Nav_TienNghi(object sender, MouseButtonEventArgs e) =>
+        NavigateByService<TienNghiPage>("Tiện Nghi", sender as Border);
+
+    private void Nav_TienNghiDanhMuc(object sender, MouseButtonEventArgs e) =>
+        NavigateByService<TienNghiDanhMucPage>("Danh Mục Tiện Nghi", sender as Border);
+
+    private void Nav_TrangThaiTienNghi(object sender, MouseButtonEventArgs e) =>
+        NavigateByService<TienNghiTrangThaiPage>("Trạng Thái Tiện Nghi", sender as Border);
 
     private void Nav_PhuongThucThanhToan(object sender, MouseButtonEventArgs e) =>
-        NavigateByService<PhuongThucThanhToanPage>("Phương thức Thanh Toán", sender as Border);
+        NavigateByService<PhuongThucThanhToanPage>("Phương Thức Thanh Toán", sender as Border);
 
     private void Nav_LoaiChiPhi(object sender, MouseButtonEventArgs e) =>
         NavigateByService<LoaiChiPhiPage>("Loại Chi Phí", sender as Border);

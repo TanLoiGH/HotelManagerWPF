@@ -1,0 +1,236 @@
+<Page
+    x:Class="QuanLyKhachSan_PhamTanLoi.Views.TienNghiTrangThaiPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+    Title="Trạng Thái Tiện Nghi"
+    Background="Transparent">
+
+    <Grid Margin="28,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ContentControl
+            Grid.Row="0"
+            Padding="20"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="260" />
+                    <ColumnDefinition Width="1" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel
+                    Grid.Column="0"
+                    Margin="0,0,24,0"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        Margin="0,0,0,8"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.Text}"
+                        Text="Chọn phòng kiểm tra" />
+                    <ComboBox
+                        x:Name="CboPhong"
+                        Height="38"
+                        FontSize="15"
+                        SelectionChanged="CboPhong_SelectionChanged" />
+                    <TextBlock
+                        x:Name="TxtAlert"
+                        Margin="0,12,0,0"
+                        FontSize="14"
+                        FontWeight="Medium"
+                        Foreground="{DynamicResource Brush.WarningText}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+
+                <Border
+                    Grid.Column="1"
+                    Margin="0,4"
+                    Background="{DynamicResource Brush.Border}" />
+
+                <Grid Grid.Column="2" Margin="24,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="16" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel
+                        Grid.Row="0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            Width="110"
+                            VerticalAlignment="Center"
+                            FontSize="15"
+                            FontWeight="Medium"
+                            Foreground="{DynamicResource Brush.TextPlaceholder}"
+                            Text="Đổi trạng thái:" />
+                        <ComboBox
+                            x:Name="CboTrangThai"
+                            Width="220"
+                            Height="36"
+                            Margin="0,0,12,0"
+                            FontSize="15" />
+                        <Button
+                            Height="36"
+                            Padding="16,0"
+                            Click="BtnCapNhat_Click"
+                            Content="Lưu cập nhật"
+                            FontSize="14"
+                            Style="{DynamicResource MacFluent.ButtonAction.Edit}" />
+                    </StackPanel>
+
+                    <StackPanel
+                        Grid.Row="2"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            Width="110"
+                            VerticalAlignment="Center"
+                            FontSize="15"
+                            FontWeight="Medium"
+                            Foreground="{DynamicResource Brush.TextPlaceholder}"
+                            Text="Ghi chi phí:" />
+                        <ComboBox
+                            x:Name="CboLoaiXuLy"
+                            Width="110"
+                            Height="36"
+                            Margin="0,0,12,0"
+                            FontSize="15">
+                            <ComboBoxItem Content="Sửa chữa" IsSelected="True" />
+                            <ComboBoxItem Content="Thay mới" />
+                        </ComboBox>
+
+                        <Border
+                            Height="36"
+                            Margin="0,0,12,0"
+                            Background="{DynamicResource Brush.Control}"
+                            BorderBrush="{DynamicResource Brush.Border}"
+                            BorderThickness="1.5"
+                            CornerRadius="6">
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBox
+                                    x:Name="TxtChiPhi"
+                                    Width="140"
+                                    Margin="10,0"
+                                    Padding="12,0"
+                                    VerticalAlignment="Center"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    FontSize="15"
+                                    ToolTip="Nhập chi phí (VNĐ)" />
+                                <TextBlock
+                                    Margin="0,0,12,0"
+                                    VerticalAlignment="Center"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource Brush.TextPlaceholder}"
+                                    Text="VNĐ" />
+                            </StackPanel>
+                        </Border>
+
+                        <Button
+                            Height="36"
+                            Padding="16,0"
+                            Click="BtnGhiXuLy_Click"
+                            Content="Ghi &amp; Hoàn tất"
+                            FontSize="14"
+                            Style="{DynamicResource MacFluent.ButtonAction.Save}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </ContentControl>
+
+        <Border
+            Grid.Row="2"
+            Padding="16,12"
+            Background="#1DF5F5F5"
+            BorderBrush="{DynamicResource Brush.Border}"
+            BorderThickness="1"
+            CornerRadius="10">
+            <StackPanel Orientation="Vertical">
+                <TextBlock
+                    Margin="0,0,0,6"
+                    FontSize="15"
+                    FontStyle="Italic"
+                    FontWeight="SemiBold"
+                    Text="💡 Mẹo thao tác nhanh:" />
+                <TextBlock
+                    FontSize="14"
+                    Foreground="{DynamicResource Brush.TextPlaceholder}"
+                    LineHeight="22"
+                    TextWrapping="Wrap">
+                    <Run FontWeight="Bold" Text="1." /> <Run Text="Báo hỏng siêu tốc: " /> <Run FontWeight="SemiBold" Text="Click đúp chuột (Double-click)" /> <Run Text=" vào dòng tiện nghi đang 'Hoạt động tốt' để chuyển ngay sang 'Cần bảo trì'." /> <LineBreak />
+                    <Run FontWeight="Bold" Text="2." /> <Run Text="Xử lý &amp; Ghi chi phí: " /> <Run Text="Click chọn 1 dòng tiện nghi bị hỏng bên dưới, con trỏ chuột sẽ tự động đưa vào ô nhập " /> <Run FontWeight="SemiBold" Text="Chi phí" /> <Run Text=" -&gt; Nhập số tiền và bấm Ghi (Tiện nghi sẽ tự động phục hồi về Hoạt động tốt)." />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <ContentControl
+            Grid.Row="4"
+            helpers:ThemeProperties.CornerRadius="16"
+            Background="{DynamicResource Brush.Surface}"
+            BorderThickness="0"
+            Style="{DynamicResource MacFluent.ShadowCard}">
+            <DataGrid
+                x:Name="TienNghiGrid"
+                Padding="8"
+                AutoGenerateColumns="False"
+                BorderThickness="0"
+                FontSize="15"
+                GridLinesVisibility="Horizontal"
+                HeadersVisibility="Column"
+                IsReadOnly="True"
+                MouseDoubleClick="TienNghiGrid_MouseDoubleClick"
+                SelectionChanged="TienNghiGrid_SelectionChanged"
+                SelectionMode="Single">
+                <DataGrid.Columns>
+                    <DataGridTextColumn
+                        Width="*"
+                        Binding="{Binding TenTienNghi}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Tên tiện nghi" />
+                    <DataGridTextColumn
+                        Width="300"
+                        Binding="{Binding TenNCC}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Nhà cung cấp" />
+                    <DataGridTextColumn
+                        Width="180"
+                        Binding="{Binding HanBaoHanhText}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Hạn bảo hành" />
+                    <DataGridTextColumn
+                        Width="180"
+                        Binding="{Binding TenTrangThai}"
+                        ElementStyle="{StaticResource CenterCell}"
+                        Header="Trạng thái" />
+                    <DataGridCheckBoxColumn
+                        Width="180"
+                        Binding="{Binding CanBaoTri}"
+                        Header="Cảnh báo" />
+                </DataGrid.Columns>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CanBaoTri}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource Brush.WarningSurface}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+            </DataGrid>
+        </ContentControl>
+    </Grid>
+</Page>
