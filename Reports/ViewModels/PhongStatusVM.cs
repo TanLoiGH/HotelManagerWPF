@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Windows.Media;
 
 namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
 {
@@ -9,7 +10,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
     {
         public string TenTT { get; set; } = "";
         public int SoPhong { get; set; }
-        public Brush MauSac { get; set; } = Brushes.Gray;
+        public System.Drawing.Brush MauSac { get; set; } = System.Drawing.Brushes.Gray;
         public double BarWidth { get; set; }
     }
 }

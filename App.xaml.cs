@@ -11,6 +11,7 @@ using QuestPDF.Infrastructure;
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 
 namespace QuanLyKhachSan_PhamTanLoi
 {
@@ -144,6 +145,26 @@ namespace QuanLyKhachSan_PhamTanLoi
             services.AddTransient<TienNghiPage>();
             services.AddTransient<TienNghiTrangThaiPage>();
             services.AddTransient<TienNghiDanhMucPage>();
+        }
+
+
+        private void GlobalWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Kiểm tra xem sender có đúng là Window không và chuột trái có đang giữ không
+            if (sender is Window window && e.LeftButton == MouseButtonState.Pressed)
+            {
+                try
+                {
+                    // Cho phép kéo dời Window
+                    window.DragMove();
+                }
+                catch
+                {
+                    // Try-catch ở mức Global là Best Practice.
+                    // Đề phòng trường hợp click vào các control đặc biệt (như ScrollBar, TextBox) 
+                    // mà DragMove bị conflict thì ứng dụng vẫn không bị crash.
+                }
+            }
         }
     }
 }

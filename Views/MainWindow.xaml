@@ -1,4 +1,4 @@
-<Window
+﻿<Window
     x:Class="QuanLyKhachSan_PhamTanLoi.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -14,8 +14,9 @@
     Closing="Window_Closing"
     Icon="/Themes/hotel.ico"
     ResizeMode="CanResizeWithGrip"
+    Style="{DynamicResource {x:Type Window}}"
     WindowStartupLocation="CenterScreen"
-    WindowStyle="SingleBorderWindow">
+    WindowStyle="None">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
             CaptionHeight="15"

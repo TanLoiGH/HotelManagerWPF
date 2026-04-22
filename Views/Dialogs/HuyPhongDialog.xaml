@@ -54,7 +54,7 @@
                     Margin="0,0,0,20"
                     Style="{DynamicResource MacFluent.InputFrame}">
                     <ComboBox
-                        x:Name="cboLyDo"
+                        x:Name="CbxLyDo"
                         Padding="10,0"
                         VerticalContentAlignment="Center"
                         Background="Transparent"
@@ -78,7 +78,7 @@
                         Foreground="{DynamicResource Brush.TextLabel}"
                         Text="Số tiền hoàn lại cho khách:" />
                     <TextBlock
-                        x:Name="txtGoiYCoc"
+                        x:Name="TxtGoiYCoc"
                         HorizontalAlignment="Right"
                         DockPanel.Dock="Right"
                         FontSize="13"
@@ -88,7 +88,7 @@
 
                 <Border Height="40" Style="{DynamicResource MacFluent.InputFrame}">
                     <TextBox
-                        x:Name="txtTienHoan"
+                        x:Name="TxtTienHoan"
                         Padding="10,0"
                         VerticalAlignment="Center"
                         Background="Transparent"
@@ -161,7 +161,6 @@
                     BorderBrush="{DynamicResource Brush.Error}"
                     Click="BtnXacNhan_Click"
                     Content="Xác nhận Hủy"
-                    Foreground="White"
                     Style="{DynamicResource MacFluent.ButtonPrimary}" />
             </Grid>
         </Grid>

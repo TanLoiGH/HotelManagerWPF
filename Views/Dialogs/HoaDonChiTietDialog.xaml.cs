@@ -97,6 +97,5 @@ public partial class HoaDonChiTietDialog : Window
             // Bật lại sự kiện
             textBox.TextChanged += txtSoTien_TextChanged;
         }
-
     }
 }

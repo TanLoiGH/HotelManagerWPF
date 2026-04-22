@@ -9,7 +9,7 @@ namespace QuanLyKhachSan_PhamTanLoi.Reports.ViewModels
     {
         public string ThangText { get; set; } = "";
         public double BarHeight { get; set; }
-        public Brush BarColor { get; set; } = Brushes.Blue;
+        public System.Drawing.Brush BarColor { get; set; } = System.Drawing.Brushes.Blue;
         public string Tooltip { get; set; } = "";
     }
 }

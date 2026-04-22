@@ -26,37 +26,40 @@ namespace QuanLyKhachSan_PhamTanLoi.Views.Dialogs
             InitializeComponent();
             _tienCocCuaKhach = tienCoc;
 
-            txtGoiYCoc.Text = $"(Khách đã cọc: {tienCoc:N0} VNĐ)";
+            TxtGoiYCoc.Text = $"(Khách đã cọc: {tienCoc:N0} VNĐ)";
 
             // Tự động nhảy lý do mặc định cho thông minh
             if (isHuyRiengLe)
             {
-                cboLyDo.SelectedIndex = 0; // Nhảy vào dòng: "Huỷ riêng phòng này"
+                CbxLyDo.SelectedIndex = 0; // Nhảy vào dòng: "Huỷ riêng phòng này"
             }
             else
             {
-                cboLyDo.SelectedIndex = 1; // Nhảy vào dòng: "Khách đổi ý / Hủy trước hạn"
+                CbxLyDo.SelectedIndex = 1; // Nhảy vào dòng: "Khách đổi ý / Hủy trước hạn"
             }
         }
 
         // Xử lý 2 nút Quick-action
-        private void BtnHoanDu_Click(object sender, RoutedEventArgs e) => txtTienHoan.Text = _tienCocCuaKhach.ToString("N0");
-        private void BtnKhongHoan_Click(object sender, RoutedEventArgs e) => txtTienHoan.Text = "0";
+        private void BtnHoanDu_Click(object sender, RoutedEventArgs e) =>
+            TxtTienHoan.Text = _tienCocCuaKhach.ToString("N0");
+
+        private void BtnKhongHoan_Click(object sender, RoutedEventArgs e) => TxtTienHoan.Text = "0";
+
         private void BtnXacNhan_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(cboLyDo.Text))
+            if (string.IsNullOrWhiteSpace(CbxLyDo.Text))
             {
                 MessageBox.Show("Vui lòng chọn hoặc nhập lý do hủy phòng!", "Cảnh báo");
                 return;
             }
 
-            if (!decimal.TryParse(txtTienHoan.Text.Replace(",", "").Replace(".", ""), out decimal tien) || tien < 0)
+            if (!decimal.TryParse(TxtTienHoan.Text.Replace(",", "").Replace(".", ""), out decimal tien) || tien < 0)
             {
                 MessageBox.Show("Số tiền hoàn trả không hợp lệ!", "Cảnh báo");
                 return;
             }
 
-            LyDoHuy = cboLyDo.Text.Trim();
+            LyDoHuy = CbxLyDo.Text.Trim();
             TienHoanTra = tien;
             DialogResult = true;
             Close();
