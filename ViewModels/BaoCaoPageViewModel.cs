@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -14,10 +12,13 @@ namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
 public class BaoCaoPageViewModel : BaseViewModel
 {
-    private readonly ReportService _reportService;
+    private readonly BaoCaoService _baoCaoService;
     private int _selectedSourceIndex = 0; // 0: View, 1: SP
+
+    // Senior Fix: Dùng TimeHelper cho đồng nhất toàn hệ thống
     private DateTime? _tuNgay = new DateTime(TimeHelper.GetVietnamTime().Year, TimeHelper.GetVietnamTime().Month, 1);
-    private DateTime? _denNgay = DateTime.Today;
+    private DateTime? _denNgay = TimeHelper.GetVietnamTime().Date;
+
     private ReportItem? _selectedReport;
     private ObservableCollection<ReportItem> _availableReports = new();
     private DataTable? _reportData;
@@ -26,16 +27,21 @@ public class BaoCaoPageViewModel : BaseViewModel
     private bool _hasData;
     private bool _noData;
 
-    public BaoCaoPageViewModel(ReportService reportService)
+    public BaoCaoPageViewModel(BaoCaoService baoCaoService)
     {
-        _reportService = reportService;
+        _baoCaoService = baoCaoService;
 
-        LoadReportsCommand = new RelayCommand(async _ => await LoadReportsAsync());
-        RunReportCommand = new RelayCommand(async _ => await RunReportAsync(), _ => CanRunReport());
-        ExportCsvCommand = new RelayCommand(_ => ExportCsv(), _ => HasData);
+        // Senior Fix: Tận dụng AsyncRelayCommand xịn sò vừa tạo để chống Double-click và Crash
+        LoadReportsCommand = new AsyncRelayCommand(async _ => await LoadReportsAsync());
+        RunReportCommand = new AsyncRelayCommand(async _ => await RunReportAsync(), _ => CanRunReport());
+        ExportCsvCommand = new AsyncRelayCommand(async _ => await ExportCsvAsync(), _ => HasData);
+
+        // Nạp danh sách báo cáo lần đầu tiên
+        _ = LoadReportsAsync();
     }
 
-    // Properties
+    #region PROPERTIES
+
     public int SelectedSourceIndex
     {
         get => _selectedSourceIndex;
@@ -44,6 +50,7 @@ public class BaoCaoPageViewModel : BaseViewModel
             if (SetProperty(ref _selectedSourceIndex, value))
             {
                 OnPropertyChanged(nameof(IsDateFilterEnabled));
+                // Tải lại danh sách báo cáo (View hoặc SP) theo Source mới
                 _ = LoadReportsAsync();
             }
         }
@@ -51,8 +58,17 @@ public class BaoCaoPageViewModel : BaseViewModel
 
     public bool IsDateFilterEnabled => SelectedSourceIndex == 1;
 
-    public DateTime? TuNgay { get => _tuNgay; set => SetProperty(ref _tuNgay, value); }
-    public DateTime? DenNgay { get => _denNgay; set => SetProperty(ref _denNgay, value); }
+    public DateTime? TuNgay
+    {
+        get => _tuNgay;
+        set => SetProperty(ref _tuNgay, value);
+    }
+
+    public DateTime? DenNgay
+    {
+        get => _denNgay;
+        set => SetProperty(ref _denNgay, value);
+    }
 
     public ReportItem? SelectedReport
     {
@@ -61,7 +77,9 @@ public class BaoCaoPageViewModel : BaseViewModel
         {
             if (SetProperty(ref _selectedReport, value))
             {
-                (RunReportCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                // Khi đổi loại báo cáo, xóa dữ liệu cũ đi để tránh nhầm lẫn
+                ReportData = null;
+                (RunReportCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
             }
         }
     }
@@ -77,6 +95,7 @@ public class BaoCaoPageViewModel : BaseViewModel
             {
                 HasData = value != null && value.Rows.Count > 0;
                 NoData = value != null && value.Rows.Count == 0;
+                (ExportCsvCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
             }
         }
     }
@@ -88,45 +107,69 @@ public class BaoCaoPageViewModel : BaseViewModel
         {
             if (SetProperty(ref _isLoading, value))
             {
-                (RunReportCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (RunReportCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
             }
         }
     }
-    public string? ErrorMessage { get => _errorMessage; set { if (SetProperty(ref _errorMessage, value)) OnPropertyChanged(nameof(HasError)); } }
+
+    public string? ErrorMessage
+    {
+        get => _errorMessage;
+        set
+        {
+            if (SetProperty(ref _errorMessage, value)) OnPropertyChanged(nameof(HasError));
+        }
+    }
+
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
     public bool HasData
     {
         get => _hasData;
-        set
-        {
-            if (SetProperty(ref _hasData, value))
-            {
-                (ExportCsvCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            }
-        }
+        private set => SetProperty(ref _hasData, value);
     }
-    public bool NoData { get => _noData; set => SetProperty(ref _noData, value); }
 
-    // Commands
+    public bool NoData
+    {
+        get => _noData;
+        private set => SetProperty(ref _noData, value);
+    }
+
+    #endregion
+
+    #region COMMANDS
+
     public ICommand LoadReportsCommand { get; }
     public ICommand RunReportCommand { get; }
     public ICommand ExportCsvCommand { get; }
 
-    // Methods
+    #endregion
+
+    #region LOGIC METHODS
+
     public async Task LoadReportsAsync()
     {
         ErrorMessage = null;
+        IsLoading = true;
         try
         {
-            var reports = await _reportService.LoadDbObjectsAsync(IsDateFilterEnabled);
+            var reports = await _baoCaoService.LoadDbObjectsAsync(IsDateFilterEnabled);
             AvailableReports.Clear();
             foreach (var r in reports) AvailableReports.Add(r);
-            if (AvailableReports.Count > 0) SelectedReport = AvailableReports[0];
+
+            if (AvailableReports.Count > 0)
+                SelectedReport = AvailableReports[0];
+            else
+                SelectedReport = null;
         }
         catch (Exception ex)
         {
-            Logger.LogError("Lỗi", ex);
+            Logger.LogError("Lỗi tải danh mục báo cáo", ex);
             ErrorMessage = $"Không tải được danh sách báo cáo: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
@@ -136,19 +179,28 @@ public class BaoCaoPageViewModel : BaseViewModel
     {
         if (SelectedReport == null) return;
 
+        // Senior Fix: Validation khoảng ngày
+        if (IsDateFilterEnabled && TuNgay > DenNgay)
+        {
+            MessageBox.Show("Ngày bắt đầu không được lớn hơn ngày kết thúc.", "Thông báo", MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
         IsLoading = true;
         ErrorMessage = null;
         ReportData = null;
 
         try
         {
-            var data = await _reportService.RunReportAsync(SelectedReport.FullName, !IsDateFilterEnabled, TuNgay, DenNgay);
+            var data = await _baoCaoService.RunReportAsync(SelectedReport.FullName, !IsDateFilterEnabled, TuNgay,
+                DenNgay);
             ReportData = data;
         }
         catch (Exception ex)
         {
-            Logger.LogError("Lỗi", ex);
-            ErrorMessage = $"Lỗi chạy báo cáo: {ex.Message}";
+            Logger.LogError($"Lỗi chạy báo cáo {SelectedReport.FullName}", ex);
+            ErrorMessage = $"Lỗi xử lý dữ liệu: {ex.Message}";
         }
         finally
         {
@@ -156,27 +208,52 @@ public class BaoCaoPageViewModel : BaseViewModel
         }
     }
 
-    private void ExportCsv()
+    private async Task ExportCsvAsync()
     {
-        if (ReportData == null) return;
+        if (ReportData == null || SelectedReport == null) return;
 
         var dialog = new Microsoft.Win32.SaveFileDialog
         {
             Filter = "Excel files (*.xlsx)|*.xlsx|CSV files (*.csv)|*.csv",
-            FileName = $"BaoCao_{SelectedReport?.DisplayName ?? "Data"}_{TimeHelper.GetVietnamTime():yyyyMMdd}"
+            FileName = $"BaoCao_{SelectedReport.DisplayName}_{TimeHelper.GetVietnamTime():yyyyMMdd}"
         };
 
         if (dialog.ShowDialog() == true)
         {
-            if (dialog.FileName.EndsWith(".xlsx"))
+            IsLoading = true;
+            try
             {
-                ExportHelper.ExportToExcel(ReportData, dialog.FileName, SelectedReport?.DisplayName ?? "Report");
+                string filePath = dialog.FileName;
+                string displayName = SelectedReport.DisplayName;
+
+                // Senior Fix: Đưa tiến trình Ghi file nặng nề xuống Background Thread
+                await Task.Run(() =>
+                {
+                    if (filePath.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ExportHelper.ExportToExcel(ReportData, filePath, displayName);
+                    }
+                    else
+                    {
+                        ExportHelper.ExportToCsv(ReportData, filePath);
+                    }
+                });
+
+                MessageBox.Show("Xuất file thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            else
+            catch (Exception ex)
             {
-                ExportHelper.ExportToCsv(ReportData, dialog.FileName);
+                Logger.LogError("Lỗi xuất file báo cáo", ex);
+                MessageBox.Show(
+                    $"Không thể lưu file: {ex.Message}\n\nVui lòng kiểm tra xem file có đang bị mở bởi ứng dụng khác không.",
+                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            MessageBox.Show("Xuất file thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
+
+    #endregion
 }

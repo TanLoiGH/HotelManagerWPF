@@ -44,7 +44,9 @@ public partial class TienNghiPage : Page
         TienNghiGrid.ItemsSource = items;
 
         int canBT = items.Count(i => i.CanBaoTri);
-        TxtAlert.Text = canBT > 0 ? $"⚠ Phát hiện {canBT} tiện nghi đang cần được bảo trì, sửa chữa hoặc thay mới ngay." : "";
+        TxtAlert.Text = canBT > 0
+            ? $"⚠ Phát hiện {canBT} tiện nghi đang cần được bảo trì, sửa chữa hoặc thay mới ngay."
+            : "";
         TxtAlert.Visibility = canBT > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -74,7 +76,8 @@ public partial class TienNghiPage : Page
         // Chặn lưu cập nhật nếu trạng thái hiện tại không phải là "Hoạt động tốt"
         if (item.MaTrangThai != "TNTT01")
         {
-            ConfirmHelper.ShowWarning("Chỉ được điều chỉnh trạng thái khi tiện nghi đang 'Hoạt động tốt'.\nNếu tiện nghi đang hỏng/bảo trì, vui lòng Ghi chi phí xử lý (Sửa chữa/Thay mới) để hệ thống tự động phục hồi.");
+            ConfirmHelper.ShowWarning(
+                "Chỉ được điều chỉnh trạng thái khi tiện nghi đang 'Hoạt động tốt'.\nNếu tiện nghi đang hỏng/bảo trì, vui lòng Ghi chi phí xử lý (Sửa chữa/Thay mới) để hệ thống tự động phục hồi.");
             return;
         }
 
@@ -104,7 +107,8 @@ public partial class TienNghiPage : Page
         // Chặn lật trạng thái nhanh nếu tiện nghi không phải là "Hoạt động tốt"
         if (item.MaTrangThai != "TNTT01")
         {
-            ConfirmHelper.ShowWarning("Tiện nghi này đang có sự cố. Vui lòng sử dụng chức năng Ghi chi phí để hoàn tất sửa chữa/thay mới.");
+            ConfirmHelper.ShowWarning(
+                "Tiện nghi này đang có sự cố. Vui lòng sử dụng chức năng Ghi chi phí để hoàn tất sửa chữa/thay mới.");
             return;
         }
 
@@ -119,9 +123,11 @@ public partial class TienNghiPage : Page
     {
         if (TienNghiGrid.SelectedItem is not TienNghiPhongViewModel item)
         {
-            ConfirmHelper.ShowWarning("Vui lòng chọn một tiện nghi trong danh sách (click vào lưới bên dưới) để xử lý.");
+            ConfirmHelper.ShowWarning(
+                "Vui lòng chọn một tiện nghi trong danh sách (click vào lưới bên dưới) để xử lý.");
             return;
         }
+
         if (CboPhong.SelectedValue is not string maPhong) return;
 
         if (!decimal.TryParse(TxtChiPhi.Text, out decimal cp) || cp <= 0)
@@ -133,7 +139,9 @@ public partial class TienNghiPage : Page
         string loaiXuLy = (CboLoaiXuLy.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Sửa chữa";
         string actionText = loaiXuLy.ToLower();
 
-        if (!ConfirmHelper.Confirm($"Xác nhận ghi chi phí {actionText} tiện nghi \"{item.TenTienNghi}\" tại phòng {maPhong} với số tiền {cp:N0} VNĐ?", "Xác nhận chi phí"))
+        if (!ConfirmHelper.Confirm(
+                $"Xác nhận ghi chi phí {actionText} tiện nghi \"{item.TenTienNghi}\" tại phòng {maPhong} với số tiền {cp:N0} VNĐ?",
+                "Xác nhận chi phí"))
             return;
 
         try
@@ -144,12 +152,12 @@ public partial class TienNghiPage : Page
 
             // Ghi vào module Chi phí (LCP003: Chi phí bảo trì, mua sắm)
             await chiPhiSvc.GhiChiPhiAsync(
-                maLoaiCP: "LCP003",
-                tenChiPhi: $"[{loaiXuLy}] {item.TenTienNghi} – Phòng {maPhong}",
-                soTien: cp,
-                maNhanVien: AppSession.MaNhanVien,
-                maPhong: maPhong,
-                maNCC: item.MaNcc);
+                "LCP003", // Chỉ cần truyền giá trị trực tiếp, bỏ chữ maLoaiCP:
+                $"[{loaiXuLy}] {item.TenTienNghi} – Phòng {maPhong}",
+                cp,
+                AppSession.MaNhanVien,
+                maPhong,
+                item.MaNcc);
 
             // Sau khi sửa chữa / thay mới thành công -> Đưa trạng thái về TNTT01 (Hoạt động tốt)
             await tienNghiSvc.CapNhatTrangThaiAsync(maPhong, item.MaTienNghi, "TNTT01");

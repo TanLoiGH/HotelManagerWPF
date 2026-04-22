@@ -2,127 +2,168 @@
     x:Class="QuanLyKhachSan_PhamTanLoi.Views.Dialogs.HuyPhongDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:QuanLyKhachSan_PhamTanLoi.Views.Dialogs"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="HuyPhongDialog"
-    Width="800"
-    Height="450"
-    mc:Ignorable="d">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    Title="Xác nhận hủy phòng"
+    Width="450"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ResizeMode="NoResize"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    WindowStyle="None">
 
-        <TextBlock
-            Grid.Row="0"
-            Margin="0,0,0,15"
-            FontSize="20"
-            FontWeight="Bold"
-            Foreground="{DynamicResource Brush.Error}"
-            Text="⚠️ XÁC NHẬN HỦY PHÒNG"
-            TextAlignment="Center" />
+    <Border
+        Margin="15"
+        Background="{DynamicResource Brush.Surface}"
+        BorderBrush="{DynamicResource Brush.Border}"
+        BorderThickness="1"
+        CornerRadius="16">
+        <Border.Effect>
+            <DropShadowEffect
+                BlurRadius="15"
+                Direction="270"
+                Opacity="0.1"
+                ShadowDepth="2"
+                Color="Black" />
+        </Border.Effect>
 
-        <StackPanel Grid.Row="1">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
             <TextBlock
-                Margin="0,0,0,5"
-                FontSize="14"
-                Foreground="{DynamicResource Brush.TextLabel}"
-                Text="Lý do hủy:" />
-            <Border
-                Height="36"
-                Margin="0,0,0,15"
-                CornerRadius="6"
-                Style="{DynamicResource MacFluent.InputFrame}">
-                <ComboBox
-                    x:Name="cboLyDo"
-                    Padding="8,0"
-                    VerticalAlignment="Center"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    FontSize="15"
-                    IsEditable="True">
-                    <ComboBoxItem Content="Huỷ riêng phòng này" />
-                    <ComboBoxItem Content="Khách đổi ý / Hủy trước hạn" />
-                    <ComboBoxItem Content="Khách không đến (No-show)" />
-                    <ComboBoxItem Content="Lỗi hệ thống / Khách sạn sai sót" />
-                    <ComboBoxItem Content="Dịch bệnh / Thiên tai" />
-                </ComboBox>
-            </Border>
+                Grid.Row="0"
+                Margin="0,0,0,20"
+                FontSize="20"
+                FontWeight="Bold"
+                Foreground="{DynamicResource Brush.Error}"
+                Text="⚠️ Xác nhận hủy phòng" />
 
-            <DockPanel Margin="0,0,0,5">
+            <StackPanel Grid.Row="1">
                 <TextBlock
-                    DockPanel.Dock="Left"
+                    Margin="0,0,0,8"
                     FontSize="14"
-                    Foreground="{DynamicResource Brush.TextLabel}"
-                    Text="Số tiền hoàn lại cho khách:" />
-                <TextBlock
-                    x:Name="txtGoiYCoc"
-                    HorizontalAlignment="Right"
-                    DockPanel.Dock="Right"
-                    FontSize="13"
-                    Foreground="{DynamicResource Brush.TextPlaceholder}"
-                    Text="(Khách đã cọc: 0 đ)" />
-            </DockPanel>
-
-            <Border
-                Height="36"
-                CornerRadius="6"
-                Style="{DynamicResource MacFluent.InputFrame}">
-                <TextBox
-                    x:Name="txtTienHoan"
-                    Padding="8,0"
-                    VerticalAlignment="Center"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    FontSize="15"
                     FontWeight="SemiBold"
-                    Text="0"
-                    TextAlignment="Right" />
-            </Border>
+                    Foreground="{DynamicResource Brush.TextLabel}"
+                    Text="Lý do hủy:" />
 
-            <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
-                <Button
-                    Margin="0,0,10,0"
-                    Padding="10,2"
-                    Background="Transparent"
-                    BorderBrush="#0078D7"
-                    BorderThickness="1"
-                    Click="BtnHoanDu_Click"
-                    Content="Hoàn đủ cọc"
-                    Foreground="#0078D7" />
-                <Button
-                    Padding="10,2"
-                    Background="Transparent"
-                    BorderBrush="{DynamicResource Brush.Error}"
-                    BorderThickness="1"
-                    Click="BtnKhongHoan_Click"
-                    Content="Không hoàn (0đ)"
-                    Foreground="{DynamicResource Brush.Error}" />
+                <Border
+                    Height="40"
+                    Margin="0,0,0,20"
+                    Style="{DynamicResource MacFluent.InputFrame}">
+                    <ComboBox
+                        x:Name="cboLyDo"
+                        Padding="10,0"
+                        VerticalContentAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontSize="15"
+                        Foreground="{DynamicResource Brush.TextPrimary}"
+                        IsEditable="True">
+                        <ComboBoxItem Content="Huỷ riêng phòng này" />
+                        <ComboBoxItem Content="Khách đổi ý / Hủy trước hạn" />
+                        <ComboBoxItem Content="Khách không đến (No-show)" />
+                        <ComboBoxItem Content="Lỗi hệ thống / Khách sạn sai sót" />
+                        <ComboBoxItem Content="Dịch bệnh / Thiên tai" />
+                    </ComboBox>
+                </Border>
+
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock
+                        DockPanel.Dock="Left"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextLabel}"
+                        Text="Số tiền hoàn lại cho khách:" />
+                    <TextBlock
+                        x:Name="txtGoiYCoc"
+                        HorizontalAlignment="Right"
+                        DockPanel.Dock="Right"
+                        FontSize="13"
+                        Foreground="{DynamicResource Brush.TextPlaceholder}"
+                        Text="(Khách đã cọc: 0 đ)" />
+                </DockPanel>
+
+                <Border Height="40" Style="{DynamicResource MacFluent.InputFrame}">
+                    <TextBox
+                        x:Name="txtTienHoan"
+                        Padding="10,0"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Brush.TextPrimary}"
+                        Text="0"
+                        TextAlignment="Right" />
+                </Border>
+
+                <StackPanel
+                    Margin="0,12,0,0"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+                    <Button
+                        Margin="0,0,10,0"
+                        Padding="12,6"
+                        Background="Transparent"
+                        BorderBrush="{DynamicResource Brush.BrandPrimary}"
+                        BorderThickness="1"
+                        Click="BtnHoanDu_Click"
+                        Content="Hoàn đủ cọc"
+                        Cursor="Hand"
+                        Foreground="{DynamicResource Brush.BrandPrimary}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6" />
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button
+                        Padding="12,6"
+                        Background="Transparent"
+                        BorderBrush="{DynamicResource Brush.Error}"
+                        BorderThickness="1"
+                        Click="BtnKhongHoan_Click"
+                        Content="Không hoàn (0đ)"
+                        Cursor="Hand"
+                        Foreground="{DynamicResource Brush.Error}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6" />
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
 
-        <StackPanel
-            Grid.Row="2"
-            Margin="0,15,0,0"
-            HorizontalAlignment="Right"
-            Orientation="Horizontal">
-            <Button
-                Width="100"
-                Height="36"
-                Margin="0,0,10,0"
-                Click="BtnHuy_Click"
-                Content="Quay lại"
-                Style="{DynamicResource MacFluent.ButtonSecondary}" />
-            <Button
-                Width="120"
-                Margin="0,0,0,0"
-                Background="#E81123"
-                Click="BtnXacNhan_Click"
-                Content="Xác nhận Hủy"
-                Style="{DynamicResource MacFluent.ButtonPrimary}" />
-        </StackPanel>
-    </Grid>
+            <Grid Grid.Row="2" Margin="0,24,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button
+                    x:Name="BtnHuy"
+                    Grid.Column="0"
+                    Height="40"
+                    Click="BtnHuy_Click"
+                    Content="Quay lại"
+                    Style="{DynamicResource MacFluent.ButtonSecondary}" />
+
+                <Button
+                    x:Name="BtnXacNhan"
+                    Grid.Column="2"
+                    Height="40"
+                    Background="{DynamicResource Brush.Error}"
+                    BorderBrush="{DynamicResource Brush.Error}"
+                    Click="BtnXacNhan_Click"
+                    Content="Xác nhận Hủy"
+                    Foreground="White"
+                    Style="{DynamicResource MacFluent.ButtonPrimary}" />
+            </Grid>
+        </Grid>
+    </Border>
 </Window>

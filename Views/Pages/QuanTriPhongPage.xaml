@@ -169,6 +169,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtMaPhong"
+                                Margin="10,0"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"

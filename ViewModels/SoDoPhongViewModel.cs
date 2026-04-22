@@ -16,49 +16,61 @@ using QuanLyKhachSan_PhamTanLoi.Services;
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
-public partial class SoDoPhongViewModel : BaseViewModel
+// Định nghĩa class bổ trợ cho Tiện nghi
+public class TienNghiItem
+{
+    public string TenTienNghi { get; set; } = "";
+}
+
+public partial class SoDoPhongViewModel : BaseViewModel, IDisposable
 {
     private readonly PhongService _roomService;
     private readonly KhachHangService _khachHangService;
     private readonly DatPhongService _datPhongService;
 
+    // Các khóa Semaphore khớp với file DatPhong.cs
     private readonly SemaphoreSlim _khoaPhong = new(1, 1);
     private readonly SemaphoreSlim _khoaKhachHang = new(1, 1);
     private readonly SemaphoreSlim _khoaDatPhong = new(1, 1);
 
     private CancellationTokenSource? _ctsChonPhong;
     private int _phienChonPhong;
-        
-    // ── Collections ────────────────────────────────────────────────────────
-    private List<PhongCardViewModel> _allPhongs = new();
+
+    // Tên biến Collection khớp với file DatPhong.cs (_allPhongs)
+    private readonly ObservableCollection<PhongCardViewModel> _allPhongs = new();
     private readonly ListCollectionView _filteredRooms;
     public ICollectionView FilteredRooms => _filteredRooms;
 
-    // ── Filter & Search state ───────────────────────────────────────────────
+    #region FILTER & SEARCH PROPERTIES
+
     private string _searchText = "";
+
     public string SearchText
     {
         get => _searchText;
         set
         {
-            if (SetProperty(ref _searchText, value))
-                _filteredRooms.Refresh();
+            if (SetProperty(ref _searchText, value)) _filteredRooms.Refresh();
         }
     }
 
     private string _selectedFilter = "all";
+
     public string SelectedFilter
     {
         get => _selectedFilter;
         set
         {
-            if (SetProperty(ref _selectedFilter, value))
-                _filteredRooms.Refresh();
+            if (SetProperty(ref _selectedFilter, value)) _filteredRooms.Refresh();
         }
     }
 
-    // ── Detail state ──────────────────────────────────────────────
+    #endregion
+
+    #region SELECTED ROOM STATE
+
     private PhongCardViewModel? _selectedRoom;
+
     public PhongCardViewModel? SelectedRoom
     {
         get => _selectedRoom;
@@ -66,10 +78,7 @@ public partial class SoDoPhongViewModel : BaseViewModel
         {
             if (SetProperty(ref _selectedRoom, value))
             {
-                OnPropertyChanged(nameof(IsRoomSelected));
-                OnPropertyChanged(nameof(IsRoomAvailable));
-                OnPropertyChanged(nameof(IsRoomReserved));
-                OnPropertyChanged(nameof(IsRoomOccupied));
+                NotifyRoomStateChanged();
                 if (value != null) BatDauXuLyKhiChonPhong(value);
             }
         }
@@ -82,34 +91,46 @@ public partial class SoDoPhongViewModel : BaseViewModel
 
     public string RoomCountText => $"{_allPhongs.Count} phòng";
 
-    // ── Multi-select properties ─────────────────────────────────────────────
+    // Các thuộc tính phục vụ Multi-select
     public List<PhongCardViewModel> SelectedRooms => _allPhongs.Where(p => p.IsSelected).ToList();
     public bool IsMultiSelectMode => SelectedRooms.Count > 1;
     public string SelectionTitle => IsMultiSelectMode ? $"ĐANG CHỌN {SelectedRooms.Count} PHÒNG" : "THÔNG TIN PHÒNG";
 
-    // ── Loading state ───────────────────────────────────────────────────────
+    // Mã đặt phòng để hủy (Sửa lỗi CS0103 SelectedMaDatPhong)
+    private string _selectedMaDatPhong = "";
+
+    public string SelectedMaDatPhong
+    {
+        get => _selectedMaDatPhong;
+        set => SetProperty(ref _selectedMaDatPhong, value);
+    }
+
+    #endregion
+
+    #region LOADING & COMMANDS
+
     private bool _isLoading;
+
     public bool IsLoading
     {
         get => _isLoading;
         set => SetProperty(ref _isLoading, value);
     }
 
-    // ── Commands ────────────────────────────────────────────────────────────
     public ICommand FilterCommand { get; }
     public ICommand RefreshCommand { get; }
     public ICommand SelectKhachCommand { get; }
     public ICommand DatPhongCommand { get; }
     public ICommand DoiPhongCommand { get; }
-
-    public string SelectedMaDatPhong { get; set; } // Dùng để lưu mã đặt phòng khi chọn phòng PTT05
     public ICommand HuyDatPhongCommand { get; }
     public ICommand HuyPhongRiengLeCommand { get; }
     public ICommand HoanThanhDonDepCommand { get; }
     public ICommand CheckInRiengLeCommand { get; }
 
-    // ── Constructor ─────────────────────────────────────────────────────────
-    public SoDoPhongViewModel(PhongService roomService, KhachHangService khachHangService, DatPhongService datPhongService)
+    #endregion
+
+    public SoDoPhongViewModel(PhongService roomService, KhachHangService khachHangService,
+        DatPhongService datPhongService)
     {
         _roomService = roomService;
         _khachHangService = khachHangService;
@@ -117,38 +138,30 @@ public partial class SoDoPhongViewModel : BaseViewModel
 
         _filteredRooms = (ListCollectionView)CollectionViewSource.GetDefaultView(_allPhongs);
         _filteredRooms.Filter = LocPhong;
-
         _filteredRooms.GroupDescriptions.Add(new PropertyGroupDescription(nameof(PhongCardViewModel.Tang)));
-        _filteredRooms.SortDescriptions.Add(new SortDescription(nameof(PhongCardViewModel.Tang), ListSortDirection.Ascending));
-        _filteredRooms.SortDescriptions.Add(new SortDescription(nameof(PhongCardViewModel.SoPhongSort), ListSortDirection.Ascending));
+        _filteredRooms.SortDescriptions.Add(new SortDescription(nameof(PhongCardViewModel.Tang),
+            ListSortDirection.Ascending));
+        _filteredRooms.SortDescriptions.Add(new SortDescription(nameof(PhongCardViewModel.SoPhongSort),
+            ListSortDirection.Ascending));
 
+        // Khởi tạo các Command
         FilterCommand = new RelayCommand(p => SelectedFilter = p?.ToString() ?? "all");
-        RefreshCommand = new RelayCommand(async _ => await TaiDuLieuAsync());
+        RefreshCommand = new AsyncRelayCommand(async _ => await TaiDuLieuAsync());
         SelectKhachCommand = new RelayCommand(p => SelectedKhach = p as KhachHang);
-        DatPhongCommand = new RelayCommand(async _ => await ThucHienDatPhongAsync());
-        CheckInRiengLeCommand = new AsyncRelayCommand(async _ => await ThucHienCheckInRiengLeAsync(), _ => SelectedRoom != null && !string.IsNullOrEmpty(SelectedRoom.MaDatPhong));
-        DoiPhongCommand = new RelayCommand(async _ => await ThucHienDoiPhongAsync());
-
+        DatPhongCommand = new AsyncRelayCommand(async _ => await ThucHienDatPhongAsync());
+        CheckInRiengLeCommand = new AsyncRelayCommand(async _ => await ThucHienCheckInRiengLeAsync(),
+            _ => SelectedRoom != null && !string.IsNullOrEmpty(SelectedRoom.MaDatPhong));
+        DoiPhongCommand = new AsyncRelayCommand(async _ => await ThucHienDoiPhongAsync());
         HuyPhongRiengLeCommand = new AsyncRelayCommand(async _ => await ThucHienHuyPhongRiengLeAsync());
         HuyDatPhongCommand = new AsyncRelayCommand(async _ => await ThucHienHuyDatPhongAsync());
         HoanThanhDonDepCommand = new AsyncRelayCommand(async _ => await ThucHienHoanThanhDonDepAsync());
     }
 
-
-    public void ClearAllSelectedRooms()
-    {
-        foreach (var p in _allPhongs)
-        {
-            if (p.IsSelected)
-                p.IsSelected = false;
-        }
-        OnPropertyChanged(nameof(SelectedRooms));
-        OnPropertyChanged(nameof(IsMultiSelectMode));
-    }
-
     public async Task TaiDuLieuAsync()
     {
+        if (IsLoading) return;
         IsLoading = true;
+
         try
         {
             await _khoaPhong.WaitAsync();
@@ -156,28 +169,14 @@ public partial class SoDoPhongViewModel : BaseViewModel
             {
                 var rooms = await _roomService.LayDanhSachPhongChiTietAsync();
                 var activeBookings = await _roomService.LayChiTietDatPhongDangHoatDongAsync();
+                var dictBookings = activeBookings.ToDictionary(b => b.MaPhong);
 
                 _allPhongs.Clear();
-
-                var dictBookings = activeBookings.ToDictionary(b => b.MaPhong);                // Sửa lỗi ở đây: Bao bọc bằng ngoặc nhọn để code chạy đúng vòng lặp
                 foreach (var p in rooms)
                 {
                     dictBookings.TryGetValue(p.MaPhong, out var booking);
 
-                    var vm = new PhongCardViewModel
-                    {
-                        MaPhong = p.MaPhong,
-                        MaDatPhong = booking?.MaDatPhong ?? "",
-                        TenLoaiPhong = p.MaLoaiPhongNavigation.TenLoaiPhong ?? "",
-                        TenTrangThai = p.MaTrangThaiPhongNavigation?.TenTrangThai ?? "",
-                        MaTrangThaiPhong = p.MaTrangThaiPhong ?? PhongTrangThaiCodes.Trong,
-                        SoNguoiToiDa = p.MaLoaiPhongNavigation.SoNguoiToiDa ?? 0,
-                        GiaPhong = p.MaLoaiPhongNavigation.GiaPhong,
-                        Tang = LayTangTuMaPhong(p.MaPhong),
-                        GuestName = booking?.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang
-                    };
-
-                    // Cập nhật UI khi Checkbox trên thẻ bị tick/bỏ tick
+                    var vm = new PhongCardViewModel(p, booking);
                     vm.OnSelectedChanged = () =>
                     {
                         OnPropertyChanged(nameof(SelectedRooms));
@@ -185,7 +184,6 @@ public partial class SoDoPhongViewModel : BaseViewModel
                         OnPropertyChanged(nameof(SelectionTitle));
                         CapNhatTienTamTinh();
                     };
-
                     _allPhongs.Add(vm);
                 }
 
@@ -199,8 +197,7 @@ public partial class SoDoPhongViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            Logger.LogError("Lỗi", ex);
-            MessageBox.Show($"Lỗi tải phòng: {ex.Message}", "Lỗi");
+            Logger.LogError("Lỗi sơ đồ phòng", ex);
         }
         finally
         {
@@ -211,64 +208,89 @@ public partial class SoDoPhongViewModel : BaseViewModel
     private bool LocPhong(object obj)
     {
         if (obj is not PhongCardViewModel vm) return false;
-
         bool matchesFilter = _selectedFilter == "all" || vm.MaTrangThaiPhong == _selectedFilter;
         if (!matchesFilter) return false;
-
         if (string.IsNullOrWhiteSpace(_searchText)) return true;
-
         var kw = _searchText.Trim().ToLower();
         return vm.MaPhong.ToLower().Contains(kw) || vm.TenLoaiPhong.ToLower().Contains(kw);
     }
 
-    private static int LayTangTuMaPhong(string maPhong)
+    private void NotifyRoomStateChanged()
     {
-        if (string.IsNullOrWhiteSpace(maPhong)) return 0;
-        var s = maPhong.Trim();
-        if (s.Length >= 2 && char.IsLetter(s[0]) && int.TryParse(s[1].ToString(), out int f1)) return f1;
-        if (s.Length >= 1 && int.TryParse(s[0].ToString(), out int f0)) return f0;
-        return 0;
+        OnPropertyChanged(nameof(IsRoomSelected));
+        OnPropertyChanged(nameof(IsRoomAvailable));
+        OnPropertyChanged(nameof(IsRoomReserved));
+        OnPropertyChanged(nameof(IsRoomOccupied));
+    }
+
+    public void ClearAllSelectedRooms()
+    {
+        foreach (var p in _allPhongs.Where(x => x.IsSelected))
+        {
+            p.IsSelected = false;
+        }
+
+        NotifyRoomStateChanged();
+    }
+
+    public void Dispose()
+    {
+        _ctsChonPhong?.Cancel();
+        _ctsChonPhong?.Dispose();
+        _khoaPhong.Dispose();
+        _khoaKhachHang.Dispose();
+        _khoaDatPhong.Dispose();
     }
 }
 
-
-// Giữ nguyên 2 class phụ trợ này ở file gốc
-public class TienNghiItem { public string TenTienNghi { get; set; } = ""; }
-
 public class PhongCardViewModel : BaseViewModel
 {
+    public PhongCardViewModel(Phong p, DatPhongChiTiet? booking)
+    {
+        MaPhong = p.MaPhong;
+        TenLoaiPhong = p.MaLoaiPhongNavigation?.TenLoaiPhong ?? "";
+        TenTrangThai = p.MaTrangThaiPhongNavigation?.TenTrangThai ?? "";
+        MaTrangThaiPhong = p.MaTrangThaiPhong ?? PhongTrangThaiCodes.Trong;
+        SoNguoiToiDa = p.MaLoaiPhongNavigation?.SoNguoiToiDa ?? 0;
+        GiaPhong = p.MaLoaiPhongNavigation?.GiaPhong ?? 0;
+        if (booking != null)
+        {
+            MaDatPhong = booking.MaDatPhong;
+            GuestName = booking.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang;
+        }
+
+        Tang = ExtractFloor(MaPhong);
+    }
+
     private bool _isSelected;
+
     public bool IsSelected
     {
         get => _isSelected;
         set
         {
-            if (SetProperty(ref _isSelected, value))
-                OnSelectedChanged?.Invoke(); // Gọi ngược lên ViewModel cha khi tick
+            if (SetProperty(ref _isSelected, value)) OnSelectedChanged?.Invoke();
         }
     }
+
     public Action? OnSelectedChanged { get; set; }
-
-    public string MaPhong { get; set; } = "";
-    public string MaDatPhong { get; set; } = "";
-    public string TenLoaiPhong { get; set; } = "";
-    public string TenTrangThai { get; set; } = "";
-    public string MaTrangThaiPhong { get; set; } = "";
-    public int SoNguoiToiDa { get; set; }
-    public decimal GiaPhong { get; set; }
+    public string MaPhong { get; }
+    public string MaDatPhong { get; } = "";
+    public string TenLoaiPhong { get; }
+    public string TenTrangThai { get; }
+    public string MaTrangThaiPhong { get; }
+    public int SoNguoiToiDa { get; }
+    public decimal GiaPhong { get; }
+    public int Tang { get; }
+    public string? GuestName { get; }
     public string GiaPhongText => GiaPhong.ToString("N0", new CultureInfo("vi-VN")) + " ₫";
-    public int Tang { get; set; }
+    public string InfoText => !string.IsNullOrEmpty(GuestName) ? GuestName : "Phòng trống";
+    public int SoPhongSort => int.TryParse(new string(MaPhong.Where(char.IsDigit).ToArray()), out var n) ? n : 0;
 
-    public int SoPhongSort
+    private static int ExtractFloor(string maPhong)
     {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(MaPhong)) return 0;
-            var digits = new string(MaPhong.Where(char.IsDigit).ToArray());
-            return int.TryParse(digits, out var n) ? n : 0;
-        }
+        if (string.IsNullOrWhiteSpace(maPhong)) return 0;
+        var digits = maPhong.Where(char.IsDigit).ToArray();
+        return (digits.Length > 0 && int.TryParse(digits[0].ToString(), out var f)) ? f : 0;
     }
-    public string? GuestName { get; set; }
-    public string InfoText => !string.IsNullOrEmpty(GuestName) ? GuestName : "Chưa có thông tin";
-    public string CaptionText => $"{TenLoaiPhong}";
 }

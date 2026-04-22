@@ -44,7 +44,7 @@
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource Brush.Heading}" />
                             <Border
-                                Width="180"
+                                Width="220"
                                 Height="34"
                                 Margin="16,0,0,0"
                                 Padding="10,0"
@@ -59,6 +59,7 @@
                                         Text="🔍" />
                                     <TextBox
                                         x:Name="TxtSearch"
+                                        Width="200"
                                         VerticalAlignment="Center"
                                         Background="Transparent"
                                         BorderThickness="0"
@@ -123,6 +124,7 @@
                             Width="140"
                             Binding="{Binding QuyenText}"
                             ElementStyle="{StaticResource CenterCell}"
+                            FontWeight="DemiBold"
                             Header="Quyền" />
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>
@@ -187,6 +189,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtTen"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -207,6 +210,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtChucVu"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -227,6 +231,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtDienThoai"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -247,6 +252,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtEmail"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -267,6 +273,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtCCCD"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -309,6 +316,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtTenDangNhap"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -329,6 +337,7 @@
                             CornerRadius="8">
                             <PasswordBox
                                 x:Name="PbMatKhau"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"

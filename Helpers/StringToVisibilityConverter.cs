@@ -4,75 +4,107 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace QuanLyKhachSan_PhamTanLoi.Helpers
+namespace QuanLyKhachSan_PhamTanLoi.Helpers;
+// Senior Fix: File-scoped namespace
+
+/// <summary>
+/// Senior Note: Class này thực chất là một UniversalVisibilityConverter.
+/// Nó hỗ trợ kiểm tra Null, String, Boolean, ICollection Count, và Numbers.
+/// </summary>
+public class StringToVisibilityConverter : IValueConverter
 {
-    public class StringToVisibilityConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        // 1. TRƯỜNG HỢP CÓ PARAMETER: Chỉ hiển thị khi Value bằng với Parameter
+        if (parameter != null)
         {
-            // Nếu có ConverterParameter: chỉ Visible khi value == parameter (hỗ trợ string & number/Count).
-            if (parameter != null)
-            {
-                if (value == null) return Visibility.Collapsed;
-
-                var paramText = parameter.ToString() ?? "";
-
-                if (TryCompareAsNumber(value, paramText, culture, out bool numberEquals))
-                    return numberEquals ? Visibility.Visible : Visibility.Collapsed;
-
-                return string.Equals(value.ToString(), paramText, StringComparison.OrdinalIgnoreCase)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
-
             if (value == null) return Visibility.Collapsed;
 
-            if (value is bool b)
-                return b ? Visibility.Visible : Visibility.Collapsed;
+            string paramText = parameter.ToString() ?? string.Empty;
 
-            if (value is string s)
-                return string.IsNullOrWhiteSpace(s) ? Visibility.Collapsed : Visibility.Visible;
+            // Kiểm tra so sánh dạng số (Tối ưu hóa: không dùng try-catch)
+            if (TryCompareAsNumber(value, paramText, out bool numberEquals))
+                return numberEquals ? Visibility.Visible : Visibility.Collapsed;
 
-            if (value is ICollection collection)
-                return collection.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-
-            if (TryGetNumber(value, culture, out var number))
-                return number > 0 ? Visibility.Visible : Visibility.Collapsed;
-
-            // object khác: không null => Visible
-            return Visibility.Visible;
+            // So sánh chuỗi (không phân biệt hoa thường)
+            return string.Equals(value.ToString(), paramText, StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
         }
 
-        private static bool TryCompareAsNumber(object value, string paramText, CultureInfo culture, out bool equals)
+        // 2. TRƯỜNG HỢP KHÔNG CÓ PARAMETER: Dùng Pattern Matching (Switch Expression)
+        return value switch
         {
-            equals = false;
-            if (!TryGetNumber(value, culture, out var v)) return false;
-            if (!decimal.TryParse(paramText, NumberStyles.Any, culture, out var p)) return false;
-            equals = v == p;
-            return true;
-        }
+            null => Visibility.Collapsed,
+            bool b => b ? Visibility.Visible : Visibility.Collapsed,
+            string s => string.IsNullOrWhiteSpace(s) ? Visibility.Collapsed : Visibility.Visible,
+            ICollection collection => collection.Count > 0 ? Visibility.Visible : Visibility.Collapsed,
+            _ when IsNumber(value, out decimal number) => number > 0 ? Visibility.Visible : Visibility.Collapsed,
+            _ => Visibility.Visible // Mặc định object tồn tại thì hiển thị
+        };
+    }
 
-        private static bool TryGetNumber(object value, CultureInfo culture, out decimal number)
+    /// <summary>
+    /// Senior Fix: Kiểm tra kiểu số bằng Type Pattern Matching cực nhanh,
+    /// tuyệt đối KHÔNG sử dụng Try-Catch để ép kiểu trong WPF Converter.
+    /// </summary>
+    private static bool IsNumber(object value, out decimal number)
+    {
+        number = 0;
+        switch (value)
         {
-            number = 0;
-            try
-            {
-                if (value is IConvertible)
-                {
-                    number = System.Convert.ToDecimal(value, culture);
-                    return true;
-                }
-            }
-            catch
-            {
-                // ignore
-            }
-            return false;
+            case sbyte sb:
+                number = sb;
+                return true;
+            case byte b:
+                number = b;
+                return true;
+            case short s:
+                number = s;
+                return true;
+            case ushort us:
+                number = us;
+                return true;
+            case int i:
+                number = i;
+                return true;
+            case uint ui:
+                number = ui;
+                return true;
+            case long l:
+                number = l;
+                return true;
+            case ulong ul:
+                number = ul;
+                return true;
+            case float f:
+                number = (decimal)f;
+                return true;
+            case double d:
+                number = (decimal)d;
+                return true;
+            case decimal dec:
+                number = dec;
+                return true;
+            default: return false;
         }
+    }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+    private static bool TryCompareAsNumber(object value, string paramText, out bool equals)
+    {
+        equals = false;
+        if (!IsNumber(value, out decimal v)) return false;
+
+        // Dùng InvariantCulture để parse tham số XAML vì tham số ở UI thường viết theo chuẩn quốc tế (dấu chấm thập phân)
+        if (!decimal.TryParse(paramText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal p)) return false;
+
+        equals = v == p;
+        return true;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        // Trả về UnsetValue để thông báo cho WPF bỏ qua nếu vô tình gán TwoWay Binding
+        return DependencyProperty.UnsetValue;
     }
 }

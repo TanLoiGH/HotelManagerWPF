@@ -481,8 +481,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
             MaKhachHang = hd.MaDatPhongNavigation?.MaKhachHang ?? "";
             KhachHang = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.TenKhachHang ?? "";
-            MaNhanVienCheckIn = hd.MaNhanVien ?? "";
-            TenNhanVienCheckIn = hd.MaNhanVienNavigation?.TenNhanVien ?? "";
             MaNhanVienDatPhong = hd.MaDatPhongNavigation?.MaNhanVien ?? "";
             TenNhanVienDatPhong = hd.MaDatPhongNavigation?.MaNhanVienNavigation?.TenNhanVien ?? "";
             NgayLap = hd.NgayLap;
@@ -490,6 +488,16 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             MaDatPhong = hd.MaDatPhong ?? "";
             TrangThaiDatPhong = hd.MaDatPhongNavigation?.TrangThai ?? "";
             KhuyenMai = hd.MaKhuyenMaiNavigation?.TenKhuyenMai ?? "Không";
+            MaNhanVienCheckIn = hd.MaNhanVien ?? "";
+            string tenNv = hd.MaNhanVienNavigation?.TenNhanVien ?? "";
+            // Bọc lót UX: Nếu Entity Framework quên Include, ta mượn tên từ Session đắp vào
+            if (string.IsNullOrWhiteSpace(tenNv) && MaNhanVienCheckIn == AppSession.MaNhanVien)
+            {
+                tenNv = AppSession.TenNhanVien ?? "Hệ thống";
+            }
+
+            TenNhanVienCheckIn = tenNv;
+
 
             decimal tienPhongDb = hd.TienPhong ?? 0;
             decimal tienDichVuDb = hd.TienDichVu ?? 0;
@@ -497,7 +505,16 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             decimal tienCocDb = hd.MaDatPhongNavigation?.TienCoc ?? 0;
             decimal tongLichSu = hd.ThanhToans?.Sum(t => t.SoTien) ?? 0;
 
-            var res = TinhToanHoaDonService.TinhToanToanBo(
+            if (hd.TrangThai == "Chưa thanh toán")
+            {
+                tienPhongDb = hd.HoaDonChiTiets.Sum(p =>
+                    TinhToanService.TinhTienPhongThucTe(p.DatPhongChiTiet.DonGia, p.DatPhongChiTiet.NgayNhan,
+                        p.DatPhongChiTiet.NgayTra));
+
+                tienDichVuDb = TinhToanService.TinhTongTienDichVu(hd.DichVuChiTiets);
+            }
+
+            var res = TinhToanService.TinhToanToanBo(
                 tienPhongDb, tienDichVuDb, vatPercentDb,
                 hd.MaKhuyenMaiNavigation?.GiaTriKm ?? 0,
                 hd.MaKhuyenMaiNavigation?.LoaiKhuyenMai ?? "",
@@ -522,7 +539,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                     MaPhong = p.MaPhong,
                     NgayNhan = p.DatPhongChiTiet.NgayNhan,
                     NgayTra = p.DatPhongChiTiet.NgayTra,
-                    SoDem = TinhToanHoaDonService.TinhSoDem(p.DatPhongChiTiet.NgayNhan, p.DatPhongChiTiet.NgayTra),
+                    SoDem = TinhToanService.TinhSoDem(p.DatPhongChiTiet.NgayNhan, p.DatPhongChiTiet.NgayTra),
                     DonGia = p.DatPhongChiTiet.DonGia
                 });
 

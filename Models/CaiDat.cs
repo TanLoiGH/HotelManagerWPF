@@ -1,6 +1,6 @@
 namespace QuanLyKhachSan_PhamTanLoi.Models;
 
-public class SystemSettings
+public class CaiDat
 {
     public string HotelName { get; set; } = "";
     public string HotelAddress { get; set; } = "";
@@ -13,4 +13,3 @@ public class SystemSettings
 
     public int VatPercent { get; set; } = 8;
 }
-

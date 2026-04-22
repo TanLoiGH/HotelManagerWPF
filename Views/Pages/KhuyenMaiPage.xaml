@@ -43,7 +43,7 @@
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource Brush.Heading}" />
                             <Border
-                                Width="180"
+                                Width="200"
                                 Height="34"
                                 Margin="16,0,0,0"
                                 Padding="10,0"
@@ -58,6 +58,7 @@
                                         Text="🔍" />
                                     <TextBox
                                         x:Name="TxtSearch"
+                                        Width="190"
                                         VerticalAlignment="Center"
                                         Background="Transparent"
                                         BorderThickness="0"
@@ -202,6 +203,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtTen"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -239,6 +241,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtGiaTri"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"
@@ -260,6 +263,7 @@
                             CornerRadius="8">
                             <TextBox
                                 x:Name="TxtToiThieu"
+                                Margin="10,5"
                                 Padding="10,0"
                                 VerticalAlignment="Center"
                                 BorderThickness="0"

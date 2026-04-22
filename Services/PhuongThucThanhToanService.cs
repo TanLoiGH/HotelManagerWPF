@@ -1,6 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
+using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
@@ -9,22 +14,15 @@ public record PhuongThucThanhToanItem(string MaPttt, string TenPhuongThuc, int S
 public class PhuongThucThanhToanService
 {
     private readonly QuanLyKhachSanContext _db;
+
+    // Senior Note: Gom tiền tố thành hằng số
+    private const string PREFIX_PTTT = "PTTT";
+
     public PhuongThucThanhToanService(QuanLyKhachSanContext db) => _db = db;
 
-    private static string NextPttt(string? lastMa)
-    {
-        const string prefix = "PTTT";
-        if (string.IsNullOrWhiteSpace(lastMa) || !lastMa.StartsWith(prefix))
-            return "PTTT01";
+    // Senior Fix: Đã xóa hoàn toàn hàm `NextPttt` rườm rà. Chúng ta sẽ dùng `MaHelper.Next`
 
-        var numeric = lastMa[prefix.Length..];
-        int pad = Math.Max(2, numeric.Length);
-
-        if (int.TryParse(numeric, out int n))
-            return $"{prefix}{(n + 1).ToString($"D{pad}")}";
-
-        return "PTTT01";
-    }
+    #region TRUY VẤN DỮ LIỆU
 
     public async Task<List<PhuongThucThanhToanItem>> LayDanhSachAsync()
     {
@@ -34,12 +32,21 @@ public class PhuongThucThanhToanService
             .Select(p => new PhuongThucThanhToanItem(
                 p.MaPttt,
                 p.TenPhuongThuc,
+                // Tối ưu: Đếm trực tiếp số giao dịch thông qua Navigation Property
                 p.ThanhToans.Count()))
             .ToListAsync();
     }
 
+    #endregion
+
+    #region THAO TÁC DỮ LIỆU (CRUD)
+
     public async Task TaoMoiAsync(string tenPhuongThuc, bool isActive = true)
     {
+        // Senior Fix: Bắt lỗi nếu tên trống
+        if (string.IsNullOrWhiteSpace(tenPhuongThuc))
+            throw new ArgumentException("Tên phương thức thanh toán không được để trống.");
+
         var lastMa = await _db.PhuongThucThanhToans
             .OrderByDescending(p => p.MaPttt)
             .Select(p => p.MaPttt)
@@ -47,8 +54,9 @@ public class PhuongThucThanhToanService
 
         _db.PhuongThucThanhToans.Add(new PhuongThucThanhToan
         {
-            MaPttt = NextPttt(lastMa),
-            TenPhuongThuc = tenPhuongThuc,
+            // Senior Fix: Tái sử dụng MaHelper chung của toàn dự án
+            MaPttt = MaHelper.Next(PREFIX_PTTT, lastMa),
+            TenPhuongThuc = tenPhuongThuc.Trim(),
             IsActive = isActive,
         });
 
@@ -57,19 +65,25 @@ public class PhuongThucThanhToanService
 
     public async Task CapNhatAsync(string maPttt, string tenPhuongThuc, bool? isActive = null)
     {
-        var item = await _db.PhuongThucThanhToans.FindAsync(maPttt);
-        if (item == null) return;
+        if (string.IsNullOrWhiteSpace(tenPhuongThuc))
+            throw new ArgumentException("Tên phương thức thanh toán không được để trống.");
 
-        item.TenPhuongThuc = tenPhuongThuc;
+        // Senior Fix: Ném lỗi thay vì return âm thầm
+        var item = await _db.PhuongThucThanhToans.FindAsync(maPttt)
+                   ?? throw new KeyNotFoundException($"Không tìm thấy phương thức thanh toán mã {maPttt} để cập nhật.");
+
+        item.TenPhuongThuc = tenPhuongThuc.Trim();
         if (isActive.HasValue) item.IsActive = isActive;
+
         await _db.SaveChangesAsync();
     }
 
     public async Task<bool> XoaHoacVoHieuHoaAsync(string maPttt)
     {
-        var item = await _db.PhuongThucThanhToans.FindAsync(maPttt);
-        if (item == null) return false;
+        var item = await _db.PhuongThucThanhToans.FindAsync(maPttt)
+                   ?? throw new KeyNotFoundException($"Không tìm thấy phương thức thanh toán mã {maPttt} để xóa.");
 
+        // Nếu PTTT đã có hóa đơn sử dụng -> Soft Delete (Ngưng hoạt động)
         bool coGiaoDich = await _db.ThanhToans.AnyAsync(t => t.MaPttt == item.MaPttt);
         if (coGiaoDich)
         {
@@ -78,8 +92,11 @@ public class PhuongThucThanhToanService
             return true;
         }
 
+        // Nếu chưa từng sử dụng -> Hard Delete (Xóa hẳn)
         _db.PhuongThucThanhToans.Remove(item);
         await _db.SaveChangesAsync();
         return false;
     }
+
+    #endregion
 }

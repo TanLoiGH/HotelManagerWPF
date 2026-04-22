@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using QuanLyKhachSan_PhamTanLoi.Helpers; // Dùng để gọi Logger
 
 namespace QuanLyKhachSan_PhamTanLoi.ViewModels;
 
@@ -20,7 +24,7 @@ public class BaseViewModel : INotifyPropertyChanged
     }
 }
 
-// RelayCommand dùng chung
+// RelayCommand dùng chung cho các hàm đồng bộ (Synchronous)
 public class RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null) : ICommand
 {
     public event EventHandler? CanExecuteChanged
@@ -36,6 +40,7 @@ public class RelayCommand(Action<object?> execute, Func<object?, bool>? canExecu
         => CommandManager.InvalidateRequerySuggested();
 }
 
+// AsyncRelayCommand dùng cho các thao tác gọi API, Database (Asynchronous)
 public class AsyncRelayCommand(Func<object?, Task> executeAsync, Func<object?, bool>? canExecute = null) : ICommand
 {
     private bool _dangChay;
@@ -54,21 +59,24 @@ public class AsyncRelayCommand(Func<object?, Task> executeAsync, Func<object?, b
         if (!CanExecute(parameter)) return;
 
         _dangChay = true;
-        CommandManager.InvalidateRequerySuggested();
+        CommandManager.InvalidateRequerySuggested(); // Cập nhật UI (Disable nút)
 
         try
         {
             await executeAsync(parameter);
         }
+        catch (Exception ex)
+        {
+            // Senior Fix: Bắt mọi Exception rơi lọt từ ViewModel để chống Crash App
+            Logger.LogError("Lỗi không xác định tại AsyncRelayCommand", ex);
+        }
         finally
         {
             _dangChay = false;
-            CommandManager.InvalidateRequerySuggested();
+            CommandManager.InvalidateRequerySuggested(); // Cập nhật UI (Enable nút)
         }
     }
 
     public void RaiseCanExecuteChanged()
         => CommandManager.InvalidateRequerySuggested();
 }
-
-

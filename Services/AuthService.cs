@@ -15,19 +15,23 @@ public class AuthService : IAuthService
 {
     private readonly QuanLyKhachSanContext _db;
 
+    // Senior Fix: Đã xóa HASH_PREFIX ở đây vì PasswordHasher đã đảm nhiệm việc đó!
 
     public AuthService(QuanLyKhachSanContext db)
     {
         _db = db;
-        
     }
 
     public async Task<LoginResult?> DangNhapAsync(string tenDangNhap, string matKhau)
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(matKhau))
+                return null;
+
             var tk = await _db.TaiKhoans
-                .Include(t => t.MaNhanVienNavigation).ThenInclude(nv => nv.MaTrangThaiNavigation)
+                .Include(t => t.MaNhanVienNavigation)
+                .ThenInclude(nv => nv.MaTrangThaiNavigation)
                 .Include(t => t.MaQuyenNavigation)
                 .FirstOrDefaultAsync(t => t.TenDangNhap == tenDangNhap && t.IsActive == true);
 
@@ -36,12 +40,14 @@ public class AuthService : IAuthService
             bool authenticated = false;
             string stored = tk.MatKhau ?? "";
 
-            if (!string.IsNullOrEmpty(stored) && stored.StartsWith("HASH2:"))
+            // Senior Fix: Gọi trực tiếp hàm IsHashed() đọc rất tự nhiên giống tiếng Anh
+            if (PasswordHasher.IsHashed(stored))
             {
                 authenticated = PasswordHasher.Verify(matKhau, stored);
             }
             else if (!string.IsNullOrEmpty(stored) && stored == matKhau)
             {
+                // Tự động nâng cấp mật khẩu thường thành Hash bảo mật
                 authenticated = true;
                 tk.MatKhau = PasswordHasher.Hash(matKhau);
                 await _db.SaveChangesAsync();
@@ -56,19 +62,22 @@ public class AuthService : IAuthService
             {
                 MaNhanVien = nv.MaNhanVien,
                 TenNhanVien = nv.TenNhanVien,
-                ChucVu = nv.ChucVu ?? "",
+                ChucVu = nv.ChucVu ?? "Nhân viên",
                 Quyen = new List<string> { tk.MaQuyen }
             };
         }
         catch (Exception ex)
         {
-            Logger.LogError("Lỗi đăng nhập", ex);
-            throw;
+            Logger.LogError($"Lỗi đăng nhập cho user [{tenDangNhap}]", ex);
+            throw new InvalidOperationException("Hệ thống đăng nhập đang gặp sự cố, vui lòng thử lại sau.", ex);
         }
     }
 
+    // Senior Note: Khuyên bạn nên chuyển hàm này sang NhanVienService.cs cho đúng chuẩn SOLID
     public async Task<List<NhanVienViewModel>> GetNhanViensAsync()
-        => await _db.NhanViens
+    {
+        return await _db.NhanViens
+            .AsNoTracking()
             .Include(nv => nv.MaTrangThaiNavigation)
             .Include(nv => nv.TaiKhoans).ThenInclude(tk => tk.MaQuyenNavigation)
             .Select(nv => new NhanVienViewModel
@@ -79,19 +88,28 @@ public class AuthService : IAuthService
                 DienThoai = nv.DienThoai ?? "",
                 Email = nv.Email ?? "",
                 TenTrangThai = nv.MaTrangThaiNavigation != null ? nv.MaTrangThaiNavigation.TenTrangThai ?? "" : "",
-                Quyen = nv.TaiKhoans.Where(t => t.IsActive == true).Select(t => t.MaQuyenNavigation.TenQuyen ?? "").ToList()
+                Quyen = nv.TaiKhoans.Where(t => t.IsActive == true).Select(t => t.MaQuyenNavigation.TenQuyen ?? "")
+                    .ToList()
             }).ToListAsync();
+    }
 
     public async Task DoiMatKhauAsync(string maNhanVien, string? tenDangNhap, string matKhauCu, string matKhauMoi)
     {
-        var account = await _db.TaiKhoans.FirstOrDefaultAsync(t => t.MaNhanVien == maNhanVien && t.IsActive == true);
-        if (account == null) throw new InvalidOperationException("Không tìm thấy tài khoản.");
+        if (string.IsNullOrWhiteSpace(matKhauCu) || string.IsNullOrWhiteSpace(matKhauMoi))
+            throw new ArgumentException("Mật khẩu không được để trống.");
 
-        bool ok = account.MatKhau.StartsWith("HASH2:")
-            ? PasswordHasher.Verify(matKhauCu, account.MatKhau)
-            : account.MatKhau == matKhauCu;
+        var account = await _db.TaiKhoans.FirstOrDefaultAsync(t => t.MaNhanVien == maNhanVien && t.IsActive == true)
+                      ?? throw new KeyNotFoundException("Không tìm thấy tài khoản nhân viên đang hoạt động.");
 
-        if (!ok) throw new InvalidOperationException("Mật khẩu cũ không đúng.");
+        string stored = account.MatKhau ?? "";
+
+        // Senior Fix: Thay bằng hàm IsHashed()
+        bool ok = PasswordHasher.IsHashed(stored)
+            ? PasswordHasher.Verify(matKhauCu, stored)
+            : stored == matKhauCu;
+
+        if (!ok)
+            throw new UnauthorizedAccessException("Mật khẩu cũ không chính xác.");
 
         account.MatKhau = PasswordHasher.Hash(matKhauMoi);
         await _db.SaveChangesAsync();

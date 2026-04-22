@@ -26,10 +26,7 @@ public partial class SoDoPhongPage : Page
         DataContext = _viewModel;
 
         Loaded += async (_, _) => await _viewModel.TaiDuLieuAsync();
-        Unloaded += (_, _) =>
-        {
-            _db.Dispose();
-        };
+        Unloaded += (_, _) => { _db.Dispose(); };
     }
 
     private void PhongCard_Click(object sender, MouseButtonEventArgs e)
@@ -42,7 +39,8 @@ public partial class SoDoPhongPage : Page
         _viewModel.SelectedRoom = vm;
 
         // Double-click vào vùng trống của card (không phải checkbox): toggle chọn nhiều cho phòng Trống.
-        if (e.ClickCount >= 2 && !IsClickFrom<CheckBox>(e.OriginalSource) && vm.MaTrangThaiPhong == PhongTrangThaiCodes.Trong)
+        if (e.ClickCount >= 2 && !IsClickFrom<CheckBox>(e.OriginalSource) &&
+            vm.MaTrangThaiPhong == PhongTrangThaiCodes.Trong)
         {
             vm.IsSelected = !vm.IsSelected;
             e.Handled = true;
@@ -57,6 +55,7 @@ public partial class SoDoPhongPage : Page
             if (current is T) return true;
             current = VisualTreeHelper.GetParent(current);
         }
+
         return false;
     }
 
@@ -75,6 +74,4 @@ public partial class SoDoPhongPage : Page
             }
         }
     }
-
-
 }

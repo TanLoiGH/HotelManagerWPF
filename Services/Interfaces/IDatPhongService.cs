@@ -10,7 +10,15 @@ namespace QuanLyKhachSan_PhamTanLoi.Services.Interfaces
         Task HoanThanhDonDepAsync(string maPhong);
         Task HuyPhongRiengLeAsync(string maDatPhong, string maPhong, string maNhanVien, string lyDo);
         Task HuyDatPhongAsync(string maDatPhong, string maNhanVien, string lyDo, decimal? tienHoanTra = null);
-        Task<DatPhong> TaoDatPhongAsync(string maKhachHang, List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)> rooms, string maNhanVien = null, decimal tienCoc = 0, int soNguoi = 1);
+
+        Task<DatPhong> TaoDatPhongAsync(string maKhachHang,
+            List<(string MaPhong, DateTime NgayNhan, DateTime NgayTra)> rooms, string maNhanVien = null,
+            decimal tienCoc = 0, int soNguoi = 1);
+
         Task CheckInPhongRiengLeAsync(string maDatPhong, string maPhong, string maNhanVienLeTan);
+
+        Task<DatPhongChiTiet?> LayDatPhongDangOTheoPhongAsync(string maPhong);
+        Task<List<DichVuChiTiet>> LayDichVuTheoDatPhongAsync(string maDatPhong);
+        Task ThanhToanVaTraPhongAsync(string maDatPhong, string maPhong, string maNhanVien, decimal soTienThuThem);
     }
 }

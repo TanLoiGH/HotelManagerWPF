@@ -3,6 +3,7 @@ using QuanLyKhachSan_PhamTanLoi.Constants;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Models;
 using QuanLyKhachSan_PhamTanLoi.Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,9 +26,14 @@ public record TienNghiPhongQuanTriItem(
 public class PhongService : IPhongService
 {
     private readonly QuanLyKhachSanContext _db;
+
+    // Senior Note: Gom mã trạng thái mặc định của Tiện nghi vào hằng số
+    private const string MA_TRANG_THAI_TIEN_NGHI_MAC_DINH = "TNTT01";
+
     public PhongService(QuanLyKhachSanContext db) => _db = db;
 
-    // Lấy toàn bộ phòng kèm loại phòng và trạng thái để hiển thị sơ đồ.
+    #region TRUY VẤN DỮ LIỆU SƠ ĐỒ PHÒNG & BOOKING
+
     public async Task<List<Phong>> LayDanhSachPhongChiTietAsync()
     {
         return await _db.Phongs
@@ -38,46 +44,29 @@ public class PhongService : IPhongService
             .ToListAsync();
     }
 
-    // Lấy các booking còn hiệu lực để gắn tên khách lên thẻ phòng.
     public async Task<List<DatPhongChiTiet>> LayChiTietDatPhongDangHoatDongAsync()
     {
         return await _db.DatPhongChiTiets
             .AsNoTracking()
             .Include(c => c.MaDatPhongNavigation)
-                .ThenInclude(dp => dp.MaKhachHangNavigation)
+            .ThenInclude(dp => dp.MaKhachHangNavigation)
             .Where(c => c.MaDatPhongNavigation.TrangThai == DatPhongTrangThaiTexts.DangO ||
                         c.MaDatPhongNavigation.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong)
             .ToListAsync();
     }
 
-    // Lấy booking chờ nhận phòng gần nhất theo mã phòng.
     public async Task<DatPhongChiTiet?> LayDatPhongChoNhanTheoPhongAsync(string maPhong)
     {
         return await _db.DatPhongChiTiets
             .AsNoTracking()
             .Include(c => c.MaDatPhongNavigation)
-                .ThenInclude(dp => dp.MaKhachHangNavigation)
+            .ThenInclude(dp => dp.MaKhachHangNavigation)
             .Where(c => c.MaPhong == maPhong &&
-                        // 👇 NỚI LỎNG ĐIỀU KIỆN Ở ĐÂY 👇
                         (c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong ||
                          c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.DangO) &&
-                        // Chỉ lấy những phòng mà vật lý chưa nhận (vẫn đang Đã đặt)
                         c.MaPhongNavigation.MaTrangThaiPhong == PhongTrangThaiCodes.DaDat)
             .OrderByDescending(c => c.MaDatPhongNavigation.NgayDat)
             .FirstOrDefaultAsync();
-    }
-
-    // Lấy danh sách tiện nghi của phòng để hiển thị panel chi tiết.
-    public async Task<List<TienNghiPhong>> LayTienNghiPhongAsync(string maPhong)
-    {
-        return await _db.TienNghiPhongs
-            .AsNoTracking()
-            .Include(t => t.MaTienNghiNavigation)
-            .Where(t => t.MaPhong == maPhong)
-            .OrderBy(t => EF.Functions.Collate(
-                                t.MaTienNghiNavigation.TenTienNghi,
-                                "Vietnamese_CI_AI"))
-            .ToListAsync();
     }
 
     public async Task<List<string>> LayDanhSachMaPhongAsync()
@@ -101,6 +90,10 @@ public class PhongService : IPhongService
             .OrderByDescending(t => t.TenTrangThai)
             .ToListAsync();
 
+    #endregion
+
+    #region QUẢN TRỊ CƠ SỞ VẬT CHẤT & TIỆN NGHI
+
     public async Task<List<PhongQuanTriItem>> LayDanhSachPhongQuanTriAsync()
     {
         return await _db.Phongs
@@ -118,6 +111,16 @@ public class PhongService : IPhongService
             .ToListAsync();
     }
 
+    public async Task<List<TienNghiPhong>> LayTienNghiPhongAsync(string maPhong)
+    {
+        return await _db.TienNghiPhongs
+            .AsNoTracking()
+            .Include(t => t.MaTienNghiNavigation)
+            .Where(t => t.MaPhong == maPhong)
+            .OrderBy(t => EF.Functions.Collate(t.MaTienNghiNavigation.TenTienNghi, "Vietnamese_CI_AI"))
+            .ToListAsync();
+    }
+
     public async Task<List<TienNghiPhongQuanTriItem>> LayTienNghiPhongQuanTriAsync(string maPhong)
     {
         return await _db.TienNghiPhongs
@@ -128,7 +131,7 @@ public class PhongService : IPhongService
             .Select(t => new TienNghiPhongQuanTriItem(
                 t.MaTienNghi,
                 t.MaTienNghiNavigation.TenTienNghi,
-                t.MaTrangThai ?? "TNTT01"))
+                t.MaTrangThai ?? MA_TRANG_THAI_TIEN_NGHI_MAC_DINH)) // Senior Fix: Dùng hằng số
             .ToListAsync();
     }
 
@@ -148,7 +151,7 @@ public class PhongService : IPhongService
             {
                 MaPhong = maPhong,
                 MaTienNghi = id,
-                MaTrangThai = "TNTT01"
+                MaTrangThai = MA_TRANG_THAI_TIEN_NGHI_MAC_DINH // Senior Fix: Dùng hằng số
             });
         }
 
@@ -165,17 +168,27 @@ public class PhongService : IPhongService
 
     public async Task GoTienNghiKhoiPhongAsync(string maPhong, string maTienNghi)
     {
-        var item = await _db.TienNghiPhongs.FindAsync(maPhong, maTienNghi);
-        if (item == null) return;
+        var item = await _db.TienNghiPhongs.FindAsync(maPhong, maTienNghi)
+                   ?? throw new KeyNotFoundException($"Không tìm thấy tiện nghi {maTienNghi} trong phòng {maPhong}.");
+
         _db.TienNghiPhongs.Remove(item);
         await _db.SaveChangesAsync();
     }
 
+    #endregion
+
+    #region QUẢN LÝ PHÒNG (CRUD)
+
     public async Task TaoPhongAsync(string maPhong, string maLoaiPhong, string maTrangThai)
     {
+        if (string.IsNullOrWhiteSpace(maPhong))
+            throw new ArgumentException("Mã phòng không được để trống.");
+
+        maPhong = maPhong.Trim(); // Defensive Programming
+
         bool exists = await _db.Phongs.AnyAsync(p => p.MaPhong == maPhong);
         if (exists)
-            throw new InvalidOperationException("Mã phòng đã tồn tại.");
+            throw new InvalidOperationException($"Mã phòng '{maPhong}' đã tồn tại trong hệ thống.");
 
         _db.Phongs.Add(new Phong
         {
@@ -188,20 +201,23 @@ public class PhongService : IPhongService
 
     public async Task CapNhatPhongAsync(string maPhong, string maLoaiPhong, string maTrangThai)
     {
-        var p = await _db.Phongs.FindAsync(maPhong);
-        if (p == null) return;
+        // Senior Fix: Ném lỗi đàng hoàng, không return âm thầm
+        var p = await _db.Phongs.FindAsync(maPhong)
+                ?? throw new KeyNotFoundException($"Không tìm thấy dữ liệu phòng {maPhong}.");
 
         bool coDangO = await _db.DatPhongChiTiets
             .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.DangO);
 
         bool coChoNhan = await _db.DatPhongChiTiets
-            .AnyAsync(c => c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong);
+            .AnyAsync(c =>
+                c.MaPhong == maPhong && c.MaDatPhongNavigation!.TrangThai == DatPhongTrangThaiTexts.ChoNhanPhong);
 
+        // Senior Fix: Sửa lỗi text Tiếng Việt không dấu thành có dấu chuẩn mực để hiển thị lên MessageBox
         if (coDangO && maTrangThai != PhongTrangThaiCodes.DangO)
-            throw new InvalidOperationException("Phong dang o, khong the chuyen sang trang thai khac.");
+            throw new InvalidOperationException("Phòng đang có khách ở, không thể chuyển sang trạng thái khác.");
 
         if (!coDangO && coChoNhan && maTrangThai != PhongTrangThaiCodes.DaDat)
-            throw new InvalidOperationException("Phong dang duoc dat, chi co the de trang thai 'Da dat'.");
+            throw new InvalidOperationException("Phòng đang được khách đặt trước, chỉ có thể để trạng thái 'Đã đặt'.");
 
         p.MaLoaiPhong = maLoaiPhong;
         p.MaTrangThaiPhong = maTrangThai;
@@ -215,11 +231,15 @@ public class PhongService : IPhongService
             .AnyAsync(p => p.DatPhongChiTiets.Any() || p.TienNghiPhongs.Any() || p.ChiPhis.Any());
 
         if (used)
-            throw new InvalidOperationException("Phòng đã phát sinh dữ liệu, không thể xóa.");
+            throw new InvalidOperationException(
+                $"Phòng {maPhong} đã phát sinh dữ liệu (Hóa đơn, Khách thuê, hoặc Tiện nghi), không thể xóa.");
 
-        var p = await _db.Phongs.FindAsync(maPhong);
-        if (p == null) return;
+        var p = await _db.Phongs.FindAsync(maPhong)
+                ?? throw new KeyNotFoundException($"Không tìm thấy phòng {maPhong} để xóa.");
+
         _db.Phongs.Remove(p);
         await _db.SaveChangesAsync();
     }
+
+    #endregion
 }

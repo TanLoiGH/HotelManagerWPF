@@ -19,7 +19,7 @@ public partial class HoaDonPage : Page
         InitializeComponent();
         DataContext = _viewModel;
 
-        Loaded += async (_, _) => await _viewModel.TaiDuLieuAsync();
+        Loaded += async (s, e) => await _viewModel.TaiDuLieuAsync();
     }
 
     private async void HoaDonRow_Click(object sender, MouseButtonEventArgs e)

@@ -187,6 +187,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtTen"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -207,6 +208,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtDienThoai"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -227,6 +229,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtEmail"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -247,6 +250,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtNguoiLienHe"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -267,6 +271,7 @@
                         <TextBox
                             x:Name="TxtDiaChi"
                             Height="60"
+                            Margin="10,5"
                             Padding="10,6"
                             AcceptsReturn="True"
                             BorderThickness="0"

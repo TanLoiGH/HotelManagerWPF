@@ -7,7 +7,8 @@
     <!--  macOS (soft, spacious, glassy) + Fluent (clear layers, responsive states)  -->
 
     <!--  Typography  -->
-    <FontFamily x:Key="Font.Primary">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Font.Primary">Segoe UI Variable Text, Roboto-Regular</FontFamily>
+
 
     <sys:Double x:Key="Font.Size.Caption">13</sys:Double>
     <sys:Double x:Key="Font.Size.Body">16</sys:Double>
@@ -18,7 +19,7 @@
 
     <!--  Radii  -->
     <CornerRadius x:Key="Radius.S">8</CornerRadius>
-    <CornerRadius x:Key="Radius.M">12</CornerRadius>
+    <CornerRadius x:Key="Radius.M">14</CornerRadius>
     <CornerRadius x:Key="Radius.L">16</CornerRadius>
     <CornerRadius x:Key="Radius.XL">20</CornerRadius>
 
@@ -39,6 +40,8 @@
         <GradientStop Offset="0.35" Color="#F2FFFFFF" />
         <GradientStop Offset="1" Color="#E8FFFFFF" />
     </LinearGradientBrush>
+
+
 
     <SolidColorBrush
         x:Key="Brush.SurfaceTranslucent"
@@ -64,6 +67,12 @@
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
         <Setter Property="TextOptions.TextHintingMode" Value="Fixed" />
         <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled" />
+        <Setter Property="FontFamily" Value="{StaticResource Font.Primary}" />
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
+    </Style>
+
+
+    <Style TargetType="{x:Type UserControl}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Primary}" />
         <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
     </Style>
@@ -469,7 +478,6 @@
                         </Border>
                         <Border
                             x:Name="Bd"
-                            Margin="0,20,0,20"
                             Background="{TemplateBinding Background}"
                             CornerRadius="{StaticResource Radius.M}">
 

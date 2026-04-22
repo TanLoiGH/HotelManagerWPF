@@ -52,11 +52,23 @@ public partial class LoginWindow : Window
         }
     }
 
+    private void LoginButton_Click(object sender, RoutedEventArgs e)
+    {
+        TriggerLogin();
+    }
+
     private void TriggerLogin()
     {
-        if (DataContext is LoginViewModel vm && vm.LoginCommand != null && vm.LoginCommand.CanExecute(PbPassword))
+        if (DataContext is LoginViewModel vm)
         {
-            vm.LoginCommand.Execute(PbPassword);
+            // View chủ động lấy Text từ PasswordBox truyền vào Property của ViewModel
+            // Tách biệt hoàn toàn UI và Business Logic!
+            vm.MatKhau = PbPassword.Password;
+
+            if (vm.LoginCommand != null && vm.LoginCommand.CanExecute(null))
+            {
+                vm.LoginCommand.Execute(null);
+            }
         }
     }
 
@@ -65,5 +77,4 @@ public partial class LoginWindow : Window
         // Tắt cưỡng chế toàn bộ ứng dụng khi bấm nút X
         Application.Current.Shutdown();
     }
-
 }

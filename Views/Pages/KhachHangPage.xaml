@@ -59,6 +59,7 @@
                                         Text="🔍" />
                                     <TextBox
                                         x:Name="TxtSearch"
+                                        Width="190"
                                         VerticalAlignment="Center"
                                         Background="Transparent"
                                         BorderThickness="0"
@@ -191,6 +192,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtTen"
+                            Margin="10,5"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -211,6 +213,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtDienThoai"
+                            Margin="10,5"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -231,6 +234,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtCCCD"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -251,6 +255,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtEmail"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -271,6 +276,7 @@
                         <TextBox
                             x:Name="TxtDiaChi"
                             Height="65"
+                            Margin="10,5"
                             Padding="10,6"
                             AcceptsReturn="True"
                             BorderThickness="0"
@@ -286,12 +292,14 @@
                         Foreground="{DynamicResource Brush.TextLabel}"
                         Text="Passport" />
                     <Border
+                        Height="36"
                         Margin="0,0,0,12"
                         BorderBrush="{DynamicResource Brush.Border}"
                         BorderThickness="1.5"
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtPassport"
+                            Margin="10,5"
                             Padding="10,6"
                             AcceptsReturn="True"
                             BorderThickness="0"
@@ -307,12 +315,14 @@
                         Foreground="{DynamicResource Brush.TextLabel}"
                         Text="Visa" />
                     <Border
+                        Height="36"
                         Margin="0,0,0,12"
                         BorderBrush="{DynamicResource Brush.Border}"
                         BorderThickness="1.5"
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtVisa"
+                            Margin="10,5"
                             Padding="10,6"
                             AcceptsReturn="True"
                             BorderThickness="0"
@@ -327,13 +337,14 @@
                         Foreground="{DynamicResource Brush.TextLabel}"
                         Text="Quốc tịch" />
                     <Border
+                        Height="36"
                         Margin="0,0,0,4"
                         BorderBrush="{DynamicResource Brush.Border}"
                         BorderThickness="1.5"
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtQuocTich"
-                            Padding="10,6"
+                            Margin="10,5"
                             AcceptsReturn="True"
                             BorderThickness="0"
                             FontSize="15"

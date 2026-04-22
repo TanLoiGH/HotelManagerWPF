@@ -156,6 +156,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtTen"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -176,6 +177,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtSoNguoi"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -198,6 +200,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtGia"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"

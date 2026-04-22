@@ -2,16 +2,31 @@
     x:Class="QuanLyKhachSan_PhamTanLoi.Views.Dialogs.DoiPhongDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="DoiPhongDialog"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    Title="Chuyển phòng"
+    Width="450"
+    Height="330"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ResizeMode="NoResize"
     WindowStartupLocation="CenterOwner"
-    mc:Ignorable="d" WindowStyle="ToolWindow">
+    WindowStyle="None">
 
-    <Border Padding="24" Background="{DynamicResource Brush.Surface}" >
-        <Grid>
+    <Border
+        Margin="15"
+        Background="{DynamicResource Brush.Surface}"
+        BorderBrush="{DynamicResource Brush.Border}"
+        BorderThickness="1"
+        CornerRadius="16">
+        <Border.Effect>
+            <DropShadowEffect
+                BlurRadius="15"
+                Direction="270"
+                Opacity="0.1"
+                ShadowDepth="2"
+                Color="Black" />
+        </Border.Effect>
+
+        <Grid Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -21,10 +36,10 @@
 
             <StackPanel Grid.Row="0" Margin="0,0,0,20">
                 <TextBlock
-                    FontSize="22"
+                    FontSize="20"
                     FontWeight="Bold"
                     Foreground="{DynamicResource Brush.Heading}"
-                    Text="🔀  Chuyển phòng" />
+                    Text="🔀 Chuyển phòng" />
                 <TextBlock
                     Margin="0,4,0,0"
                     FontSize="13"
@@ -34,7 +49,7 @@
 
             <Border
                 Grid.Row="1"
-                Margin="0,0,0,16"
+                Margin="0,0,0,20"
                 Padding="16,12"
                 Background="{DynamicResource Brush.SurfaceSoft}"
                 CornerRadius="8">
@@ -60,18 +75,14 @@
                 </StackPanel>
             </Border>
 
-            <StackPanel Grid.Row="2">
+            <StackPanel Grid.Row="2" VerticalAlignment="Center">
                 <TextBlock
                     Margin="0,0,0,8"
                     FontSize="14"
                     FontWeight="SemiBold"
-                    Foreground="{DynamicResource Brush.TextPrimary}"
-                    Text="Phòng mới (Đang trống)" />
-                <Border
-                    Height="42"
-                    BorderBrush="{DynamicResource Brush.Border}"
-                    BorderThickness="1.5"
-                    CornerRadius="8">
+                    Foreground="{DynamicResource Brush.TextLabel}"
+                    Text="Phòng mới (Đang trống):" />
+                <Border Height="40" Style="{DynamicResource MacFluent.InputFrame}">
                     <ComboBox
                         x:Name="CboPhongMoi"
                         Padding="10,0"
@@ -80,49 +91,33 @@
                         BorderThickness="0"
                         DisplayMemberPath="TenPhong"
                         FontSize="15"
+                        Foreground="{DynamicResource Brush.TextPrimary}"
                         SelectedValuePath="MaPhong" />
                 </Border>
             </StackPanel>
 
-            <StackPanel
-                Grid.Row="3"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Right"
-                Orientation="Horizontal">
+            <Grid Grid.Row="3" Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
                 <Button
                     x:Name="BtnHuy"
-                    Width="80"
-                    Margin="0,0,12,0"
-                    Background="Transparent"
-                    BorderBrush="{DynamicResource Brush.Border}"
-                    BorderThickness="1.5"
+                    Grid.Column="0"
+                    Height="40"
                     Click="BtnHuy_Click"
-                    Cursor="Hand">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="8" />
-                        </Style>
-                    </Button.Resources>
-                    <TextBlock
-                        FontSize="14"
-                        FontWeight="SemiBold"
-                        Foreground="{DynamicResource Brush.TextPrimary}"
-                        Text="Hủy" />
-                </Button>
+                    Content="Hủy bỏ"
+                    Style="{DynamicResource MacFluent.ButtonSecondary}" />
 
                 <Button
                     x:Name="BtnXacNhan"
-                    Width="130"
+                    Grid.Column="2"
+                    Height="40"
                     Click="BtnXacNhan_Click"
-                    Cursor="Hand"
-                    Style="{DynamicResource MacFluent.ButtonPrimary}">
-                    <TextBlock
-                        FontSize="14"
-                        FontWeight="SemiBold"
-                        Foreground="White"
-                        Text="Xác nhận đổi" />
-                </Button>
-            </StackPanel>
+                    Content="Xác nhận đổi"
+                    Style="{DynamicResource MacFluent.ButtonPrimary}" />
+            </Grid>
         </Grid>
     </Border>
 </Window>

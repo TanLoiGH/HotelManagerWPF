@@ -45,7 +45,7 @@
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource Brush.Heading}" />
                             <Border
-                                Width="180"
+                                Width="220"
                                 Height="34"
                                 Margin="16,0,0,0"
                                 Padding="10,0"
@@ -60,6 +60,7 @@
                                         Text="🔍" />
                                     <TextBox
                                         x:Name="TxtSearch"
+                                        Width="200"
                                         VerticalAlignment="Center"
                                         Background="Transparent"
                                         BorderThickness="0"
@@ -115,17 +116,19 @@
                             Binding="{Binding DonViTinh}"
                             ElementStyle="{StaticResource CenterCell}"
                             Header="Đơn vị" />
-                        <DataGridTemplateColumn Width="100" Header="Trạng thái">
+                        <DataGridTemplateColumn Width="140" Header="Trạng thái">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border
                                         Margin="4"
                                         Padding="8,3"
-                                        HorizontalAlignment="Left"
+                                        HorizontalAlignment="Center"
                                         Background="{Binding ActiveColor}"
                                         CornerRadius="6">
                                         <TextBlock
-                                            FontSize="13"
+                                            Margin="3"
+                                            FontSize="15"
+                                            FontWeight="SemiBold"
                                             Foreground="White"
                                             Text="{Binding ActiveText}" />
                                     </Border>
@@ -196,7 +199,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtTen"
-                            Padding="10,0"
+                            Margin="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
                             FontSize="15" />
@@ -216,6 +219,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtGia"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"
@@ -237,6 +241,7 @@
                         CornerRadius="8">
                         <TextBox
                             x:Name="TxtDonVi"
+                            Margin="10,0"
                             Padding="10,0"
                             VerticalAlignment="Center"
                             BorderThickness="0"

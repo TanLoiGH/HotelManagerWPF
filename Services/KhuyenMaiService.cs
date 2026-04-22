@@ -2,13 +2,23 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhachSan_PhamTanLoi.Data;
 using QuanLyKhachSan_PhamTanLoi.Helpers;
 using QuanLyKhachSan_PhamTanLoi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuanLyKhachSan_PhamTanLoi.Services;
 
 public class KhuyenMaiService
 {
     private readonly QuanLyKhachSanContext _db;
+
+    // Senior Note: Gom Magic String vào hằng số để dễ quản lý và thay đổi sau này
+    private const string PREFIX_KHUYEN_MAI = "KM";
+
     public KhuyenMaiService(QuanLyKhachSanContext db) => _db = db;
+
+    #region QUẢN LÝ TRUY VẤN DỮ LIỆU
 
     public async Task<List<LoaiKhach>> LayLoaiKhachAsync()
     {
@@ -39,16 +49,19 @@ public class KhuyenMaiService
             .ToListAsync();
     }
 
+    #endregion
+
+    #region THAO TÁC DỮ LIỆU (CRUD)
+
     public async Task TaoMoiAsync(
-        string tenKhuyenMai,
-        string loaiKhuyenMai,
-        decimal giaTri,
-        decimal giaTriToiThieu,
-        DateTime ngayBatDau,
-        DateTime ngayKetThuc,
-        string? maLoaiKhach,
-        bool isActive)
+        string tenKhuyenMai, string loaiKhuyenMai, decimal giaTri,
+        decimal giaTriToiThieu, DateTime ngayBatDau, DateTime ngayKetThuc,
+        string? maLoaiKhach, bool isActive)
     {
+        // Senior Fix: Bổ sung Validation logic nghiệp vụ căn bản
+        if (ngayKetThuc.Date < ngayBatDau.Date)
+            throw new ArgumentException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu.");
+
         var lastMa = await _db.KhuyenMais
             .OrderByDescending(k => k.MaKhuyenMai)
             .Select(k => k.MaKhuyenMai)
@@ -56,9 +69,10 @@ public class KhuyenMaiService
 
         _db.KhuyenMais.Add(new KhuyenMai
         {
-            MaKhuyenMai = MaHelper.Next("KM", lastMa),
-            TenKhuyenMai = tenKhuyenMai,
-            LoaiKhuyenMai = loaiKhuyenMai,
+            MaKhuyenMai = MaHelper.Next(PREFIX_KHUYEN_MAI, lastMa),
+            // Trim() để cắt khoảng trắng thừa do người dùng vô tình gõ phím cách
+            TenKhuyenMai = tenKhuyenMai.Trim(),
+            LoaiKhuyenMai = loaiKhuyenMai.Trim(),
             GiaTriKm = giaTri,
             GiaTriToiThieu = giaTriToiThieu,
             NgayBatDau = ngayBatDau,
@@ -71,21 +85,20 @@ public class KhuyenMaiService
     }
 
     public async Task CapNhatAsync(
-        string maKhuyenMai,
-        string tenKhuyenMai,
-        string loaiKhuyenMai,
-        decimal giaTri,
-        decimal giaTriToiThieu,
-        DateTime ngayBatDau,
-        DateTime ngayKetThuc,
-        string? maLoaiKhach,
-        bool isActive)
+        string maKhuyenMai, string tenKhuyenMai, string loaiKhuyenMai,
+        decimal giaTri, decimal giaTriToiThieu, DateTime ngayBatDau,
+        DateTime ngayKetThuc, string? maLoaiKhach, bool isActive)
     {
-        var km = await _db.KhuyenMais.FindAsync(maKhuyenMai);
-        if (km == null) return;
+        // Senior Fix: Validation logic nghiệp vụ
+        if (ngayKetThuc.Date < ngayBatDau.Date)
+            throw new ArgumentException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu.");
 
-        km.TenKhuyenMai = tenKhuyenMai;
-        km.LoaiKhuyenMai = loaiKhuyenMai;
+        // Senior Fix: Bắt lỗi rõ ràng nếu không tìm thấy dữ liệu
+        var km = await _db.KhuyenMais.FindAsync(maKhuyenMai)
+                 ?? throw new KeyNotFoundException($"Không tìm thấy chương trình khuyến mãi mã {maKhuyenMai}.");
+
+        km.TenKhuyenMai = tenKhuyenMai.Trim();
+        km.LoaiKhuyenMai = loaiKhuyenMai.Trim();
         km.GiaTriKm = giaTri;
         km.GiaTriToiThieu = giaTriToiThieu;
         km.NgayBatDau = ngayBatDau;
@@ -98,19 +111,23 @@ public class KhuyenMaiService
 
     public async Task<bool> XoaHoacTatAsync(string maKhuyenMai)
     {
-        var km = await _db.KhuyenMais.FindAsync(maKhuyenMai);
-        if (km == null) return false;
+        var km = await _db.KhuyenMais.FindAsync(maKhuyenMai)
+                 ?? throw new KeyNotFoundException($"Không tìm thấy chương trình khuyến mãi mã {maKhuyenMai} để xóa.");
 
         bool daDung = await _db.HoaDons.AnyAsync(h => h.MaKhuyenMai == km.MaKhuyenMai);
         if (daDung)
         {
+            // Đã phát sinh giao dịch -> Soft Delete
             km.IsActive = false;
             await _db.SaveChangesAsync();
             return true;
         }
 
+        // Chưa phát sinh giao dịch -> Hard Delete
         _db.KhuyenMais.Remove(km);
         await _db.SaveChangesAsync();
         return false;
     }
+
+    #endregion
 }

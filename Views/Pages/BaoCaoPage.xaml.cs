@@ -9,19 +9,10 @@ namespace QuanLyKhachSan_PhamTanLoi.Views;
 
 public partial class BaoCaoPage : Page
 {
-    private readonly BaoCaoPageViewModel _viewModel;
-    private readonly QuanLyKhachSanContext _db = new();
-
-    public BaoCaoPage()
+    public BaoCaoPage(BaoCaoPageViewModel viewModel)
     {
         InitializeComponent();
 
-        var reportService = new ReportService(_db);
-
-        _viewModel = new BaoCaoPageViewModel(reportService);
-        DataContext = _viewModel;
-
-        Loaded += async (_, _) => await _viewModel.LoadReportsAsync();
-        Unloaded += (_, _) => _db.Dispose();
+        DataContext = viewModel;
     }
 }

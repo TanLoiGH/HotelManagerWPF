@@ -1,75 +1,70 @@
-<Page x:Class="QuanLyKhachSan_PhamTanLoi.Views.Pages.CaiDatPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
-      mc:Ignorable="d"
-      d:DesignHeight="1950" d:DesignWidth="1200"
-      Title="CaiDatPage"
-      Background="WhiteSmoke">
+<Page
+    x:Class="QuanLyKhachSan_PhamTanLoi.Views.Pages.CaiDatPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:QuanLyKhachSan_PhamTanLoi.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Cài đặt hệ thống"
+    d:DesignHeight="1500"
+    d:DesignWidth="1200"
+    Background="Transparent"
+    mc:Ignorable="d">
 
     <Page.Resources>
-        <Style x:Key="Settings.FieldLabel" TargetType="{x:Type TextBlock}">
+        <Style x:Key="Settings.FieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="{DynamicResource Brush.TextLabel}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
-        <Style x:Key="Settings.FieldHint" TargetType="{x:Type TextBlock}">
+        <Style x:Key="Settings.FieldHint" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
         </Style>
 
-        <Style x:Key="Settings.InputFrame" TargetType="{x:Type Border}" BasedOn="{StaticResource MacFluent.InputFrame}">
+        <Style
+            x:Key="Settings.InputFrame"
+            BasedOn="{StaticResource MacFluent.InputFrame}"
+            TargetType="Border">
             <Setter Property="Height" Value="40" />
             <Setter Property="Padding" Value="8,0" />
         </Style>
 
-        <Style x:Key="Settings.TextBox" TargetType="{x:Type TextBox}">
+        <Style x:Key="Settings.TextBox" TargetType="TextBox">
             <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="18" />
-            
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
         </Style>
 
-        <Style x:Key="Settings.PasswordBox" TargetType="{x:Type PasswordBox}">
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="16" />
+        <Style x:Key="Settings.Row" TargetType="Grid">
+            <Setter Property="Margin" Value="0,0,0,18" />
         </Style>
 
-        <Style x:Key="Settings.Row" TargetType="{x:Type Grid}">
-            <Setter Property="Margin" Value="0,0,0,15" />
-        </Style>
-
-        <!--
-          IMPORTANT: Không đặt DropShadowEffect trực tiếp lên container có chữ.
-          WPF sẽ render qua bitmap trung gian và ClearType bị tắt -> chữ nhìn "mờ".
-          CardHost tách shadow sang lớp phía sau để chữ sắc nét.
-        -->
-        <Style x:Key="Settings.CardHost" TargetType="{x:Type ContentControl}">
-            <Setter Property="Padding" Value="20" />
+        <Style x:Key="Settings.CardHost" TargetType="ContentControl">
+            <Setter Property="Padding" Value="24" />
+            <Setter Property="Margin" Value="0,0,0,24" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ContentControl}">
-                        <Grid>
-                            <Border CornerRadius="{StaticResource Radius.L}"
-                                    Background="{DynamicResource Brush.SurfaceTranslucent}"
-                                    BorderBrush="Transparent"
-                                    BorderThickness="1"
-                                    SnapsToDevicePixels="True">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="22" ShadowDepth="2" Opacity="0.10" Color="#000000" />
-                                </Border.Effect>
-                            </Border>
-
-                            <Border CornerRadius="{StaticResource Radius.L}"
-                                    Background="{DynamicResource Brush.SurfaceTranslucent}"
-                                    BorderBrush="{DynamicResource Brush.Border}"
-                                    BorderThickness="1"
-                                    SnapsToDevicePixels="True">
-                                <ContentPresenter Margin="{TemplateBinding Padding}" />
-                            </Border>
-                        </Grid>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Border
+                            Background="{DynamicResource Brush.Surface}"
+                            BorderBrush="{DynamicResource Brush.Border}"
+                            BorderThickness="1"
+                            CornerRadius="16"
+                            SnapsToDevicePixels="True">
+                            <Border.Effect>
+                                <DropShadowEffect
+                                    BlurRadius="15"
+                                    Opacity="0.05"
+                                    ShadowDepth="1"
+                                    Color="Black" />
+                            </Border.Effect>
+                            <ContentPresenter Margin="{TemplateBinding Padding}" />
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -78,317 +73,365 @@
 
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="30" Width="1000">
+            <StackPanel MaxWidth="1000" Margin="40,30">
 
-                <TextBlock Text="Cài đặt"
-                           FontSize="{StaticResource Font.Size.Hero}"
-                           FontWeight="SemiBold"
-                           Margin="0,0,0,6"/>
-                <TextBlock Text="Cấu hình hệ thống, tài khoản và bảo mật"
-                           Foreground="{DynamicResource Brush.TextMuted}"
-                           Margin="0,0,0,20"/>
+                <TextBlock
+                    Margin="0,0,0,4"
+                    FontSize="32"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource Brush.TextHeading}"
+                    Text="Cài đặt" />
+                <TextBlock
+                    Margin="0,0,0,30"
+                    FontSize="15"
+                    Foreground="{DynamicResource Brush.TextMuted}"
+                    Text="Cấu hình hệ thống, tài khoản và bảo mật" />
 
-                <!-- ================= HỆ THỐNG ================= -->
-                <ContentControl Style="{StaticResource Settings.CardHost}"
-                                Margin="0,0,0,20">
-                    <StackPanel>
-                        <TextBlock Text="Hệ thống"
-                                   FontSize="{StaticResource Font.Size.Subtitle}"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
-                        <TextBlock Text="Thông tin hiển thị chung và quy ước vận hành."
-                                   Style="{StaticResource Settings.FieldHint}"
-                                   Margin="0,0,0,14"/>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Tên khách sạn" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="480">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding HotelName, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Địa chỉ" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="700">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding HotelAddress, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Số điện thoại" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="260">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding HotelPhone, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Margin="0,0,0,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Email" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="420">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding HotelEmail, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Separator Margin="0,0,0,16"/>
-
-                        <TextBlock Text="Quy ước vận hành" FontWeight="SemiBold" Margin="0,0,0,10"/>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="Giờ nhận phòng" Style="{StaticResource Settings.FieldLabel}"/>
-                                <TextBlock Text="Định dạng HH:mm" Style="{StaticResource Settings.FieldHint}" Margin="0,4,0,0"/>
-                            </StackPanel>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="170">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding DefaultCheckIn, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="Giờ trả phòng" Style="{StaticResource Settings.FieldLabel}"/>
-                                <TextBlock Text="Định dạng HH:mm" Style="{StaticResource Settings.FieldHint}" Margin="0,4,0,0"/>
-                            </StackPanel>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="170">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding DefaultCheckOut, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Margin="0,0,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="VAT" Style="{StaticResource Settings.FieldLabel}"/>
-                                <TextBlock Text="0–30 (%)" Style="{StaticResource Settings.FieldHint}" Margin="0,4,0,0"/>
-                            </StackPanel>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="130">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding VatPercent, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                            <Button Content="Tải lại"
-                                    Width="110"
-                                    Margin="0,0,10,0"
-                                    Command="{Binding ReloadSystemCommand}"
-                                    Style="{DynamicResource MacFluent.ButtonGhost}"/>
-                            <Button Content="Lưu hệ thống"
-                                    Width="150"
-                                    Command="{Binding SaveSystemCommand}"
-                                    Style="{DynamicResource MacFluent.ButtonPrimary}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ContentControl>
-
-                <!-- ================= TÀI KHOẢN ================= -->
-                <ContentControl Style="{StaticResource Settings.CardHost}"
-                                Margin="0,0,0,20">
-                    <StackPanel>
-                        <TextBlock Text="Tài khoản"
-                                   FontSize="{StaticResource Font.Size.Subtitle}"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
-                        <TextBlock Text="Thông tin người đang đăng nhập."
-                                   Style="{StaticResource Settings.FieldHint}"
-                                   Margin="0,0,0,14"/>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Mã nhân viên" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding MaNhanVien}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Tên đăng nhập" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding TenDangNhap}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Quyền" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Quyen}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </Grid>
-
-                        <Grid Margin="0,0,0,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Chức vụ" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding ChucVu}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </Grid>
-
-                        <Separator Margin="0,0,0,16"/>
-
-                        <TextBlock Text="Thông tin cá nhân" FontWeight="SemiBold" Margin="0,0,0,10"/>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Họ tên" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="420">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding HoTen, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Số điện thoại" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="260">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding SoDienThoai, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Email" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="420">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <Grid Margin="0,0,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Địa chỉ" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="700">
-                                <TextBox Style="{StaticResource Settings.TextBox}"
-                                         Text="{Binding DiaChi, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Border>
-                        </Grid>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                            <Button Content="Hoàn tác"
-                                    Width="110"
-                                    Margin="0,0,10,0"
-                                    Command="{Binding CancelCommand}"
-                                    Style="{DynamicResource MacFluent.ButtonGhost}"/>
-                            <Button Content="Lưu tài khoản"
-                                    Width="140"
-                                    Command="{Binding UpdateInfoCommand}"
-                                    Style="{DynamicResource MacFluent.ButtonPrimary}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ContentControl>
-
-                <!-- ================= BẢO MẬT ================= -->
                 <ContentControl Style="{StaticResource Settings.CardHost}">
                     <StackPanel>
-                        <TextBlock Text="Bảo mật"
-                                   FontSize="{StaticResource Font.Size.Subtitle}"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
-                        <TextBlock Text="Đổi mật khẩu đăng nhập."
-                                   Style="{StaticResource Settings.FieldHint}"
-                                   Margin="0,0,0,14"/>
+                        <TextBlock
+                            Margin="0,0,0,20"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Foreground="{DynamicResource Brush.TextHeading}"
+                            Text="Giao diện" />
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Chế độ tối (Dark Mode)" />
+                            <CheckBox
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Content="Kích hoạt giao diện tối"
+                                FontSize="14"
+                                Foreground="{DynamicResource Brush.TextPrimary}"
+                                IsChecked="{Binding IsDarkMode}" />
+                        </Grid>
+                    </StackPanel>
+                </ContentControl>
+
+                <ContentControl Style="{StaticResource Settings.CardHost}">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,20"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Foreground="{DynamicResource Brush.TextHeading}"
+                            Text="Thông tin khách sạn" />
 
                         <Grid Style="{StaticResource Settings.Row}">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Mật khẩu cũ" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="260">
-                                <PasswordBox Style="{StaticResource Settings.PasswordBox}"
-                                             helpers:PasswordBoxBinding.BindPassword="True"
-                                             helpers:PasswordBoxBinding.BoundPassword="{Binding MatKhauCu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Tên khách sạn" />
+                            <Border
+                                Grid.Column="1"
+                                MaxWidth="500"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelName, UpdateSourceTrigger=PropertyChanged}" />
                             </Border>
                         </Grid>
 
                         <Grid Style="{StaticResource Settings.Row}">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Mật khẩu mới" Style="{StaticResource Settings.FieldLabel}" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="260">
-                                <PasswordBox Style="{StaticResource Settings.PasswordBox}"
-                                             helpers:PasswordBoxBinding.BindPassword="True"
-                                             helpers:PasswordBoxBinding.BoundPassword="{Binding MatKhauMoi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Địa chỉ" />
+                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelAddress, UpdateSourceTrigger=PropertyChanged}" />
                             </Border>
                         </Grid>
 
-                        <Grid Margin="0,0,0,0">
+                        <Grid Style="{StaticResource Settings.Row}">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="240"/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="Xác nhận mật khẩu" Style="{StaticResource Settings.FieldLabel}"/>
-                                <TextBlock Text="Tối thiểu 6 ký tự." Style="{StaticResource Settings.FieldHint}" Margin="0,4,0,0"/>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Số điện thoại" />
+                            <Border
+                                Grid.Column="1"
+                                Width="300"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelPhone, UpdateSourceTrigger=PropertyChanged}" />
+                            </Border>
+                        </Grid>
+
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Email liên hệ" />
+                            <Border
+                                Grid.Column="1"
+                                Width="400"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelEmail, UpdateSourceTrigger=PropertyChanged}" />
+                            </Border>
+                        </Grid>
+
+                        <Separator Margin="0,10,0,20" Background="{DynamicResource Brush.Border}" />
+
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Quy ước giờ &amp; Thuế" />
+                                <TextBlock
+                                    Margin="0,4,0,0"
+                                    Style="{StaticResource Settings.FieldHint}"
+                                    Text="Giờ nhận/trả và VAT (%)" />
                             </StackPanel>
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}" Width="260">
-                                <PasswordBox Style="{StaticResource Settings.PasswordBox}"
-                                             helpers:PasswordBoxBinding.BindPassword="True"
-                                             helpers:PasswordBoxBinding.BoundPassword="{Binding XacNhanMatKhau, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Border
+                                    Width="100"
+                                    Margin="0,0,8,0"
+                                    Style="{StaticResource Settings.InputFrame}">
+                                    <TextBox
+                                        HorizontalContentAlignment="Center"
+                                        Style="{StaticResource Settings.TextBox}"
+                                        Text="{Binding DefaultCheckIn}" />
+                                </Border>
+                                <Border
+                                    Width="100"
+                                    Margin="0,0,20,0"
+                                    Style="{StaticResource Settings.InputFrame}">
+                                    <TextBox
+                                        HorizontalContentAlignment="Center"
+                                        Style="{StaticResource Settings.TextBox}"
+                                        Text="{Binding DefaultCheckOut}" />
+                                </Border>
+                                <TextBlock
+                                    Margin="0,0,8,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource Settings.FieldLabel}"
+                                    Text="VAT:" />
+                                <Border Width="80" Style="{StaticResource Settings.InputFrame}">
+                                    <TextBox
+                                        HorizontalContentAlignment="Center"
+                                        Style="{StaticResource Settings.TextBox}"
+                                        Text="{Binding VatPercent}" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel
+                            Margin="0,10,0,0"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal">
+                            <Button
+                                Width="120"
+                                Height="40"
+                                Margin="0,0,12,0"
+                                Command="{Binding ReloadSystemCommand}"
+                                Content="Tải lại"
+                                Style="{DynamicResource MacFluent.ButtonGhost}" />
+                            <Button
+                                Width="160"
+                                Height="40"
+                                Command="{Binding SaveSystemCommand}"
+                                Content="Lưu hệ thống"
+                                Style="{DynamicResource MacFluent.ButtonPrimary}" />
+                        </StackPanel>
+                    </StackPanel>
+                </ContentControl>
+
+                <ContentControl Style="{StaticResource Settings.CardHost}">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,20"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Foreground="{DynamicResource Brush.TextHeading}"
+                            Text="Thông tin nhân viên" />
+
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource Settings.FieldHint}" Text="Mã nhân viên" />
+                                <TextBlock
+                                    FontSize="16"
+                                    FontWeight="Bold"
+                                    Foreground="{DynamicResource Brush.BrandPrimary}"
+                                    Text="{Binding MaNhanVien}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Style="{StaticResource Settings.FieldHint}" Text="Tên đăng nhập" />
+                                <TextBlock
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource Brush.TextPrimary}"
+                                    Text="{Binding TenDangNhap}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource Settings.FieldHint}" Text="Quyền hạn" />
+                                <TextBlock
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource Brush.TextPrimary}"
+                                    Text="{Binding Quyen}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Style="{StaticResource Settings.FieldHint}" Text="Chức vụ" />
+                                <TextBlock
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource Brush.TextPrimary}"
+                                    Text="{Binding ChucVu}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Separator Margin="0,0,0,20" Background="{DynamicResource Brush.Border}" />
+
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Họ tên hiển thị" />
+                            <Border
+                                Grid.Column="1"
+                                MaxWidth="450"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HoTen, UpdateSourceTrigger=PropertyChanged}" />
                             </Border>
                         </Grid>
 
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                            <Button Content="Xóa"
-                                    Width="110"
-                                    Margin="0,0,10,0"
-                                    Command="{Binding CancelCommand}"
-                                    Style="{DynamicResource MacFluent.ButtonGhost}"/>
-                            <Button Content="Đổi mật khẩu"
-                                    Width="140"
-                                    Command="{Binding ChangePasswordCommand}"
-                                    Style="{DynamicResource MacFluent.ButtonPrimary}"/>
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Số điện thoại" />
+                            <Border
+                                Grid.Column="1"
+                                Width="250"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding SoDienThoai, UpdateSourceTrigger=PropertyChanged}" />
+                            </Border>
+                        </Grid>
+
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Email cá nhân" />
+                            <Border
+                                Grid.Column="1"
+                                MaxWidth="450"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" />
+                            </Border>
+                        </Grid>
+
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Địa chỉ thường trú" />
+                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}">
+                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding DiaChi, UpdateSourceTrigger=PropertyChanged}" />
+                            </Border>
+                        </Grid>
+
+                        <StackPanel
+                            Margin="0,10,0,0"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal">
+                            <Button
+                                Width="120"
+                                Height="40"
+                                Margin="0,0,12,0"
+                                Command="{Binding CancelCommand}"
+                                Content="Hoàn tác"
+                                Style="{DynamicResource MacFluent.ButtonGhost}" />
+                            <Button
+                                Width="160"
+                                Height="40"
+                                Command="{Binding UpdateInfoCommand}"
+                                Content="Cập nhật cá nhân"
+                                Style="{DynamicResource MacFluent.ButtonPrimary}" />
                         </StackPanel>
+                    </StackPanel>
+                </ContentControl>
+
+                <ContentControl Style="{StaticResource Settings.CardHost}">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,20"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Foreground="{DynamicResource Brush.TextHeading}"
+                            Text="Bảo mật tài khoản" />
+
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Mật khẩu hiện tại" />
+                            <Border
+                                Grid.Column="1"
+                                Width="300"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <PasswordBox
+                                    VerticalAlignment="Center"
+                                    helpers:PasswordBoxBinding.BindPassword="True"
+                                    helpers:PasswordBoxBinding.BoundPassword="{Binding MatKhauCu, Mode=TwoWay}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    FontSize="16" />
+                            </Border>
+                        </Grid>
+
+                        <Grid Style="{StaticResource Settings.Row}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Mật khẩu mới" />
+                            <Border
+                                Grid.Column="1"
+                                Width="300"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource Settings.InputFrame}">
+                                <PasswordBox
+                                    VerticalAlignment="Center"
+                                    helpers:PasswordBoxBinding.BindPassword="True"
+                                    helpers:PasswordBoxBinding.BoundPassword="{Binding MatKhauMoi, Mode=TwoWay}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    FontSize="16" />
+                            </Border>
+                        </Grid>
+
+                        <Button
+                            Width="160"
+                            Height="40"
+                            HorizontalAlignment="Right"
+                            Command="{Binding ChangePasswordCommand}"
+                            Content="Đổi mật khẩu"
+                            Style="{DynamicResource MacFluent.ButtonPrimary}" />
                     </StackPanel>
                 </ContentControl>
 
