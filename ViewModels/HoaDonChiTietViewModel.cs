@@ -54,6 +54,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private readonly string _maHoaDon;
     private readonly IHoaDonService _hoaDon;
     private readonly IDichVuService _dichVuSvc;
+    private readonly IKhuyenMaiService _khuyenMaiSvc; // ✅ MỚI THÊM: Service lấy danh sách Khuyến mãi
     private readonly Func<Window?> _layChuSoHuu;
     private readonly Action<bool?> _dong;
     private readonly IHopThoaiService _hopThoai;
@@ -66,6 +67,8 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     #region FIELDS
 
     private bool _dangXuLy;
+    private bool _isBindingKhuyenMai; // ✅ MỚI THÊM: Cờ chống lặp vô hạn khi load ComboBox
+
     private string _maKhachHang = "";
     private string _khachHang = "";
     private string _maNhanVienDatPhong = "";
@@ -85,6 +88,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
     private decimal _tongThanhToan;
     private decimal _conLai;
     private decimal _tongDaThu;
+    private decimal _giamGia;
     private string _khuyenMai = "Không";
 
     private PhongItemVm? _selectedPhong;
@@ -276,12 +280,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    public string KhuyenMai
-    {
-        get => _khuyenMai;
-        private set => SetProperty(ref _khuyenMai, value);
-    }
-
     public decimal ConLai
     {
         get => _conLai;
@@ -297,6 +295,49 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
+    // ✅ MỚI THÊM: Quản lý Danh sách và ComboBox Khuyến Mãi
+    private ObservableCollection<KhuyenMai> _danhSachKhuyenMaiApDung = new();
+
+    public ObservableCollection<KhuyenMai> DanhSachKhuyenMaiApDung
+    {
+        get => _danhSachKhuyenMaiApDung;
+        set => SetProperty(ref _danhSachKhuyenMaiApDung, value);
+    }
+
+    private KhuyenMai? _khuyenMaiDuocChon;
+
+    public KhuyenMai? KhuyenMaiDuocChon
+    {
+        get => _khuyenMaiDuocChon;
+        set
+        {
+            if (SetProperty(ref _khuyenMaiDuocChon, value))
+            {
+                // Chỉ gọi API update xuống CSDL nếu không phải là đang Load dữ liệu lên UI
+                if (!_isBindingKhuyenMai)
+                {
+                    _ = ApDungKhuyenMaiMoiAsync(value?.MaKhuyenMai);
+                }
+            }
+        }
+    }
+
+    public string KhuyenMai
+    {
+        get => _khuyenMai;
+        private set => SetProperty(ref _khuyenMai, value);
+    }
+
+    public decimal GiamGia
+    {
+        get => _giamGia;
+        private set
+        {
+            if (SetProperty(ref _giamGia, value)) OnPropertyChanged(nameof(GiamGiaHienThi));
+        }
+    }
+
+    public string GiamGiaHienThi => GiamGia > 0 ? $"- {GiamGia:N0} ₫" : "0 ₫";
     public string LabelDuNo => ConLai > 0 ? "KHÁCH NỢ:" : (ConLai < 0 ? "KHÁCH DƯ:" : "HẾT NỢ:");
     public string SoTienDuNoHienThi => $"{Math.Abs(ConLai):N0} ₫";
     public string ConLaiHienThi => ConLai >= 0 ? $"Còn lại: {ConLai:N0} ₫" : $"Dư: {Math.Abs(ConLai):N0} ₫";
@@ -353,10 +394,12 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
     #region CONSTRUCTOR & COMMANDS
 
+    // ✅ MỚI THÊM: IKhuyenMaiService khuyenMaiSvc vào tham số Constructor
     public HoaDonChiTietViewModel(
         string maHoaDon,
         IHoaDonService hoaDonSvc,
         IDichVuService dichVuSvc,
+        IKhuyenMaiService khuyenMaiSvc,
         Func<Window?> layChuSoHuu,
         Action<bool?> dong,
         IHopThoaiService hopThoai,
@@ -367,6 +410,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         _maHoaDon = maHoaDon;
         _hoaDon = hoaDonSvc;
         _dichVuSvc = dichVuSvc;
+        _khuyenMaiSvc = khuyenMaiSvc;
         _layChuSoHuu = layChuSoHuu;
         _dong = dong;
         _hopThoai = hopThoai;
@@ -417,7 +461,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         ChiDichVu
     }
 
-    // Master method in — tự quản lý DangXuLy
     private async Task<bool> InHoaDonMasterAsync(bool laTamTinh, KieuInHoaDon kieuIn = KieuInHoaDon.TongHop)
     {
         if (DangXuLy) return false;
@@ -437,7 +480,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    // Inner method in — KHÔNG set DangXuLy, dùng khi caller đã giữ lock
     private async Task<bool> InHoaDonNoiBoAsync(bool laTamTinh, KieuInHoaDon kieuIn = KieuInHoaDon.TongHop)
     {
         var hd = await _hoaDon.LayHoaDonDeInAsync(_maHoaDon);
@@ -489,14 +531,56 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             TrangThaiDatPhong = hd.MaDatPhongNavigation?.TrangThai ?? "";
             KhuyenMai = hd.MaKhuyenMaiNavigation?.TenKhuyenMai ?? "Không";
             MaNhanVienCheckIn = hd.MaNhanVien ?? "";
+
             string tenNv = hd.MaNhanVienNavigation?.TenNhanVien ?? "";
-            // Bọc lót UX: Nếu Entity Framework quên Include, ta mượn tên từ Session đắp vào
             if (string.IsNullOrWhiteSpace(tenNv) && MaNhanVienCheckIn == AppSession.MaNhanVien)
             {
                 tenNv = AppSession.TenNhanVien ?? "Hệ thống";
             }
 
             TenNhanVienCheckIn = tenNv;
+
+            // ✅ MỚI THÊM: Logic Truy xuất và Binding Khuyến mãi linh hoạt theo Loại khách
+            var loaiKhachHienTai = hd.MaDatPhongNavigation?.MaKhachHangNavigation?.MaLoaiKhach;
+
+            if (loaiKhachHienTai != null && CoTheChinhSua)
+            {
+                _isBindingKhuyenMai = true; // Bật cờ để chặn sự kiện SelectionChanged gọi DB lúc này
+
+                var tatCaKhuyenMai = await _khuyenMaiSvc.GetAllKhuyenMaiAsync();
+                DanhSachKhuyenMaiApDung.Clear();
+
+                // Thêm một option mặc định để gỡ khuyến mãi
+                DanhSachKhuyenMaiApDung.Add(new KhuyenMai { MaKhuyenMai = "", TenKhuyenMai = "-- Không áp dụng --" });
+
+                var now = TimeHelper.GetVietnamTime();
+
+                // Lọc những khuyến mãi: Đang Active, Đúng đối tượng khách và Đang trong thời hạn sử dụng
+                var khuyenMaiHopLe = tatCaKhuyenMai.Where(k =>
+                    k.IsActive == true &&
+                    // Điều kiện 1: Khuyến mãi chung (null) HOẶC khớp đúng loại khách của hóa đơn
+                    (string.IsNullOrEmpty(k.MaLoaiKhach) || k.MaLoaiKhach == loaiKhachHienTai) &&
+
+                    // Điều kiện 2: Hóa đơn phải đạt giá trị tối thiểu (Nếu voucher có quy định)
+                    (k.GiaTriToiThieu == null || TongThanhToan >= k.GiaTriToiThieu) &&
+
+                    // Điều kiện 3: Còn trong thời hạn sử dụng
+                    (k.NgayBatDau == null || k.NgayBatDau <= now) &&
+                    (k.NgayKetThuc == null || k.NgayKetThuc >= now)
+                ).ToList();
+
+                foreach (var km in khuyenMaiHopLe)
+                {
+                    DanhSachKhuyenMaiApDung.Add(km);
+                }
+
+                // Gán đúng cái voucher mà DB đang lưu cho hóa đơn này
+                _khuyenMaiDuocChon = DanhSachKhuyenMaiApDung.FirstOrDefault(k => k.MaKhuyenMai == hd.MaKhuyenMai)
+                                     ?? DanhSachKhuyenMaiApDung.First();
+                OnPropertyChanged(nameof(KhuyenMaiDuocChon));
+
+                _isBindingKhuyenMai = false; // Tắt cờ, ComboBox lúc này đã sẵn sàng cho user click
+            }
 
 
             decimal tienPhongDb = hd.TienPhong ?? 0;
@@ -529,6 +613,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             TongThanhToan = res.TongThanhToan;
             TongDaThu = tienCocDb + tongLichSu;
             ConLai = res.ConLai;
+            GiamGia = res.GiamGia;
 
             // Cập nhật danh sách phòng
             var maPhongDangChon = SelectedPhong?.MaPhong;
@@ -539,7 +624,7 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                     MaPhong = p.MaPhong,
                     NgayNhan = p.DatPhongChiTiet.NgayNhan,
                     NgayTra = p.DatPhongChiTiet.NgayTra,
-                    SoDem = TinhToanService.TinhSoDem(p.DatPhongChiTiet.NgayNhan, p.DatPhongChiTiet.NgayTra),
+                    SoDem = TinhToanService.ThoiGianLuuTru(p.DatPhongChiTiet.NgayNhan, p.DatPhongChiTiet.NgayTra),
                     DonGia = p.DatPhongChiTiet.DonGia
                 });
 
@@ -558,7 +643,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                     DonGia = d.DonGia
                 });
 
-            // Chạy song song: lịch sử thanh toán + phương thức thanh toán
             ApDungLichSuThanhToan(hd.ThanhToans);
             await TaiLaiPhuongThucThanhToanAsync();
 
@@ -576,7 +660,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    // ✅ FIX #4: bỏ async Task không có await → đổi thành void sync
     private void ApDungLichSuThanhToan(IEnumerable<ThanhToan>? tts)
     {
         LichSuThanhToan.Clear();
@@ -599,7 +682,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    // ✅ FIX #2: dùng static cache thread-safe
     private async Task TaiLaiPhuongThucThanhToanAsync()
     {
         var list = await PhuongThucThanhToanCache.GetOrFetchAsync(() => _hoaDon.LayDanhSachPhuongThucThanhToanAsync());
@@ -616,6 +698,32 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             ? DanhSachPhuongThucThanhToan.FirstOrDefault(x => x.MaPTTT == maDangChon)
               ?? DanhSachPhuongThucThanhToan.FirstOrDefault()
             : PhuongThucThanhToanDuocChon ?? DanhSachPhuongThucThanhToan.FirstOrDefault();
+    }
+
+    // ✅ MỚI THÊM: Bắt sự kiện khi Lễ tân dùng ComboBox đổi mã Khuyến mãi
+    private async Task ApDungKhuyenMaiMoiAsync(string? maKhuyenMai)
+    {
+        if (DangXuLy || !CoTheChinhSua) return;
+        DangXuLy = true;
+        try
+        {
+            // 1. Cập nhật mã Khuyến mãi xuống SQL
+            // Lưu ý: Cần thêm hàm CapNhatKhuyenMaiAsync vào _hoaDon (HoaDonService)
+            await _hoaDon.CapNhatKhuyenMaiAsync(_maHoaDon, maKhuyenMai);
+
+            // 2. Chạy lại vòng đời load data để TinhToanService trừ lại tiền ngay lập tức
+            await TaiLaiDuLieuNoiBoAsync();
+            if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Lỗi cập nhật Khuyến mãi", ex);
+            _hopThoai.BaoLoi($"Lỗi cập nhật khuyến mãi: {ex.Message}");
+        }
+        finally
+        {
+            DangXuLy = false;
+        }
     }
 
     private async Task ThemDichVuAsync()
@@ -671,8 +779,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
 
         decimal soTienHienTai = 0;
 
-        // ✅ FIX: Khi ConLai == 0, không cần tạo giao dịch 0đ
-        // Chỉ cần đồng bộ trạng thái rồi tải lại
         if (ConLai == 0)
         {
             if (!_hopThoai.XacNhan("Xác nhận chốt hóa đơn (không phát sinh thêm tiền)?", "Xác nhận chốt")) return;
@@ -694,10 +800,9 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 DangXuLy = false;
             }
 
-            return; // ← thoát sớm, không tạo record 0đ
+            return;
         }
 
-        // ConLai != 0 → bắt buộc nhập số tiền hợp lệ
         if (!ThuParseSoTien(SoTienNhap, out soTienHienTai) || soTienHienTai <= 0)
         {
             _hopThoai.CanhBao(HoaDonMessages.SoTienKhongHopLe);
@@ -766,7 +871,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
             var maNhanVien = AppSession.MaNhanVien;
             if (string.IsNullOrWhiteSpace(maNhanVien))
             {
-                // ✅ FIX #3: dùng _hopThoai thay vì MessageBox.Show trực tiếp
                 _hopThoai.BaoLoi(HoaDonMessages.PhienHetHan);
                 return;
             }
@@ -821,7 +925,6 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
         }
     }
 
-    // ✅ FIX #5: duyệt vòng lặp thay vì cast thủ công từng command
     private void RaiseAllCanExecuteChanged()
     {
         foreach (var cmd in _tatCaCommands)

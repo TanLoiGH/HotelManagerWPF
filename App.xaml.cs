@@ -97,6 +97,7 @@ namespace QuanLyKhachSan_PhamTanLoi
             services.AddScoped<IKhachHangService, KhachHangService>();
             services.AddScoped<IPhongService, PhongService>();
             services.AddScoped<IDichVuService, DichVuService>();
+            services.AddScoped<IKhuyenMaiService, KhuyenMaiService>();
 
             services.AddScoped<IHopThoaiService, HopThoaiServiceWpf>();
             services.AddScoped<IInHoaDonService, InHoaDonServiceWpf>();

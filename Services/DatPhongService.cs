@@ -27,7 +27,7 @@ public class DatPhongService : IDatPhongService
 
         var dp = await _db.DatPhongs.FindAsync(maDatPhong);
         decimal tienCoc = dp?.TienCoc ?? 0;
-        decimal tienPhong = chiTiets.Sum(ct => ct.DonGia * TinhToanService.TinhSoDem(ct.NgayNhan, ct.NgayTra));
+        decimal tienPhong = chiTiets.Sum(ct => ct.DonGia * TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra));
         decimal vatPercent = CaiDatService.Load().VatPercent;
 
         var res = TinhToanService.TinhToanToanBo(tienPhong, 0, vatPercent, 0, "", tienCoc, 0);
@@ -54,7 +54,7 @@ public class DatPhongService : IDatPhongService
                 MaHoaDon = hd.MaHoaDon,
                 MaDatPhong = maDatPhong,
                 MaPhong = ct.MaPhong,
-                SoDem = TinhToanService.TinhSoDem(ct.NgayNhan, ct.NgayTra)
+                SoDem = TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra)
             });
         }
 
@@ -205,7 +205,7 @@ public class DatPhongService : IDatPhongService
                     {
                         MaDatPhong = maDatPhong,
                         MaPhong = ct.MaPhong,
-                        SoDem = TinhToanService.TinhSoDem(ct.NgayNhan, ct.NgayTra)
+                        SoDem = TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra)
                     };
 
                     if (laHoaDonMoi) hd.HoaDonChiTiets.Add(hdct);
@@ -303,13 +303,13 @@ public class DatPhongService : IDatPhongService
 
                 if (hdctCu != null)
                 {
-                    hdctCu.SoDem = TinhToanService.TinhSoDem(ctCu.NgayNhan, now);
+                    hdctCu.SoDem = TinhToanService.ThoiGianLuuTru(ctCu.NgayNhan, now);
                     _db.HoaDonChiTiets.Add(new HoaDonChiTiet
                     {
                         MaHoaDon = hdctCu.MaHoaDon,
                         MaDatPhong = maDatPhong,
                         MaPhong = maPhongMoi,
-                        SoDem = TinhToanService.TinhSoDem(now, oldNgayTra)
+                        SoDem = TinhToanService.ThoiGianLuuTru(now, oldNgayTra)
                     });
                 }
             }
@@ -338,7 +338,7 @@ public class DatPhongService : IDatPhongService
 
         var hdct = await _db.HoaDonChiTiets.FirstOrDefaultAsync(h =>
             h.MaDatPhong == maDatPhong && h.MaPhong == maPhong);
-        if (hdct != null) hdct.SoDem = TinhToanService.TinhSoDem(ct.NgayNhan, ngayTraMoi);
+        if (hdct != null) hdct.SoDem = TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ngayTraMoi);
 
         await _db.SaveChangesAsync();
         await CapNhatLaiTongTienHoaDonAsync(maDatPhong);
@@ -482,7 +482,7 @@ public class DatPhongService : IDatPhongService
         if (hd == null) return;
 
         var chiTiets = await _db.DatPhongChiTiets.Where(c => c.MaDatPhong == maDatPhong).ToListAsync();
-        decimal tienPhongMoi = chiTiets.Sum(ct => ct.DonGia * TinhToanService.TinhSoDem(ct.NgayNhan, ct.NgayTra));
+        decimal tienPhongMoi = chiTiets.Sum(ct => ct.DonGia * TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra));
 
         // Senior Refactor: Tách các biến ra để code dễ đọc và dễ debug hơn, thay vì gộp chung vào 1 dòng cực dài
         decimal tienDichVu = hd.TienDichVu ?? 0;

@@ -13,12 +13,18 @@ public interface IHoaDonService
     Task<HoaDon?> LayHoaDonThanhToanAsync(string maHoaDon);
     Task<HoaDon?> LayHoaDonDeInAsync(string maHoaDon);
     Task<HoaDon> XuatHoaDonAsync(string maDatPhong, string maNhanVien, string? maKhuyenMai = null);
-    Task<ThongTinThanhToan> ThanhToanVaTraKetQuaAsync(string maHoaDon, decimal soTien, string maPTTT, string nguoiThu, string loaiGiaoDich = "Thanh toán cuối", string? noiDung = null);
+
+    Task<ThongTinThanhToan> ThanhToanVaTraKetQuaAsync(string maHoaDon, decimal soTien, string maPTTT, string nguoiThu,
+        string loaiGiaoDich = "Thanh toán cuối", string? noiDung = null);
+
     Task TraPhongAsync(string maHoaDon, string maNhanVien, DateTime? thoiDiem = null);
     Task<ThongTinThanhToan> CapNhatTienPhongKhiTraSomAsync(string maHoaDon, DateTime thoiDiemTraPhong);
     Task<int> DamBaoHoaDonChiTietAsync(string maHoaDon);
     Task<int> CapNhatVatChoHoaDonDangMoAsync(decimal vatPercent);
+    Task<bool> CapNhatKhuyenMaiAsync(string maHoaDon, string? maKhuyenMai);
     Task HuyHoaDonAsync(string maHoaDon);
     Task<ThongTinThanhToan> DongBoTrangThaiThanhToanAsync(string maHoaDon);
-    Task<bool> ThanhToanAsync(string maHoaDon, decimal soTien, string maPTTT, string nguoiThu, string loaiGiaoDich = "Thanh toán cuối", string? noiDung = null);
+
+    Task<bool> ThanhToanAsync(string maHoaDon, decimal soTien, string maPTTT, string nguoiThu,
+        string loaiGiaoDich = "Thanh toán cuối", string? noiDung = null);
 }

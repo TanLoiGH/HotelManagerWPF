@@ -18,6 +18,7 @@ public partial class HoaDonChiTietDialog : Window
 
         var hdSvc = App.ServiceProvider.GetRequiredService<IHoaDonService>();
         var dvSvc = App.ServiceProvider.GetRequiredService<IDichVuService>();
+        var kmSvc = App.ServiceProvider.GetRequiredService<IKhuyenMaiService>();
         var hopThoai = App.ServiceProvider.GetRequiredService<IHopThoaiService>();
         var inHoaDon = App.ServiceProvider.GetRequiredService<IInHoaDonService>();
         var chonDichVu = App.ServiceProvider.GetRequiredService<IChonDichVuService>();
@@ -26,6 +27,7 @@ public partial class HoaDonChiTietDialog : Window
             maHoaDon,
             hoaDonSvc: hdSvc,
             dichVuSvc: dvSvc,
+            khuyenMaiSvc: kmSvc,
             layChuSoHuu: () => this,
             dong: dialogResult =>
             {

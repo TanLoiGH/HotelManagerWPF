@@ -61,6 +61,30 @@ public class HoaDonService : IHoaDonService
         }
     }
 
+    public async Task<bool> CapNhatKhuyenMaiAsync(string maHoaDon, string? maKhuyenMai)
+    {
+        await _semaphore.WaitAsync();
+        try
+        {
+            var hd = await _db.HoaDons.FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon);
+            if (hd == null) return false;
+
+            // Cập nhật mã khuyến mãi mới
+            hd.MaKhuyenMai = string.IsNullOrWhiteSpace(maKhuyenMai) ? null : maKhuyenMai;
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
     public async Task<ThongTinThanhToan> DongBoTrangThaiThanhToanAsync(string maHoaDon)
     {
         await _semaphore.WaitAsync();
@@ -70,8 +94,16 @@ public class HoaDonService : IHoaDonService
             if (hd == null)
                 return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, $"Không tìm thấy hóa đơn {maHoaDon}");
 
-            // TODO: Bổ sung logic đồng bộ thực tế nếu kết nối với API ngân hàng/Momo
-            return new ThongTinThanhToan(KetQuaThanhToan.HoanTat, 0, 0, "Đồng bộ thành công");
+            // ✅ SENIOR FIX: Cập nhật trạng thái hóa đơn thành Đã thanh toán và lưu lại!
+            hd.TrangThai = HoaDonTrangThaiTexts.DaThanhToan;
+            await _db.SaveChangesAsync();
+
+            return new ThongTinThanhToan(KetQuaThanhToan.HoanTat, 0, 0, "Chốt hóa đơn thành công!");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Lỗi đồng bộ thanh toán", ex);
+            return new ThongTinThanhToan(KetQuaThanhToan.TuChoi, 0, 0, $"Lỗi hệ thống: {ex.Message}");
         }
         finally
         {
@@ -173,8 +205,8 @@ public class HoaDonService : IHoaDonService
                      ?? throw new KeyNotFoundException($"Không tìm thấy đơn đặt phòng {maDatPhong}");
 
             var chiTiets = await _db.DatPhongChiTiets.Where(c => c.MaDatPhong == maDatPhong).ToListAsync();
-            decimal tienPhong =
-                chiTiets.Sum(ct => ct.DonGia * TinhToanService.TinhSoDem(ct.NgayNhan, ct.NgayTra));
+            decimal tienPhong = chiTiets.Sum(ct => ct.DonGia * TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra));
+
             var km = await _db.KhuyenMais.FirstOrDefaultAsync(k => k.MaKhuyenMai == maKhuyenMai && k.IsActive == true);
 
             // Tối ưu: Chỉ gọi cấu hình VAT 1 lần
@@ -224,8 +256,12 @@ public class HoaDonService : IHoaDonService
         try
         {
             await using var tx = await _db.Database.BeginTransactionAsync();
+
             var hd = await _db.HoaDons
                          .Include(h => h.MaDatPhongNavigation)
+                         .ThenInclude(dp => dp.MaKhachHangNavigation) // ✅ BỔ SUNG: Kéo Data Khách hàng lên để cộng điểm
+                         .Include(h => h.MaDatPhongNavigation)
+                         .ThenInclude(dp => dp.DatPhongChiTiets) // (Dành cho logic Hoàn tiền của bạn)
                          .Include(h => h.MaKhuyenMaiNavigation)
                          .FirstOrDefaultAsync(h => h.MaHoaDon == maHoaDon)
                      ?? throw new KeyNotFoundException($"Không tìm thấy hóa đơn {maHoaDon}");
@@ -254,6 +290,33 @@ public class HoaDonService : IHoaDonService
                 string? maPhongDauTien = hd.MaDatPhongNavigation?.DatPhongChiTiets.FirstOrDefault()?.MaPhong;
                 await GhiNhanChiPhiHoanTienAsync(maHoaDon, Math.Abs(soTien), nguoiThu, maPhongDauTien);
             }
+
+            // =================================================================================
+            // ✅ TÍCH LŨY & NÂNG HẠNG KHÁCH HÀNG (CHỈ THÊM ĐOẠN NÀY VÀO CODE CỦA BẠN)
+            // =================================================================================
+            if (soTien > 0 && loaiGiaoDich != LOAI_GIAO_DICH_HOAN_TIEN)
+            {
+                var khachHang = hd.MaDatPhongNavigation?.MaKhachHangNavigation;
+                if (khachHang != null)
+                {
+                    // 1. Cộng dồn tiền vào tổng tích lũy
+                    khachHang.TongTichLuy = (khachHang.TongTichLuy ?? 0) + soTien;
+
+                    // 2. Kiểm tra xem số tiền mới có đủ lên cấp (VIP) không
+                    var hangKhachMoi = await _db.LoaiKhaches
+                        .AsNoTracking()
+                        .Where(l => l.IsActive == true && khachHang.TongTichLuy >= l.NguongTichLuy)
+                        .OrderByDescending(l => l.NguongTichLuy)
+                        .FirstOrDefaultAsync();
+
+                    // 3. Nếu đủ cấp mới -> Tự động Update hạng
+                    if (hangKhachMoi != null && hangKhachMoi.MaLoaiKhach != khachHang.MaLoaiKhach)
+                    {
+                        khachHang.MaLoaiKhach = hangKhachMoi.MaLoaiKhach;
+                    }
+                }
+            }
+            // =================================================================================
 
             var lichSu = await _db.ThanhToans.Where(t => t.MaHoaDon == maHoaDon).SumAsync(t => (decimal?)t.SoTien) ?? 0;
 
@@ -346,7 +409,7 @@ public class HoaDonService : IHoaDonService
         foreach (var ct in hd.MaDatPhongNavigation!.DatPhongChiTiets)
         {
             DateTime thoiDiemTinh = thoiDiem < ct.NgayTra ? thoiDiem : ct.NgayTra;
-            int soDem = TinhToanService.TinhSoDem(ct.NgayNhan, thoiDiemTinh);
+            int soDem = TinhToanService.ThoiGianLuuTru(ct.NgayNhan, thoiDiemTinh);
             tienPhong += ct.DonGia * soDem;
 
             if (thoiDiem < ct.NgayTra) ct.NgayTra = thoiDiem;

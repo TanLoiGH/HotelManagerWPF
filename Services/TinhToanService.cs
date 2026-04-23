@@ -42,7 +42,7 @@ public static class TinhToanService
 
     public static decimal TinhTienPhongThucTe(decimal donGia, DateTime ngayNhan, DateTime ngayTra)
     {
-        return donGia * TinhSoDem(ngayNhan, ngayTra);
+        return donGia * ThoiGianLuuTru(ngayNhan, ngayTra);
     }
 
     public static decimal TinhTongTienDichVu(IEnumerable<DichVuChiTiet> dichVus)
@@ -53,11 +53,11 @@ public static class TinhToanService
 
     // -----------------------------------------------------------------
 
-    public static decimal TienPhongTamTinh(IEnumerable<decimal> giaPhongs, DateTime ngayNhan, DateTime ngayTra)
-    {
-        if (giaPhongs == null || !giaPhongs.Any()) return 0;
-        return giaPhongs.Sum() * TinhSoDem(ngayNhan, ngayTra);
-    }
+    //public static decimal TienPhongTamTinh(IEnumerable<decimal> giaPhongs, DateTime ngayNhan, DateTime ngayTra)
+    //{
+    //    if (giaPhongs == null || !giaPhongs.Any()) return 0;
+    //    return giaPhongs.Sum() * ThoiGianLuuTru(ngayNhan, ngayTra);
+    //}
 
     public static decimal TinhGiamGia(decimal tienPhong, string loaiKhuyenMai, decimal giaTriKm)
     {
@@ -65,7 +65,7 @@ public static class TinhToanService
         return (loaiKhuyenMai == "Phần trăm") ? (tienPhong * giaTriKm / 100m) : giaTriKm;
     }
 
-    public static int TinhSoDem(DateTime ngayNhan, DateTime ngayTra)
+    public static int ThoiGianLuuTru(DateTime ngayNhan, DateTime ngayTra)
     {
         int soDem = (ngayTra.Date - ngayNhan.Date).Days;
         return Math.Max(1, soDem);

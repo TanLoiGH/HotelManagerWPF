@@ -206,7 +206,7 @@ public class DichVuService : IDichVuService
             .ToListAsync();
 
         decimal tienPhongMoi =
-            roomsInBill.Sum(ct => ct.DonGia * TinhToanService.TinhSoDem(ct.NgayNhan, ct.NgayTra));
+            roomsInBill.Sum(ct => ct.DonGia * TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra));
 
         // B. Tính tiền dịch vụ: Tất cả dịch vụ đã gọi của cả đoàn
         decimal tongDvMoi = await _db.DichVuChiTiets
