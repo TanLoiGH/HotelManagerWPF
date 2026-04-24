@@ -244,34 +244,69 @@ public class DatPhongService : IDatPhongService
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
         try
         {
-            // Senior Refactor: Loại bỏ throw new Exception("Null") vô nghĩa
             var ctCu = await _db.DatPhongChiTiets.FirstOrDefaultAsync(x =>
                            x.MaDatPhong == maDatPhong && x.MaPhong == maPhongCu)
-                       ?? throw new KeyNotFoundException($"Không tìm thấy lịch sử đặt phòng của phòng {maPhongCu}.");
+                       ?? throw new Exception($"Không tìm thấy chi tiết đặt phòng cho phòng {maPhongCu}.");
 
             DateTime now = TimeHelper.GetVietnamTime();
             var phongCu = await _db.Phongs.FindAsync(maPhongCu);
             var phongMoi = await _db.Phongs.Include(p => p.MaLoaiPhongNavigation)
-                               .FirstOrDefaultAsync(p => p.MaPhong == maPhongMoi)
-                           ?? throw new KeyNotFoundException($"Không tìm thấy dữ liệu phòng mới {maPhongMoi}.");
-
+                .FirstAsync(p => p.MaPhong == maPhongMoi);
             var hdctCu =
                 await _db.HoaDonChiTiets.FirstOrDefaultAsync(h => h.MaDatPhong == maDatPhong && h.MaPhong == maPhongCu);
 
             if (now.Date <= ctCu.NgayNhan.Date)
             {
+                // TRƯỜNG HỢP 1: Đổi phòng ngay lúc Check-in (chưa qua đêm nào)
                 await EnsurePhongAvailableAsync(maPhongMoi, ctCu.NgayNhan, ctCu.NgayTra, maDatPhong);
                 phongMoi.MaTrangThaiPhong = phongCu?.MaTrangThaiPhong ?? PhongTrangThaiCodes.DangO;
+
                 if (phongCu != null)
                     phongCu.MaTrangThaiPhong = (phongCu.MaTrangThaiPhong == PhongTrangThaiCodes.DangO)
                         ? PhongTrangThaiCodes.DonDep
                         : PhongTrangThaiCodes.Trong;
 
-                var dvs = await _db.DichVuChiTiets.Where(dv => dv.MaDatPhong == maDatPhong && dv.MaPhong == maPhongCu)
-                    .ToListAsync();
-                foreach (var dv in dvs) dv.MaPhong = maPhongMoi;
-                if (hdctCu != null) hdctCu.MaPhong = maPhongMoi;
+                // [FIX LỖI DỊCH VỤ & CONCURRENCY Ở ĐÂY]
+                var oldDvs = await _db.DichVuChiTiets
+                    .Where(dv => dv.MaDatPhong == maDatPhong && dv.MaPhong == maPhongCu).ToListAsync();
+                if (oldDvs.Any())
+                {
+                    // 1. Gỡ bỏ các dịch vụ ở phòng cũ
+                    _db.DichVuChiTiets.RemoveRange(oldDvs);
 
+                    // 2. Clone ra các object HOÀN TOÀN MỚI để Add vào phòng mới
+                    var newDvs = oldDvs.Select(dv => new DichVuChiTiet
+                    {
+                        MaHoaDon = dv.MaHoaDon,
+                        MaDatPhong = dv.MaDatPhong,
+                        MaPhong = maPhongMoi, // <-- Trỏ sang phòng mới
+                        MaDichVu = dv.MaDichVu,
+                        SoLuong = dv.SoLuong,
+                        DonGia = dv.DonGia,
+
+                        NgaySuDung = dv.NgaySuDung,
+
+                        // LƯU Ý: Tuyệt đối không copy Id tự tăng (nếu bảng có cột Id identity)
+                    }).ToList();
+
+                    _db.DichVuChiTiets.AddRange(newDvs);
+                }
+
+                // Xử lý Hóa Đơn Chi Tiết: Xóa cũ, Thêm object mới
+                if (hdctCu != null)
+                {
+                    _db.HoaDonChiTiets.Remove(hdctCu);
+                    _db.HoaDonChiTiets.Add(new HoaDonChiTiet
+                    {
+                        MaHoaDon = hdctCu.MaHoaDon,
+                        MaDatPhong = hdctCu.MaDatPhong,
+                        MaPhong = maPhongMoi,
+                        SoDem = hdctCu.SoDem
+                    });
+                }
+
+                // Xử lý Đặt Phòng Chi Tiết: Xóa cũ, Thêm object mới
+                _db.DatPhongChiTiets.Remove(ctCu);
                 _db.DatPhongChiTiets.Add(new DatPhongChiTiet
                 {
                     MaDatPhong = maDatPhong,
@@ -281,13 +316,17 @@ public class DatPhongService : IDatPhongService
                     DonGia = phongMoi.MaLoaiPhongNavigation.GiaPhong,
                     MaNhanVien = ctCu.MaNhanVien
                 });
-                _db.DatPhongChiTiets.Remove(ctCu);
             }
             else
             {
+                // TRƯỜNG HỢP 2: Đổi phòng giữa chừng (Đã ở qua đêm)
+                // LƯU Ý: Ở nhánh này ta KHÔNG CHUYỂN Dịch Vụ. Những gì khách đã ăn/uống ở phòng cũ 
+                // thì vẫn giữ nguyên ở phòng cũ để hóa đơn tổng tính tiền chính xác.
+
                 await EnsurePhongAvailableAsync(maPhongMoi, now, ctCu.NgayTra, maDatPhong);
                 DateTime oldNgayTra = ctCu.NgayTra;
-                ctCu.NgayTra = now;
+                ctCu.NgayTra = now; // Cắt ngày phòng cũ
+
                 if (phongCu != null) phongCu.MaTrangThaiPhong = PhongTrangThaiCodes.DonDep;
                 phongMoi.MaTrangThaiPhong = PhongTrangThaiCodes.DangO;
 
@@ -314,15 +353,17 @@ public class DatPhongService : IDatPhongService
                 }
             }
 
+            // Gọi SaveChanges một lần duy nhất tại đây, lúc này Tracker của EF hoàn toàn sạch!
             await _db.SaveChangesAsync();
+
             await CapNhatLaiTongTienHoaDonAsync(maDatPhong);
             await tx.CommitAsync();
-            MessageBox.Show("Đổi phòng thành công!");
         }
         catch (Exception ex)
         {
             await tx.RollbackAsync();
-            throw new Exception($"Lỗi đổi phòng: {ex.InnerException?.Message ?? ex.Message}", ex);
+            // Ném lỗi chi tiết để dễ trace log hơn
+            throw new Exception($"Lỗi đổi phòng: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
 

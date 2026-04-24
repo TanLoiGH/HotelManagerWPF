@@ -117,8 +117,10 @@ public partial class MainWindow : Window
     private void Nav_LoaiChiPhi(object sender, MouseButtonEventArgs e) =>
         NavigateByService<LoaiChiPhiPage>("Loại Chi Phí", sender as Border);
 
+    private void Nav_AboutPage(object sender, MouseButtonEventArgs e) =>
+        NavigateByService<AboutPage>("About", sender as Border);
 
-    #region Close
+    #region Close/
 
     private void Window_Closing(object sender, CancelEventArgs e)
     {

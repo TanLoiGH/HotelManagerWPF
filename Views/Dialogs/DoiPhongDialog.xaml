@@ -8,7 +8,7 @@
     AllowsTransparency="True"
     Background="Transparent"
     ResizeMode="NoResize"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     WindowStyle="None">
 
     <Border

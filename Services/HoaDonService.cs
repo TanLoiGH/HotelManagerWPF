@@ -353,6 +353,7 @@ public class HoaDonService : IHoaDonService
         await _semaphore.WaitAsync();
         try
         {
+            _db.ChangeTracker.Clear();
             var hd = await _db.HoaDons
                          .Include(h => h.MaKhuyenMaiNavigation) // Bổ sung Include này để Fix Bug mất khuyến mãi
                          .Include(h => h.MaDatPhongNavigation).ThenInclude(d => d!.DatPhongChiTiets)
@@ -367,7 +368,11 @@ public class HoaDonService : IHoaDonService
                 foreach (var ct in hd.MaDatPhongNavigation.DatPhongChiTiets)
                 {
                     var p = await _db.Phongs.FindAsync(ct.MaPhong);
-                    if (p != null) p.MaTrangThaiPhong = PhongTrangThaiCodes.DonDep;
+                    // Chỉ dọn dẹp những phòng đang ở
+                    if (p != null && p.MaTrangThaiPhong == PhongTrangThaiCodes.DangO)
+                    {
+                        p.MaTrangThaiPhong = PhongTrangThaiCodes.DonDep;
+                    }
                 }
 
                 hd.MaDatPhongNavigation.TrangThai = DatPhongTrangThaiTexts.DaTraPhong;
@@ -387,6 +392,7 @@ public class HoaDonService : IHoaDonService
         await _semaphore.WaitAsync();
         try
         {
+            _db.ChangeTracker.Clear();
             // Senior Fix: Bắt buộc phải Include Khuyến Mãi, nếu không sẽ bị reset mất khuyến mãi
             var hd = await _db.HoaDons
                          .Include(h => h.MaKhuyenMaiNavigation)
@@ -413,9 +419,19 @@ public class HoaDonService : IHoaDonService
             tienPhong += ct.DonGia * soDem;
 
             if (thoiDiem < ct.NgayTra) ct.NgayTra = thoiDiem;
+            // 2. [FIX LỖI MẤT DỮ LIỆU KẾT TOÁN]: Cập nhật lại Số Đêm của Hóa Đơn Chi Tiết
+            if (hd.HoaDonChiTiets != null)
+            {
+                var hdct = hd.HoaDonChiTiets.FirstOrDefault(h => h.MaPhong == ct.MaPhong);
+                if (hdct != null)
+                {
+                    hdct.SoDem = soDem;
+                }
+            }
         }
 
-        // Senior Fix: Lấy đúng khuyến mãi từ Object thay vì hardcode 0 và ""
+        decimal tongDaThu =
+            await _db.ThanhToans.Where(t => t.MaHoaDon == hd.MaHoaDon).SumAsync(t => (decimal?)t.SoTien) ?? 0;
         decimal kmGiaTri = hd.MaKhuyenMaiNavigation?.GiaTriKm ?? 0;
         string kmLoai = hd.MaKhuyenMaiNavigation?.LoaiKhuyenMai ?? "";
 
@@ -426,7 +442,7 @@ public class HoaDonService : IHoaDonService
             giaTriKm: kmGiaTri,
             loaiKm: kmLoai,
             tienCoc: hd.MaDatPhongNavigation?.TienCoc ?? 0,
-            tongDaThuLichSu: 0);
+            tongDaThuLichSu: tongDaThu);
 
         hd.TienPhong = res.TienPhong;
         hd.TongThanhToan = res.TongThanhToan;

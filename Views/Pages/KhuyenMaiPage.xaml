@@ -221,6 +221,7 @@
                             Height="34"
                             Margin="0,0,0,12"
                             FontSize="15"
+                            Foreground="{DynamicResource Brush.TextLabel}"
                             SelectionChanged="CboLoai_Changed">
                             <ComboBoxItem Content="Phần trăm" IsSelected="True" />
                             <ComboBoxItem Content="Số tiền" />

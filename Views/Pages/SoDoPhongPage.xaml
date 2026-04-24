@@ -710,7 +710,7 @@
                                         FontSize="15"
                                         FontWeight="SemiBold"
                                         Foreground="White"
-                                        Text="🧹  Đã dọn dẹp sạch" />
+                                        Text="🧹  Đã dọn dẹp" />
                                 </Button>
                             </StackPanel>
 

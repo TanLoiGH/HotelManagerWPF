@@ -8,7 +8,6 @@
     Title="Cài đặt hệ thống"
     d:DesignHeight="1500"
     d:DesignWidth="1200"
-    Background="Transparent"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -50,21 +49,33 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContentControl">
-                        <Border
-                            Background="{DynamicResource Brush.Surface}"
-                            BorderBrush="{DynamicResource Brush.Border}"
-                            BorderThickness="1"
-                            CornerRadius="16"
-                            SnapsToDevicePixels="True">
-                            <Border.Effect>
-                                <DropShadowEffect
-                                    BlurRadius="15"
-                                    Opacity="0.05"
-                                    ShadowDepth="1"
-                                    Color="Black" />
-                            </Border.Effect>
-                            <ContentPresenter Margin="{TemplateBinding Padding}" />
-                        </Border>
+                        <Grid>
+                            <!--  Lớp shadow riêng bên dưới  -->
+                            <Border
+                                Background="{DynamicResource Brush.Surface}"
+                                BorderBrush="{DynamicResource Brush.Border}"
+                                BorderThickness="1"
+                                CornerRadius="16"
+                                SnapsToDevicePixels="True">
+                                <Border.Effect>
+                                    <DropShadowEffect
+                                        BlurRadius="15"
+                                        Opacity="0.05"
+                                        ShadowDepth="1"
+                                        Color="Black" />
+                                </Border.Effect>
+                            </Border>
+
+                            <!--  Lớp content sạch nằm trên  -->
+                            <Border
+                                Background="{DynamicResource Brush.Surface}"
+                                BorderBrush="{DynamicResource Brush.Border}"
+                                BorderThickness="1"
+                                CornerRadius="16"
+                                SnapsToDevicePixels="True">
+                                <ContentPresenter Margin="{TemplateBinding Padding}" />
+                            </Border>
+                        </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -75,17 +86,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="1000" Margin="40,30">
 
-                <TextBlock
-                    Margin="0,0,0,4"
-                    FontSize="32"
-                    FontWeight="Bold"
-                    Foreground="{DynamicResource Brush.TextHeading}"
-                    Text="Cài đặt" />
-                <TextBlock
-                    Margin="0,0,0,30"
-                    FontSize="15"
-                    Foreground="{DynamicResource Brush.TextMuted}"
-                    Text="Cấu hình hệ thống, tài khoản và bảo mật" />
+
 
                 <ContentControl Style="{StaticResource Settings.CardHost}">
                     <StackPanel>
@@ -114,70 +115,7 @@
 
                 <ContentControl Style="{StaticResource Settings.CardHost}">
                     <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,20"
-                            FontSize="18"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource Brush.TextHeading}"
-                            Text="Thông tin khách sạn" />
 
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="280" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Tên khách sạn" />
-                            <Border
-                                Grid.Column="1"
-                                MaxWidth="500"
-                                HorizontalAlignment="Left"
-                                Style="{StaticResource Settings.InputFrame}">
-                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelName, UpdateSourceTrigger=PropertyChanged}" />
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="280" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Địa chỉ" />
-                            <Border Grid.Column="1" Style="{StaticResource Settings.InputFrame}">
-                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelAddress, UpdateSourceTrigger=PropertyChanged}" />
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="280" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Số điện thoại" />
-                            <Border
-                                Grid.Column="1"
-                                Width="300"
-                                HorizontalAlignment="Left"
-                                Style="{StaticResource Settings.InputFrame}">
-                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelPhone, UpdateSourceTrigger=PropertyChanged}" />
-                            </Border>
-                        </Grid>
-
-                        <Grid Style="{StaticResource Settings.Row}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="280" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Style="{StaticResource Settings.FieldLabel}" Text="Email liên hệ" />
-                            <Border
-                                Grid.Column="1"
-                                Width="400"
-                                HorizontalAlignment="Left"
-                                Style="{StaticResource Settings.InputFrame}">
-                                <TextBox Style="{StaticResource Settings.TextBox}" Text="{Binding HotelEmail, UpdateSourceTrigger=PropertyChanged}" />
-                            </Border>
-                        </Grid>
-
-                        <Separator Margin="0,10,0,20" Background="{DynamicResource Brush.Border}" />
 
                         <Grid Style="{StaticResource Settings.Row}">
                             <Grid.ColumnDefinitions>

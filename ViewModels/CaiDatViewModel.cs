@@ -15,13 +15,9 @@ public class CaiDatViewModel : BaseViewModel
     private readonly IHoaDonService _hoaDonSvc;
 
     // Cài đặt hệ thống
-    private string _hotelName = "";
-    private string _hotelAddress = "";
-    private string _hotelPhone = "";
-    private string _hotelEmail = "";
     private string _defaultCheckIn = "14:00";
     private string _defaultCheckOut = "12:00";
-    private int _vatPercent = 10;
+    private int _vatPercent = 8;
 
     // Thông tin tài khoản
     private string _maNhanVien = "";
@@ -81,29 +77,6 @@ public class CaiDatViewModel : BaseViewModel
         }
     }
 
-    public string HotelName
-    {
-        get => _hotelName;
-        set => SetProperty(ref _hotelName, value);
-    }
-
-    public string HotelAddress
-    {
-        get => _hotelAddress;
-        set => SetProperty(ref _hotelAddress, value);
-    }
-
-    public string HotelPhone
-    {
-        get => _hotelPhone;
-        set => SetProperty(ref _hotelPhone, value);
-    }
-
-    public string HotelEmail
-    {
-        get => _hotelEmail;
-        set => SetProperty(ref _hotelEmail, value);
-    }
 
     public string DefaultCheckIn
     {
@@ -218,10 +191,6 @@ public class CaiDatViewModel : BaseViewModel
         try
         {
             var s = CaiDatService.Load();
-            HotelName = s.HotelName;
-            HotelAddress = s.HotelAddress;
-            HotelPhone = s.HotelPhone;
-            HotelEmail = s.HotelEmail;
             DefaultCheckIn = s.DefaultCheckIn;
             DefaultCheckOut = s.DefaultCheckOut;
             VatPercent = s.VatPercent;
@@ -265,10 +234,6 @@ public class CaiDatViewModel : BaseViewModel
         {
             CaiDatService.Save(new CaiDat
             {
-                HotelName = HotelName,
-                HotelAddress = HotelAddress,
-                HotelPhone = HotelPhone,
-                HotelEmail = HotelEmail,
                 DefaultCheckIn = DefaultCheckIn,
                 DefaultCheckOut = DefaultCheckOut,
                 VatPercent = VatPercent

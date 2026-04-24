@@ -746,19 +746,22 @@ public sealed class HoaDonChiTietViewModel : BaseViewModel
                 IsActive = d.IsActive ?? false
             }).ToList();
 
+            // Mở Dialog với danh sách các phòng trong đoàn
             var chon = _chonDichVu.ChonDichVu(owner, dichVus, Phongs.Select(p => p.MaPhong).ToList());
             if (!chon.HasValue) return;
 
-            var (maDichVu, soLuong, maPhong) = chon.Value;
-            var phong = SelectedPhong?.MaPhong ?? Phongs.FirstOrDefault()?.MaPhong;
+            // [FIX LỖI NẰM Ở ĐÂY] - Đổi tên biến cho rõ nghĩa và xóa logic lấy SelectedPhong
+            var (maDichVu, soLuong, maPhongChonTuDialog) = chon.Value;
 
-            if (string.IsNullOrWhiteSpace(MaDatPhong) || string.IsNullOrWhiteSpace(phong))
+            if (string.IsNullOrWhiteSpace(MaDatPhong) || string.IsNullOrWhiteSpace(maPhongChonTuDialog))
             {
                 _hopThoai.CanhBao(HoaDonMessages.KhongXacDinhPhong);
                 return;
             }
 
-            await _dichVuSvc.UpsertDichVuAsync(_maHoaDon, MaDatPhong, phong, maDichVu, soLuong);
+            // Truyền trực tiếp 'maPhongChonTuDialog' xuống Service
+            await _dichVuSvc.UpsertDichVuAsync(_maHoaDon, MaDatPhong, maPhongChonTuDialog, maDichVu, soLuong);
+
             await TaiLaiAsync();
             if (_taiLaiTrangHoaDonAsync != null) await _taiLaiTrangHoaDonAsync();
         }

@@ -10,7 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Docs\QLKS_PhamTanLoi_BaoCao.docx" />
+  </ItemGroup>
+
+  <ItemGroup>
         <Page Remove="Themes\Light.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Docs\QLKS_PhamTanLoi_BaoCao.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

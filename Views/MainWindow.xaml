@@ -16,7 +16,7 @@
     ResizeMode="CanResizeWithGrip"
     Style="{DynamicResource {x:Type Window}}"
     WindowStartupLocation="CenterScreen"
-    WindowStyle="None">
+    WindowStyle="ThreeDBorderWindow">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
             CaptionHeight="15"
@@ -26,7 +26,10 @@
             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Border ClipToBounds="True" CornerRadius="20">
+    <Border
+        BorderThickness="0,0,0,5"
+        ClipToBounds="True"
+        CornerRadius="20">
         <Border.Background>
             <SolidColorBrush Color="{DynamicResource Color.Background}" />
         </Border.Background>
@@ -39,9 +42,10 @@
 
             <Border
                 Grid.Column="0"
+                Margin="0,0,0,-5"
                 Background="{DynamicResource Brush.SidebarBackground}"
                 BorderBrush="{DynamicResource Brush.SidebarBorder}"
-                BorderThickness="0,0,1,0">
+                BorderThickness="0,0,5,0">
 
                 <Border.Resources>
                     <Style TargetType="{x:Type TextBlock}">
@@ -520,6 +524,22 @@
                                 FontSize="17"
                                 Foreground="{DynamicResource Brush.TextMuted}"
                                 Text="{Binding NgayHienTai}" />
+
+
+                            <Border
+                                Margin="5"
+                                Padding="5"
+                                Background="Transparent"
+                                CornerRadius="12"
+                                Cursor="Hand"
+                                MouseEnter="NavItem_MouseEnter"
+                                MouseLeave="NavItem_MouseLeave"
+                                MouseLeftButtonDown="Nav_AboutPage">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="0,0,10,0" Text="ℹ️" />
+                                    <TextBlock Text="Thông tin &amp; Trợ giúp" />
+                                </StackPanel>
+                            </Border>
 
                             <Border
                                 Width="32"

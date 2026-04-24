@@ -164,6 +164,7 @@
                     Height="40"
                     Click="BtnHuy_Click"
                     Content="Hủy bỏ"
+                    IsCancel="True"
                     Style="{DynamicResource MacFluent.ButtonSecondary}" />
                 <Button
                     Grid.Column="2"

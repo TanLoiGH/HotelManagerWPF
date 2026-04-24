@@ -146,6 +146,7 @@ namespace QuanLyKhachSan_PhamTanLoi
             services.AddTransient<TienNghiPage>();
             services.AddTransient<TienNghiTrangThaiPage>();
             services.AddTransient<TienNghiDanhMucPage>();
+            services.AddTransient<AboutPage>();
         }
 
 
