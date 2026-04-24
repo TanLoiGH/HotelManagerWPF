@@ -14,10 +14,9 @@ public partial class DatPhongChiTiet
     public DateTime NgayTra { get; set; }
 
     public decimal DonGia { get; set; }
-        
+
     public string? MaNhanVien { get; set; }
 
- 
 
     public virtual ICollection<DichVuChiTiet> DichVuChiTiets { get; set; } = new List<DichVuChiTiet>();
 
@@ -29,5 +28,3 @@ public partial class DatPhongChiTiet
 
     public virtual Phong MaPhongNavigation { get; set; } = null!;
 }
-
-

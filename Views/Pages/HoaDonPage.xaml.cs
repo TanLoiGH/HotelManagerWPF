@@ -76,7 +76,7 @@ public partial class HoaDonPage : Page
                 // ✅ ĐÚNG: Lấy service từ DI thay vì 'new' thủ công
                 var hdSvc = App.ServiceProvider.GetRequiredService<IHoaDonService>();
 
-                await hdSvc.HuyHoaDonAsync(item.MaHoaDon);
+                await hdSvc.XoaMemHoaDonAsync(item.MaHoaDon);
 
                 ConfirmHelper.ShowInfo("Đã hủy hóa đơn thành công!");
                 await _viewModel.TaiDuLieuAsync(buocTaiMoi: true);

@@ -205,7 +205,8 @@ public class HoaDonService : IHoaDonService
                      ?? throw new KeyNotFoundException($"Không tìm thấy đơn đặt phòng {maDatPhong}");
 
             var chiTiets = await _db.DatPhongChiTiets.Where(c => c.MaDatPhong == maDatPhong).ToListAsync();
-            decimal tienPhong = chiTiets.Sum(ct => ct.DonGia * TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra));
+            decimal tienPhong =
+                chiTiets.Sum(ct => TinhToanService.TinhTienPhongThucTe(ct.DonGia, ct.NgayNhan, ct.NgayTra));
 
             var km = await _db.KhuyenMais.FirstOrDefaultAsync(k => k.MaKhuyenMai == maKhuyenMai && k.IsActive == true);
 
@@ -416,7 +417,7 @@ public class HoaDonService : IHoaDonService
         {
             DateTime thoiDiemTinh = thoiDiem < ct.NgayTra ? thoiDiem : ct.NgayTra;
             int soDem = TinhToanService.ThoiGianLuuTru(ct.NgayNhan, thoiDiemTinh);
-            tienPhong += ct.DonGia * soDem;
+            tienPhong += TinhToanService.TinhTienPhongThucTe(ct.DonGia, ct.NgayNhan, thoiDiemTinh);
 
             if (thoiDiem < ct.NgayTra) ct.NgayTra = thoiDiem;
             // 2. [FIX LỖI MẤT DỮ LIỆU KẾT TOÁN]: Cập nhật lại Số Đêm của Hóa Đơn Chi Tiết
@@ -455,9 +456,9 @@ public class HoaDonService : IHoaDonService
         return await Task.FromResult(0);
     }
 
-    public async Task HuyHoaDonAsync(string maHoaDon)
+    public async Task XoaMemHoaDonAsync(string maHoaDon)
     {
-        // TODO: Cập nhật trạng thái hóa đơn thành Đã Hủy
+        // TODO: Cập nhật trạng thái hóa đơn thành Đã Hủy -> IsActive=false -- chờ cập nhật
     }
 
     private async Task GhiNhanChiPhiHoanTienAsync(string maHoaDon, decimal soTien, string maNhanVien, string? maPhong)

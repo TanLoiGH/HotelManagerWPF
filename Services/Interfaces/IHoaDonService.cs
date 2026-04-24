@@ -22,7 +22,7 @@ public interface IHoaDonService
     Task<int> DamBaoHoaDonChiTietAsync(string maHoaDon);
     Task<int> CapNhatVatChoHoaDonDangMoAsync(decimal vatPercent);
     Task<bool> CapNhatKhuyenMaiAsync(string maHoaDon, string? maKhuyenMai);
-    Task HuyHoaDonAsync(string maHoaDon);
+    Task XoaMemHoaDonAsync(string maHoaDon);
     Task<ThongTinThanhToan> DongBoTrangThaiThanhToanAsync(string maHoaDon);
 
     Task<bool> ThanhToanAsync(string maHoaDon, decimal soTien, string maPTTT, string nguoiThu,

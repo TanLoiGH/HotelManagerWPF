@@ -37,5 +37,3 @@ public partial class HoaDon
 
     public virtual ICollection<ThanhToan> ThanhToans { get; set; } = new List<ThanhToan>();
 }
-
-

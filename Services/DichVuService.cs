@@ -205,15 +205,16 @@ public class DichVuService : IDichVuService
             .Where(x => x.MaDatPhong == maDatPhong)
             .ToListAsync();
 
+        //áp dụng hàm TinhTienPhongThucTe từ TinhToanService 
         decimal tienPhongMoi =
-            roomsInBill.Sum(ct => ct.DonGia * TinhToanService.ThoiGianLuuTru(ct.NgayNhan, ct.NgayTra));
+            roomsInBill.Sum(ct => TinhToanService.TinhTienPhongThucTe(ct.DonGia, ct.NgayNhan, ct.NgayTra));
 
         // B. Tính tiền dịch vụ: Tất cả dịch vụ đã gọi của cả đoàn
-        decimal tongDvMoi = await _db.DichVuChiTiets
+        var danhSachDichVu = await _db.DichVuChiTiets
             .Where(d => d.MaHoaDon == hd.MaHoaDon)
-            .SumAsync(d => (decimal?)d.SoLuong * d.DonGia) ?? 0;
+            .ToListAsync();
 
-        // C. Tách biến rõ ràng để tính toán giống như đã làm bên DatPhongService
+        decimal tongDvMoi = TinhToanService.TinhTongTienDichVu(danhSachDichVu);
         decimal vat = hd.Vat ?? DEFAULT_VAT_PERCENT;
         decimal giaTriKm = hd.MaKhuyenMaiNavigation?.GiaTriKm ?? 0;
         string loaiKm = hd.MaKhuyenMaiNavigation?.LoaiKhuyenMai ?? "";
